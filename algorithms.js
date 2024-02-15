@@ -1,5 +1,13 @@
 // Peón
 // Movimientos disponibles (peon en x, y)
+// Movimiento peón
+movimientos_dsponibles_peon = [];
+movimientos_dsponibles_peon.push(posicionPeon.x, posicion.y + 1)
+if(posicionPeon.y == 1) {
+    movimientos_dsponibles_peon.push(posicionPeon.x, posicion.y + 2)
+}
+
+
 
 // Movimiento inicial peón
 if(!pieza[x, y + 1] && y == 1) {
@@ -118,6 +126,63 @@ while(posicionTorre.y - k >= 0) {
 }
 
 // Movimientos dama (sin obstaculos)
+movimientos_disponibles_dama = [];
+// Movimiento transversal
+k = 1
+while(posicionDama.x + k < 8) {
+    movimientos_disponibles_dama.push((posicionDama.x + k, posicionDama.y));
+    k++;
+}
+
+// Eje +y
+k = 1
+while(posicionDama.y + k < 8) {
+    movimientos_disponibles_dama.push((posicionDama.x, posicionDama.y + k));
+    k++;
+}
+
+// Eje -x
+k = 1
+while(posicionDama.x - k >= 0) {
+    movimientos_disponibles_dama.push((posicionDama.x - k, posicionDama.y));
+    k++;
+}
+
+// Eje -y
+k = 1
+while(posicionDama.y - k >= 0) {
+    movimientos_disponibles_dama.push((posicionDama.x, posicionDama.y - k));
+    k++;
+}
+
+// Movimiento diagonal
+// Diagonal primer cuadrante
+k = 1
+while(posicionDama.x + k < 8) {
+    movimientos_disponibles_dama.push((posicionDama.x + k, posicionDama.y + k));
+    k++;
+}
+
+// Diagonal segundo cuadrante
+k = 1
+while(posicionDama.x - k >= 0) {
+    movimientos_disponibles_dama.push((posicionDama.x - k, posicionDama.y + k));
+    k++;
+}
+
+// Diagonal tercer cuadrante
+k = 1
+while(posicionDama.x - k >= 0) {
+    movimientos_disponibles_dama.push((posicionDama.x - k, posicionDama.y - k));
+    k++;
+}
+// Diagonal cuarto cuadrante
+k = 1
+while(posicionDama.x + k < 8) {
+    movimientos_disponibles_dama.push((posicionDama.x + k, posicionDama.y - k));
+    k++;
+}
+
 
 // Movimiento rey
 movimientos_disponibles_rey = [];
@@ -135,6 +200,20 @@ if(posicionRey.x - 1 >= 0 && posicionRey.y + 1) {
     movimientos_disponibles_rey.push((posicionRey.x - 1, posicionRey.y + 1));
 }
 
+if(posicionRey.x - 1 >= 0) {
+    movimientos_disponibles_rey.push((posicionRey.x - 1, posicionRey.y));
+}
+if(posicionRey.x - 1 >= 0 && posicionRey.y - 1 >= 0) {
+    movimientos_disponibles_rey.push((posicionRey.x - 1, posicionRey.y - 1));
+}
+
+if(posicionRey.y - 1 >= 0) {
+    movimientos_disponibles_rey.push((posicionRey.x, posicionRey.y - 1));
+}
+if(posicionRey.x + 1 < 8 && posicionRey.y - 1 >= 0) {
+    movimientos_disponibles_rey.push((posicionRey.x - 1, posicionRey.y - 1));
+}
+
 
 
 
@@ -144,3 +223,95 @@ if(posicionRey.x + 1 < 8) {
 if(posicionRey.x + 1 < 8) {
     movimientos_disponibles_rey.push((posicionRey.x + 1, posicionRey.y));
 }
+
+// Enroque corto (faltan reglas del enroque)
+if(posicionRey.x == 4 && posicionRey.y == 0 && posicionTorre.x == 7 && posicionTorre.y == 0) {
+    movimientos_disponibles_rey.push(6, 0);
+    movimientos_disponibles_torre.push(5, 0);
+}
+
+// Enroque largo (faltan reglas del enroque)
+if(posicionRey.x == 4 && posicionRey.y == 0 && posicionTorre.x == 0 && posicionTorre.y == 0) {
+    movimientos_disponibles_rey.push(2, 0);
+    movimientos_disponibles_torre.push(3, 0);
+}
+
+
+// Jaque
+Boolean hay_jaque = false;
+// Jaque transversal
+// Jaque eje +x con torre
+if (posicionTorre.y == posicionRey.y && posicionTorre.x > posicionRey.x
+     && !HayPiezasEnFila(posicionTorre.x, posicionRey.y) && colorRey != colorTorre) {
+        hay_jaque = true;
+}
+
+// Jaque eje +y con torre
+if (posicionTorre.x == posicionRey.x && posicionTorre.y > posicionRey.y
+    && !HayPiezasEnFila(posicionTorre.y, posicionRey.y) && colorRey != colorTorre) {
+        hay_jaque = true;
+}
+
+// Jaque eje -x con torre
+if (posicionTorre.y == posicionRey.y && posicionTorre.x < posicionRey.x
+    && !HayPiezasEnFila(posicionTorre.x, posicionRey.y) && colorRey != colorTorre) {
+       hay_jaque = true;
+}
+
+// Jaque eje -y con torre
+if (posicionTorre.x == posicionRey.x && posicionTorre.y < posicionRey.y
+    && !HayPiezasEnFila(posicionTorre.y, posicionRey.y) && colorRey != colorTorre) {
+        hay_jaque = true;
+}
+
+// Jaque caballo
+if(posicionCaballo.x + 1 == posicionRey.x && posicionCaballo.y + 2 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+if(posicionCaballo.x + 2 == posicionRey.x && posicionCaballo.y + 1 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+
+if(posicionCaballo.x - 1 == posicionRey.x && posicionCaballo.y + 2 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+if(posicionCaballo.x - 2 == posicionRey.x && posicionCaballo.y + 1 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+
+
+if(posicionCaballo.x - 2 == posicionRey.x && posicionCaballo.y - 1 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+if(posicionCaballo.x - 1 == posicionRey.x && posicionCaballo.y - 2 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+
+if(posicionCaballo.x + 1 == posicionRey.x && posicionCaballo.y - 2 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+if(posicionCaballo.x + 2 == posicionRey.x && posicionCaballo.y - 1 == posicionRey.y && colorCaballo != colorRey) {
+    hay_jaque = true;
+}
+
+// Jaque peon
+// Jaque peon por la derecha (respecto al rey)
+if (posicionPeon.x == posicionRey.x + 1 && posicionPeon.y == posicionRey.y + 1 && colorPeon != colorRey) {
+    hay_jaque = true;
+}
+// Jaque peon por la izquierda (respecto al rey)
+if (posicionPeon.x == posicionRey.x - 1 && posicionPeon.y == posicionRey.y + 1 && colorPeon != colorRey) {
+    hay_jaque = true;
+}
+
+
+
+
+
+
+
+
+
+
+
+// Jaque mate
