@@ -304,6 +304,46 @@ if (posicionPeon.x == posicionRey.x - 1 && posicionPeon.y == posicionRey.y + 1 &
     hay_jaque = true;
 }
 
+// Jaque alfil
+if(abs(posicionAlfil.x - posicionRey.x) == abs(posicionAlfil.x - posicionRey.x) && 
+!HayPiezasEnDiagonal(posicionAlfil.x, posicionAlfil.y, posicionRey.x, posicionRey.y)) {
+    hay_jaque = true;
+}
+
+// Jaque dama
+if(abs(posicionDama.x - posicionRey.x) == abs(posicionDama.x - posicionRey.x) && 
+!HayPiezasEnDiagonal(posicionDama.x, posicionDama.y, posicionRey.x, posicionRey.y)) {
+    hay_jaque = true;
+}
+// Jaque transversal
+// Jaque eje +x con dama
+if (posicionDama.y == posicionRey.y && posicionDama.x > posicionRey.x
+    && !HayPiezasEnFila(posicionDama.x, posicionRey.y) && colorRey != colorDama) {
+       hay_jaque = true;
+}
+
+// Jaque eje +y con dama
+if (posicionDama.x == posicionRey.x && posicionDama.y > posicionRey.y
+   && !HayPiezasEnFila(posicionDama.y, posicionRey.y) && colorRey != colorDama) {
+       hay_jaque = true;
+}
+
+// Jaque eje -x con dama
+if (posicionDama.y == posicionRey.y && posicionDama.x < posicionRey.x
+   && !HayPiezasEnFila(posicionDama.x, posicionRey.y) && colorRey != colorDama) {
+      hay_jaque = true;
+}
+
+// Jaque eje -y con dama
+if (posicionDama.x == posicionRey.x && posicionDama.y < posicionRey.y
+   && !HayPiezasEnFila(posicionDama.y, posicionRey.y) && colorRey != colorDama) {
+       hay_jaque = true;
+}
+
+// Coronar
+if(peonPosicion.y == 7) {
+    // mostrarOpciones caballo, alfil, torre
+}
 
 
 
