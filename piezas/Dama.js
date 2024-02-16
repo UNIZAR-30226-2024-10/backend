@@ -5,6 +5,6 @@ const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamen
 
 class Dama {
     constructor() {
-        this.Posicion 
+        this.Po 
     }
 }
