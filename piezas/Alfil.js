@@ -1,9 +1,9 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
-const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
+//const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
 
 
-class Peon {
+class Alfil {
     constructor(x, y) {
         this.Posicion = { x, y };
     }
@@ -19,6 +19,14 @@ class Peon {
         return movimientos_disponibles_alfil;
     }
 
+    imprimirMovimientosDisponibles() {
+        const movimientos = this.obtenerMovimientosDisponibles();
+        console.log("Movimientos disponibles del alfil:");
+        movimientos.forEach(movimiento => {
+            console.log(`(${movimiento.x}, ${movimiento.y})`);
+        });
+    }
+
     _agregarMovimientosEnDiagonal(deltaX, deltaY, movimientos) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
@@ -31,3 +39,5 @@ class Peon {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
+
+module.exports = Alfil;

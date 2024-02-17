@@ -1,7 +1,5 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
-const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
-
 
 class Torre {
     constructor(x, y) {
@@ -26,6 +24,14 @@ class Torre {
         return movimientos_disponibles_torre;
     }
 
+    imprimirMovimientosDisponibles() {
+        const movimientos = this.obtenerMovimientosDisponibles();
+        console.log("Movimientos disponibles de la torre:");
+        movimientos.forEach(movimiento => {
+            console.log(`(${movimiento.x}, ${movimiento.y})`);
+        });
+    }
+
     _agregarMovimientosEnEje(deltaX, deltaY, movimientos) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
@@ -38,3 +44,5 @@ class Torre {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
+
+module.exports = Torre;

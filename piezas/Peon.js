@@ -1,10 +1,10 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
-const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
+//const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
 
 
 class Peon {
-    constructor() {
+    constructor(x, y) {
         this.Posicion = {x, y};
     }
 
@@ -28,6 +28,14 @@ class Peon {
         return movimientos_disponibles_peon;
     }
 
+    imprimirMovimientosDisponibles() {
+        const movimientos = this.obtenerMovimientosDisponibles();
+        console.log("Movimientos disponibles del peon:");
+        movimientos.forEach(movimiento => {
+            console.log(`(${movimiento.x}, ${movimiento.y})`);
+        });
+    }
+
     _agregarMovimiento(x, y, movimientos) {
         if (this._esMovimientoValido(x, y)) {
             movimientos.push({ x, y });
@@ -38,3 +46,4 @@ class Peon {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
+module.exports = Peon;

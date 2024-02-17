@@ -1,6 +1,6 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
-const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
+//const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
 
 
 class Rey {
@@ -22,6 +22,13 @@ class Rey {
         return movimientos_disponibles_rey;
     }
 
+    imprimirMovimientosDisponibles() {
+        const movimientos = this.obtenerMovimientosDisponibles();
+        console.log("Movimientos disponibles del rey:");
+        movimientos.forEach(movimiento => {
+            console.log(`(${movimiento.x}, ${movimiento.y})`);
+        });
+    }
     _agregarMovimiento(x, y, movimientos) {
         if (this._esMovimientoValido(x, y)) {
             movimientos.push({ x, y });
@@ -32,3 +39,4 @@ class Rey {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
+module.exports = Rey;
