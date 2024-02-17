@@ -17,7 +17,7 @@ Boolean hay_jaque = false;
 // Jaque transversal
 // Jaque eje +x con torre
 if (posicionTorre.y == posicionRey.y && posicionTorre.x > posicionRey.x
-     && !HayPiezasEnFila(posicionTorre.x, posicionRey.y) && colorRey != colorTorre) {
+     && !HayPiezasEnFila(posicionTorre.x, posicionTorre.y) && colorRey != colorTorre) {
         hay_jaque = true;
 }
 
@@ -80,13 +80,13 @@ if (posicionPeon.x == posicionRey.x - 1 && posicionPeon.y == posicionRey.y + 1 &
 }
 
 // Jaque alfil
-if(abs(posicionAlfil.x - posicionRey.x) == abs(posicionAlfil.x - posicionRey.x) && 
+if(abs(posicionAlfil.x - posicionRey.x) === abs(posicionAlfil.x - posicionRey.x) && 
 !HayPiezasEnDiagonal(posicionAlfil.x, posicionAlfil.y, posicionRey.x, posicionRey.y)) {
     hay_jaque = true;
 }
 
 // Jaque dama
-if(abs(posicionDama.x - posicionRey.x) == abs(posicionDama.x - posicionRey.x) && 
+if(abs(posicionDama.x - posicionRey.x) === abs(posicionDama.x - posicionRey.x) && 
 !HayPiezasEnDiagonal(posicionDama.x, posicionDama.y, posicionRey.x, posicionRey.y)) {
     hay_jaque = true;
 }
@@ -105,7 +105,7 @@ if (posicionDama.x == posicionRey.x && posicionDama.y > posicionRey.y
 
 // Jaque eje -x con dama
 if (posicionDama.y == posicionRey.y && posicionDama.x < posicionRey.x
-   && !HayPiezasEnFila(posicionDama.x, posicionRey.y) && colorRey != colorDama) {
+   && !HayPiezasEnFila(posicionDama.x, posicionRey.x) && colorRey != colorDama) {
       hay_jaque = true;
 }
 

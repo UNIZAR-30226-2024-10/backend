@@ -19,6 +19,10 @@ class Casilla {
     setPieza(pieza) {
         this.pieza = pieza;
     }
+
+    isFilled() {
+        
+    }
 }
 
 module.exports = Casilla;
