@@ -134,7 +134,7 @@ class Tablero {
         for (let pieza of lista_transversales) {
             
             if(abs(pieza.posicion.x - rey.posicion.x) === abs(pieza.posicion.x - rey.posicion.x) && 
-            !this.hayPiezasEnDiagonal(rey.posicion.x, rey.posicion.y, pieza.posicion.x, pieza.posicion.y))) {
+            !this.hayPiezasEnDiagonal(rey.posicion.x, rey.posicion.y, pieza.posicion.x, pieza.posicion.y)) {
                     hay_jaque = true;
             }
         }

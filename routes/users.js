@@ -27,8 +27,7 @@ router.get("/logout", (req, res) => {
 
 })
 
-router
-.route(":/id")
+router.route("/:id")
     // Obtener info de un usuario en concreto (perfil)
     .get((req, res) => {
 
@@ -64,4 +63,4 @@ router.get("/leaderboard", (req, res) => {
 
 
 
-module.exports = router
+module.exports = router;

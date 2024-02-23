@@ -12,3 +12,5 @@ router.post("/:id", (req, res) => {
 router.post("/select_mode:id", (req, res) => {
 
 })
+
+module.exports = router;
