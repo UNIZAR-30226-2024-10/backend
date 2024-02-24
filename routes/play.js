@@ -11,8 +11,6 @@ const Dama = require('../piezas/Dama');
 
 const router = express.Router()
 
-//router.use(express.json())
-
 // Ruta /play, para poder iniciar a jugar (como un lobby)
 router.post("/:id", (req, res) => {
 
@@ -25,9 +23,8 @@ router.post("/playing/:id", (req, res) => {
     //res.json(tablero.inicializarPiezas());
 })
 
-router.get("/playing", (req, res) => {
+router.get("/start_game", (req, res) => {
     const tablero = new Tablero('./ChessHub.db');
-    // res.json({message: "holaaa" });
     res.json(tablero.inicializarPiezas());
 })
 
@@ -36,14 +33,14 @@ router.post("/", (req, res) => {
 
 
     // Comprobar movimientos disponibles del rey
-    let { x: reyX, y: reyY } = modifiedChessboardState.rey;
-    const rey = new Rey(reyX, reyY);
+    let { x: reyX, y: reyY, color: reyColor } = modifiedChessboardState.rey;
+    const rey = new Rey(reyX, reyY, reyColor);
     const movimientos_disponibles_rey = rey.obtenerMovimientosDisponibles();
 
     console.log("Movimientos rey: ", movimientos_disponibles_rey);
 
     // Comprobar movimientos disponibles de los peones
-    const peones = modifiedChessboardState.peones.map(peon => new Peon(peon.x, peon.y));
+    const peones = modifiedChessboardState.peones.map(peon => new Peon(peon.x, peon.y, peon.color));
     const movimientos_disponibles_peones = [];
     peones.forEach(peon => {
         movimientos_disponibles_peones.push(peon.obtenerMovimientosDisponibles());
@@ -51,7 +48,7 @@ router.post("/", (req, res) => {
     console.log("Movimientos peones: ", movimientos_disponibles_peones);
 
     // Comprobar movimientos disponibles de los caballos
-    const caballos = modifiedChessboardState.caballos.map(caballo => new Caballo(caballo.x, caballo.y));
+    const caballos = modifiedChessboardState.caballos.map(caballo => new Caballo(caballo.x, caballo.y, caballo.color));
     const movimientos_disponibles_caballos = [];
     caballos.forEach(caballo => {
         movimientos_disponibles_caballos.push(caballo.obtenerMovimientosDisponibles());
@@ -59,7 +56,7 @@ router.post("/", (req, res) => {
     console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
 
     // Comprobar movimientos disponibles de los alfiles
-    const alfiles = modifiedChessboardState.alfiles.map(alfil => new Alfil(alfil.x, alfil.y));
+    const alfiles = modifiedChessboardState.alfiles.map(alfil => new Alfil(alfil.x, alfil.y, alfil.color));
     const movimientos_disponibles_alfiles = [];
     alfiles.forEach(alfil => {
         movimientos_disponibles_alfiles.push(alfil.obtenerMovimientosDisponibles());
@@ -67,7 +64,7 @@ router.post("/", (req, res) => {
     console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
 
     // Comprobar movimientos disponibles de las torres
-    const torres = modifiedChessboardState.torres.map(torre => new Torre(torre.x, torre.y));
+    const torres = modifiedChessboardState.torres.map(torre => new Torre(torre.x, torre.y, torre.color));
     const movimientos_disponibles_torres = [];
     torres.forEach(torre => {
         movimientos_disponibles_torres.push(torre.obtenerMovimientosDisponibles());
@@ -75,19 +72,24 @@ router.post("/", (req, res) => {
     console.log("Movimientos torres: ", movimientos_disponibles_torres);
 
     // Comprobar movimientos disponibles de la reina
-    let { x: damaX, y: damaY } = modifiedChessboardState.dama;
-    const dama = new Dama(damaX, damaY);
+    let { x: damaX, y: damaY, color: damaColor} = modifiedChessboardState.dama;
+    const dama = new Dama(damaX, damaY, damaColor);
     const movimientos_disponibles_dama = dama.obtenerMovimientosDisponibles();
 
     console.log("Movimientos dama: ", movimientos_disponibles_dama);
 
+    const allMovements = {
+        rey: movimientos_disponibles_rey,
+        peones: movimientos_disponibles_peones,
+        caballos: movimientos_disponibles_caballos,
+        alfiles: movimientos_disponibles_alfiles,
+        torres: movimientos_disponibles_torres,
+        dama: movimientos_disponibles_dama
+    };
 
-
-
-
-
-    res.json({ message: "Modified JSON received successfully" });
+    res.json({allMovements});
 });
+
 
 // Ruta /play/select_mode, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/select_mode/:id", (req, res) => {

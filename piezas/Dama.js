@@ -4,12 +4,9 @@ const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pie
 
 
 class Dama {
-    constructor(x, y) {
+    constructor(x, y, color) {
         this.Posicion = { x, y };
-    }
-
-    actualizarPosicion(x, y) {
-        this.Posicion = {x, y};
+        this.color = color;
     }
 
     obtenerMovimientosDisponibles() {
