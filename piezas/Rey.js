@@ -8,6 +8,10 @@ class Rey {
         this.Posicion = {x, y};
     }
 
+    actualizarPosicion(x, y) {
+        this.Posicion = {x, y};
+    }
+
     obtenerMovimientosDisponibles() {
         const movimientos_disponibles_rey = [];
         this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y, movimientos_disponibles_rey);

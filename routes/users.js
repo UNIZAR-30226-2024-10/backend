@@ -4,7 +4,7 @@ const router = express.Router()
 
 // Ruta /users, con la lista de todos los usuarios
 router.get("/", (req, res) => {
-
+    // res.status(500).json({message: "No implementado" });
 })
 
 // Ruta /users/login, para iniciar sesión con un nuevo usuario

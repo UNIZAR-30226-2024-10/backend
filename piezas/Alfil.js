@@ -8,6 +8,10 @@ class Alfil {
         this.Posicion = { x, y };
     }
 
+    actualizarPosicion(x, y) {
+        this.Posicion = {x, y};
+    }
+
     obtenerMovimientosDisponibles() {
         const movimientos_disponibles_alfil = [];
 

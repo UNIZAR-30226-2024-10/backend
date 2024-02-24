@@ -1,4 +1,10 @@
 const Casilla = require('./Casilla.js');
+const Dama = require('./piezas/Dama.js');
+const Peon = require('./piezas/Peon.js');
+const Alfil = require('./piezas/Alfil.js');
+const Caballo = require('./piezas/Caballo.js');
+const Rey = require('./piezas/Rey.js');
+const Torre = require('./piezas/Torre.js');
 
 
 class Tablero {
@@ -49,6 +55,34 @@ class Tablero {
         const dama = new Dama(3, 0);
 
         const rey = new Rey(4, 0);
+
+        const chessboardState = {
+            peones: [
+                { x: peon_1.Posicion.x, y: peon_1.Posicion.y },
+                { x: peon_2.Posicion.x, y: peon_2.Posicion.y },
+                { x: peon_3.Posicion.x, y: peon_3.Posicion.y },
+                { x: peon_4.Posicion.x, y: peon_4.Posicion.y },
+                { x: peon_5.Posicion.x, y: peon_5.Posicion.y },
+                { x: peon_6.Posicion.x, y: peon_6.Posicion.y },
+                { x: peon_7.Posicion.x, y: peon_7.Posicion.y },
+                { x: peon_8.Posicion.x, y: peon_8.Posicion.y}
+            ],
+            alfiles: [
+                { x: alfil_de_negras.Posicion.x, y: alfil_de_negras.Posicion.y },
+                { x: alfil_de_blancas.Posicion.x, y: alfil_de_blancas.Posicion.y }
+            ],
+            caballos: [
+                { x: caballo_izqda.Posicion.x, y: caballo_izqda.Posicion.y },
+                { x: caballo_dcha.Posicion.x, y: caballo_dcha.Posicion.y }
+            ],
+            torres: [
+                { x: torre_dcha.Posicion.x, y: torre_dcha.Posicion.y },
+                { x: torre_izqda.Posicion.x, y: torre_izqda.Posicion.y }
+            ],
+            dama: { x: dama.Posicion.x, y: dama.Posicion.y },
+            rey: { x: rey.Posicion.x, y: rey.Posicion.y },
+        };
+        return chessboardState;
     }
 
     hayPiezasEnFilaHaciaDerecha(coord_x_pieza_1, coord_y_pieza_1, coord_x_pieza_2) {

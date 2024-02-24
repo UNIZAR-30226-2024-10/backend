@@ -15,7 +15,7 @@ class Pieza {
     }
 
     getPosicion() {
-        return this.posicion
+        return this.posicion;
     }
 
     setPosicion(posicion) {

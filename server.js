@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+// Configurar middleware para analizar el cuerpo de las solicitudes como JSON
+app.use(express.json());
 // Rutas de los usuarios
 const userRouter = require("./routes/users")
 app.use("/users", userRouter)
@@ -13,8 +15,7 @@ app.use("/play", playRouter)
 const home_pageRouter = require("./routes/home_page")
 app.use("/home_page", home_pageRouter)
 
-// Configurar middleware para analizar el cuerpo de las solicitudes como JSON
-app.use(express.json());
+
 
 // Ruta para manejar la solicitud de registro de usuario
 app.post('/', (req, res) => {
@@ -22,23 +23,9 @@ app.post('/', (req, res) => {
     res.send('Registro exitoso'); // Envía una respuesta al cliente
 });
 
+
+
 // Iniciar el servidor y escuchar en el puerto 3000
 app.listen(3001, () => {
-    console.log('Servidor escuchando en el puerto 3001');
+    console.log('Servidor escuchando en el puero 3001');
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-app.listen(3000)
