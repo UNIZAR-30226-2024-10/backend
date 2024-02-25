@@ -41,7 +41,21 @@ class Torre {
     _agregarMovimientosEnEje(deltaX, deltaY, movimientos) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
-            movimientos.push({ x: this.Posicion.x + k * deltaX, y: this.Posicion.y + k * deltaY });
+            const x = this.Posicion.x + k * deltaX;
+            const y = this.Posicion.y + k * deltaY;
+
+            const casilla = this.tablero.getCasillas()[x][y];
+
+            if (casilla !== undefined && casilla !== null) {
+                if (casilla.getPieza() === null) {
+                    movimientos.push({ x, y });
+                } else {
+                    // There is a piece in the way, stop checking in this direction
+                    // Mirar aqui si es de distinto color y comerla MIGUEL
+                    break;
+                }
+            }
+
             k++;
         }
     }
