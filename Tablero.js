@@ -20,7 +20,6 @@ class Tablero {
             }
         }
 
-        // inicializar aqui las piezas
     }
 
     getCasillas(){
@@ -130,6 +129,60 @@ class Tablero {
             ]
         };
         return chessboardState;
+    }
+
+    actualizarTablero(chessboardState) {
+        for (const tipo_pieza in chessboardState) {
+            if (chessboardState.hasOwnProperty(tipo_pieza)) {
+                const piezas = chessboardState[tipo_pieza];
+                
+                if (Array.isArray(piezas)) {
+                    for (let i = 0; i < piezas.length; i++) {
+                        const pieza = piezas[i];
+                        const { x, y, color } = pieza;
+                        let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
+                        this.casillas[x][y].setPieza(objeto_pieza);
+                    }
+                } else {
+                    const { x, y, color } = piezas;
+                    let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
+                    this.casillas[x][y].setPieza(objeto_pieza);
+                }
+            }
+        }
+    }
+    
+    createPiece(tipo_pieza, x, y, color) {
+        switch (tipo_pieza) {
+            case 'peones':
+                return new Peon(x, y, color, this);
+            case 'alfiles':
+                return new Alfil(x, y, color, this);
+            case 'caballos':
+                return new Caballo(x, y, color, this);
+            case 'torres':
+                return new Torre(x, y, color, this);
+            case 'dama':
+                return new Dama(x, y, color, this);
+            case 'rey':
+                return new Rey(x, y, color, this);
+            default:
+                // Handle unknown piece type
+                return null;
+        }
+    }
+    
+    
+
+    mostrarTablero() {
+        for (let i = 0; i < this.N; i++) {
+            for (let j = 0; j < this.M; j++) {
+                const casilla = this.casillas[i][j];
+                if(casilla.getPieza() != null) {
+                    console.log(`[${i}, ${j}]: ${casilla.getPieza().getClassName()} ${casilla.getPieza().color}`);
+                }
+            }
+        }
     }
 
     hayPiezasEnFilaHaciaDerecha(coord_x_pieza_1, coord_y_pieza_1, coord_x_pieza_2) {

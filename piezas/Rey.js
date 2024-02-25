@@ -4,21 +4,53 @@ const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pie
 
 
 class Rey {
-    constructor(x, y, color) {
+    constructor(x, y, color, tablero) {
         this.Posicion = {x, y};
         this.color = color;
+        this.tablero = tablero;
+    }
+
+    getClassName() {
+        return this.constructor.name;
     }
 
     obtenerMovimientosDisponibles() {
         const movimientos_disponibles_rey = [];
-        this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 1, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 1, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 1, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x, this.Posicion.y - 1, movimientos_disponibles_rey);
-        this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 1, movimientos_disponibles_rey);
+        const casillas = this.tablero.getCasillas();
+        
+        let casilla = casillas[this.Posicion.x + 1][this.Posicion.y];
+
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x + 1][this.Posicion.y + 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 1, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x][this.Posicion.y + 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x - 1][this.Posicion.y + 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 1, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x - 1][this.Posicion.y];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x - 1][this.Posicion.y - 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 1, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x][this.Posicion.y - 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x, this.Posicion.y - 1, movimientos_disponibles_rey);
+        }
+        casilla = casillas[this.Posicion.x + 1][this.Posicion.y - 1];
+        if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+            this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 1, movimientos_disponibles_rey);
+        }
 
         return movimientos_disponibles_rey;
     }

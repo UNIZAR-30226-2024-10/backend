@@ -2,9 +2,14 @@ const Tablero = require('../Tablero.js'); // Asegúrate de importar correctament
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
 
 class Torre {
-    constructor(x, y, color) {
+    constructor(x, y, color, tablero) {
         this.Posicion = {x, y};
         this.color = color;
+        this.tablero = tablero;
+    }
+
+    getClassName() {
+        return this.constructor.name;
     }
 
     obtenerMovimientosDisponibles() {

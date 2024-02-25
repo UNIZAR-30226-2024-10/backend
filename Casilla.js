@@ -1,6 +1,6 @@
 class Casilla {
     constructor() {
-        this.color = false; // El valor por defecto es false, asegúrate de establecerlo según corresponda
+        //this.color = false; // El valor por defecto es false, asegúrate de establecerlo según corresponda
         this.pieza = null; // La pieza es inicialmente nula, puedes establecerla después
     }
     

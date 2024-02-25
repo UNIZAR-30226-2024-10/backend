@@ -3,22 +3,44 @@ const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pie
 
 
 class Peon {
-    constructor(x, y, color) {
+    constructor(x, y, color, tablero) {
         this.Posicion = {x, y};
         this.color = color;
+        this.tablero = tablero;
+    }
+
+    getClassName() {
+        return this.constructor.name;
     }
 
     obtenerMovimientosDisponibles() {
         const movimientos_disponibles_peon = [];
-
+        const casillas = this.tablero.getCasillas();
+        let casilla;
         if(this.Posicion.y == 1) {
-            // Movimiento hacia adelante 2 posiciones
-            this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 2, movimientos_disponibles_peon);
+            // Movimiento hacia adelante
+            casilla = casillas[this.Posicion.x][this.Posicion.y + 1];
+            if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+                this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_peon);
+                casilla = casillas[this.Posicion.x][this.Posicion.y + 2];
+                if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+                    this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 2, movimientos_disponibles_peon);
+                }
+            }
+            
+        }
+        else {
+            casilla = casillas[this.Posicion.x][this.Posicion.y + 1];
+            if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+                this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_peon);
+            }
         }
         
-        // Movimiento hacia adelante
-        this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_peon);
+        
+        
+        
 
+        // ESTO SOLO CUANDO COME (todavia no implementado)
         // Movimiento diagonal izquierda
         this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 1, movimientos_disponibles_peon);
 

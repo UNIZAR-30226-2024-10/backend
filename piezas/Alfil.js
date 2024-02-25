@@ -4,9 +4,14 @@ const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pie
 
 
 class Alfil {
-    constructor(x, y, color) {
+    constructor(x, y, color, tablero) {
         this.Posicion = { x, y };
         this.color = color;
+        this.tablero = tablero;
+    }
+
+    getClassName() {
+        return this.constructor.name;
     }
 
     obtenerMovimientosDisponibles() {
