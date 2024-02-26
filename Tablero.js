@@ -5,7 +5,7 @@ const Alfil = require('./piezas/Alfil.js');
 const Caballo = require('./piezas/Caballo.js');
 const Rey = require('./piezas/Rey.js');
 const Torre = require('./piezas/Torre.js');
-
+const Pieza = require('./piezas/Pieza.js');
 
 class Tablero {
     constructor() {
@@ -29,10 +29,7 @@ class Tablero {
     setCasillas(casillas){
         this.casillas = casillas;
     }
-
     inicializarPiezas() {
-
-        // SOLO ESTAN INICIALIZADAS LAS BLANCAS PQ HABRA Q VER Q HACEMOS CON LA ORIENTACION D LA MATRIZ PA LAS NEGRAS
         const peon_1_b = new Peon(0, 1, "blanca");
         const peon_2_b = new Peon(1, 1, "blanca");
         const peon_3_b = new Peon(2, 1, "blanca");
@@ -172,6 +169,16 @@ class Tablero {
         }
     }
     
+    eliminarPieza(x, y) {
+        const casilla = this.tablero.getCasillas()[x][y];
+        if (casilla !== null && casilla.getPieza() !== null) {
+            const piezaEliminada = casilla.getPieza();
+            casilla.setPieza(null);
+            return piezaEliminada;
+        } else {
+            return null; // No hay pieza en la casilla especificada
+        }
+    }
     
 
     mostrarTablero() {
@@ -184,6 +191,7 @@ class Tablero {
             }
         }
     }
+
 
     hayPiezasEnFilaHaciaDerecha(coord_x_pieza_1, coord_y_pieza_1, coord_x_pieza_2) {
         let hay_pieza = false;

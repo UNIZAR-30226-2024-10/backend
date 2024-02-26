@@ -1,9 +1,8 @@
 
-
 class Pieza {
-    constructor() {
-        this.color = false;
-        this.posicion = new Posicion();
+    constructor(x, y) {
+        this.color = color;
+        this.posicion = {x, y};
     }
 
     getColor() {
@@ -45,34 +44,4 @@ class Pieza {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = Pieza;
-

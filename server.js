@@ -26,6 +26,6 @@ app.post('/', (req, res) => {
 
 
 // Iniciar el servidor y escuchar en el puerto 3000
-app.listen(3001, () => {
-    console.log('Servidor escuchando en el puero 3001');
+app.listen(3002, () => {
+    console.log('Servidor escuchando en el puerto 3002');
 });

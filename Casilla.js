@@ -1,6 +1,7 @@
+const Pieza = require('./piezas/Pieza'); 
 class Casilla {
     constructor() {
-        //this.color = false; // El valor por defecto es false, asegúrate de establecerlo según corresponda
+        this.color = true;
         this.pieza = null; // La pieza es inicialmente nula, puedes establecerla después
     }
     

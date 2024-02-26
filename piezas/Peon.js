@@ -1,13 +1,28 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
 
-
 class Peon {
     constructor(x, y, color, tablero) {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
     }
+    getColor() {
+        return this.color;
+    }
+
+    setColor(color) {
+        this.color = color;
+    }
+
+    getPosicion() {
+        return this.Posicion;
+    }
+
+    setPosicion(Posicion) {
+        this.Posicion = Posicion;
+    }
+
 
     getClassName() {
         return this.constructor.name;
@@ -17,35 +32,56 @@ class Peon {
         const movimientos_disponibles_peon = [];
         const casillas = this.tablero.getCasillas();
         let casilla;
-        if(this.Posicion.y == 1) {
-            // Movimiento hacia adelante
+        if (this.color === "blancas"){
             casilla = casillas[this.Posicion.x][this.Posicion.y + 1];
             if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
                 this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_peon);
+            }
+            if(this.Posicion.y == 1) {
                 casilla = casillas[this.Posicion.x][this.Posicion.y + 2];
                 if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
                     this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 2, movimientos_disponibles_peon);
                 }
             }
-            
-        }
+            }
         else {
-            casilla = casillas[this.Posicion.x][this.Posicion.y + 1];
+            casilla = casillas[this.Posicion.x][this.Posicion.y - 1];
             if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
-                this._agregarMovimiento(this.Posicion.x, this.Posicion.y + 1, movimientos_disponibles_peon);
+                this._agregarMovimiento(this.Posicion.x, this.Posicion.y - 1, movimientos_disponibles_peon);
+            }
+            if (this.Posicion.y == 6){
+                casilla = casillas[this.Posicion.x][this.Posicion.y - 2];
+                if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {
+                    this._agregarMovimiento(this.Posicion.x, this.Posicion.y - 2, movimientos_disponibles_peon);
+                }
             }
         }
         
+        if (this.color === "blancas"){
+            // Movimiento diagonal izquierda con blancas
+            casilla = casillas[this.Posicion.x - 1][this.Posicion.y + 1];
+            if (casilla !== undefined && casilla.getPieza() !== null && casilla.getPieza().getColor() !== this.color) {
+                this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 1, movimientos_disponibles_peon);
+            }
+            // Movimiento diagonal derecha con blancas
+            casilla = casillas[this.Posicion.x + 1][this.Posicion.y + 1];
+            if (casilla !== undefined && casilla.getPieza() !== null && casilla.getPieza().getColor() !== this.color) {
+                this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 1, movimientos_disponibles_peon);
+            }
+        }
+        else {
+            // Movimiento diagonal derecha con negras
+            casilla = casillas[this.Posicion.x + 1][this.Posicion.y - 1];
+            if (casilla !== undefined && casilla.getPieza() !== null && casilla.getPieza().getColor() !== this.color) {
+                this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 1, movimientos_disponibles_peon);
+            }
+            // Movimiento diagonal izquierda con negras
+            casilla = casillas[this.Posicion.x - 1][this.Posicion.y - 1];
+            if (casilla !== undefined && casilla.getPieza() !== null && casilla.getPieza().getColor() !== this.color) {
+                this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 1, movimientos_disponibles_peon);
+            }
+        }
         
-        
-        
-
-        // ESTO SOLO CUANDO COME (todavia no implementado)
-        // Movimiento diagonal izquierda
-        this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 1, movimientos_disponibles_peon);
-
-        // Movimiento diagonal derecha
-        this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 1, movimientos_disponibles_peon);
 
         return movimientos_disponibles_peon;
     }

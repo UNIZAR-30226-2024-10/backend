@@ -28,6 +28,7 @@ router.get("/start_game", (req, res) => {
     res.json(tablero.inicializarPiezas());
 })
 
+
 router.post("/", (req, res) => {
     const modifiedChessboardState = req.body;
 
@@ -75,7 +76,7 @@ router.post("/", (req, res) => {
     });
     console.log("Movimientos torres: ", movimientos_disponibles_torres);
 
-    // Comprobar movimientos disponibles de la reina
+    // Comprobar movimientos disponibles de la dama
     let { x: damaX, y: damaY, color: damaColor} = modifiedChessboardState.dama;
     const dama = new Dama(damaX, damaY, damaColor, tablero);
     const movimientos_disponibles_dama = dama.obtenerMovimientosDisponibles();

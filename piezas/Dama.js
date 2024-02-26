@@ -2,13 +2,28 @@ const Tablero = require('../Tablero.js'); // Asegúrate de importar correctament
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
 //const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
 
-
 class Dama {
     constructor(x, y, color, tablero) {
         this.Posicion = { x, y };
         this.color = color;
         this.tablero = tablero;
     }
+    getColor() {
+        return this.color;
+    }
+
+    setColor(color) {
+        this.color = color;
+    }
+
+    getPosicion() {
+        return this.Posicion;
+    }
+
+    setPosicion(Posicion) {
+        this.Posicion = Posicion;
+    }
+
 
     getClassName() {
         return this.constructor.name;
@@ -55,8 +70,10 @@ class Dama {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    // There is a piece in the way, stop checking in this direction
-                    // Mirar aqui si es de distinto color y comerla MIGUEL
+                    if (casilla.getPieza().getColor() !== this.color) {
+                        console.log("puedo zamparme " + casilla.getPieza().getClassName() + " " + casilla.getPieza().getColor());
+                        movimientos.push({ x, y});
+                    }
                     break;
                 }
             }
