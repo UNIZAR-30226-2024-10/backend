@@ -94,7 +94,10 @@ class Dama {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    // There is a piece in the way, stop checking in this direction
+                    if (casilla.getPieza().getColor() !== this.color) {
+                        console.log("puedo zamparte " + casilla.getPieza().getClassName() + " " + casilla.getPieza().getColor());
+                        movimientos.push({ x, y});
+                    }                    // There is a piece in the way, stop checking in this direction
                     break;
                 }
             }
