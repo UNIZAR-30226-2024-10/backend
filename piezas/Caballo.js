@@ -59,7 +59,7 @@ class Caballo {
                 this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
             }
         }
-  
+
         if (this.isValidIndex(this.Posicion.x - 1, this.Posicion.y - 2, 8, 8)) {
             casilla = casillas[this.Posicion.x - 1][this.Posicion.y - 2];
             if (casilla !== undefined && casilla !== null && casilla.getPieza() === null) {

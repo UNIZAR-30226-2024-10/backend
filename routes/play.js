@@ -69,12 +69,15 @@ router.post("/", (req, res) => {
     console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
 
     // Comprobar movimientos disponibles de las torres
-    const torres = modifiedChessboardState.torres.map(torre => new Torre(torre.x, torre.y, torre.color, tablero));
     const movimientos_disponibles_torres = [];
-    torres.forEach(torre => {
-        movimientos_disponibles_torres.push(torre.obtenerMovimientosDisponibles());
+
+    const torres = modifiedChessboardState.torres.map(torre => {
+        const torreObj = new Torre(torre.x, torre.y, torre.color, tablero);
+        const movimientos = torreObj.obtenerMovimientosDisponibles();
+        movimientos_disponibles_torres.push({posicion: { x: torre.x, y: torre.y },
+            movimientos});
     });
-    console.log("Movimientos torres: ", movimientos_disponibles_torres);
+console.log("Movimientos torres: ", movimientos_disponibles_torres);
 
     // Comprobar movimientos disponibles de la dama
     let { x: damaX, y: damaY, color: damaColor} = modifiedChessboardState.dama;
