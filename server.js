@@ -1,7 +1,7 @@
 const express = require('express');
+var cors = require('cors');
 const app = express();
-// const cors = require('cors');
-// app.use(cors());
+app.use(cors());
 // Configurar middleware para analizar el cuerpo de las solicitudes como JSON
 app.use(express.json());
 // Rutas de los usuarios
@@ -27,6 +27,6 @@ app.post('/', (req, res) => {
 
 
 // Iniciar el servidor y escuchar en el puerto 3000
-app.listen(3002, () => {
-    console.log('Servidor escuchando en el puerto 3002');
+app.listen(3001, () => {
+    console.log('Servidor escuchando en el puerto 3001');
 });

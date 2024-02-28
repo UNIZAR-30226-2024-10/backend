@@ -44,12 +44,12 @@ router.post("/", (req, res) => {
     console.log("Movimientos rey: ", movimientos_disponibles_rey);
 
     // Comprobar movimientos disponibles de los peones
-    const peones = modifiedChessboardState.peones.map(peon => new Peon(peon.x, peon.y, peon.color, tablero));
-    const movimientos_disponibles_peones = [];
-    peones.forEach(peon => {
-        movimientos_disponibles_peones.push(peon.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos peones: ", movimientos_disponibles_peones);
+    // const peones = modifiedChessboardState.peones.map(peon => new Peon(peon.x, peon.y, peon.color, tablero));
+    // const movimientos_disponibles_peones = [];
+    // peones.forEach(peon => {
+    //     movimientos_disponibles_peones.push(peon.obtenerMovimientosDisponibles());
+    //     });
+    // console.log("Movimientos peones: ", movimientos_disponibles_peones);
 
 
     // Comprobar movimientos disponibles de los caballos
@@ -88,7 +88,7 @@ console.log("Movimientos torres: ", movimientos_disponibles_torres);
 
     const allMovements = {
         rey: movimientos_disponibles_rey,
-        peones: movimientos_disponibles_peones,
+        //peones: movimientos_disponibles_peones,
         caballos: movimientos_disponibles_caballos,
         alfiles: movimientos_disponibles_alfiles,
         torres: movimientos_disponibles_torres,
