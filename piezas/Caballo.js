@@ -5,6 +5,7 @@ class Caballo {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
+        this.puntos = 3;
     }
     getColor() {
         return this.color;

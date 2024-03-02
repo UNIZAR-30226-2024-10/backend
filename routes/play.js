@@ -49,6 +49,52 @@ router.post("/", (req, res) => {
     const turno = modifiedChessboardState.turno;
     console.log("Turno: ", turno);
 
+
+    const pieceArrays = [
+        modifiedChessboardState.peones,
+        modifiedChessboardState.alfiles,
+        modifiedChessboardState.torres,
+        modifiedChessboardState.caballos,
+        modifiedChessboardState.damas,
+        modifiedChessboardState.reyes
+    ];
+    
+    let conflictingPieces = [];
+    
+    // Iterate through each pair of pieces from different arrays
+    for (let i = 0; i < pieceArrays.length - 1; i++) {
+        for (let j = i + 1; j < pieceArrays.length; j++) {
+            const pieces1 = pieceArrays[i];
+            const pieces2 = pieceArrays[j];
+    
+            // Check for conflicting coordinates between pieces from different arrays
+            for (const piece1 of pieces1) {
+                for (const piece2 of pieces2) {
+                    if (piece1.x === piece2.x && piece1.y === piece2.y) {
+                        conflictingPieces.push({ piece1, piece2 });
+                    }
+                }
+            }
+        }
+    }
+    
+    console.log("Piezas en conflicto: ", conflictingPieces);
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Comprobar movimientos disponibles del rey
     const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
     const movimientos_disponibles_reyes = [];
@@ -57,79 +103,102 @@ router.post("/", (req, res) => {
     });
     console.log("Movimientos reyes: ", movimientos_disponibles_reyes);
 
+
+
     // Comprobar movimientos disponibles de los peones
 
+
     const peones = modifiedChessboardState.peones.map(peon => {
-        if (peon.x !== modifiedChessboardState.casilla_con_pieza_comida.x || peon.y !== modifiedChessboardState.casilla_con_pieza_comida.y) {
-            return new Peon(peon.x, peon.y, peon.color, tablero);
+        // Check if the current peon is conflicting with any piece
+        const isConflicting = conflictingPieces.some(conflictingPiece => 
+          peon.x === conflictingPiece.piece1.x && peon.y === conflictingPiece.piece1.y
+        );
+      
+        // If it's not conflicting, create the peon
+        if (!isConflicting) {
+          return new Peon(peon.x, peon.y, peon.color, tablero);
         }
-        return null; // Skip creating an object for the specified coordinates
-    }).filter(peon => peon !== null);
-    
-    const movimientos_disponibles_peones = [];
-    peones.forEach(peon => {
-        movimientos_disponibles_peones.push(peon.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos peones: ", movimientos_disponibles_peones);
+      
+        return null; // Skip creating an object for conflicting coordinates
+      }).filter(peon => peon !== null);
+      
+      const movimientos_disponibles_peones = peones.map(peon => peon.obtenerMovimientosDisponibles());
+      console.log("Movimientos peones: ", movimientos_disponibles_peones);
 
 
     // Comprobar movimientos disponibles de los caballos
 
     const caballos = modifiedChessboardState.caballos.map(caballo => {
-        if (caballo.x !== modifiedChessboardState.casilla_con_pieza_comida.x || caballo.y !== modifiedChessboardState.casilla_con_pieza_comida.y) {
-            return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
+        // Check if the current peon is conflicting with any piece
+        const isConflicting = conflictingPieces.some(conflictingPiece => 
+            caballo.x === conflictingPiece.piece1.x && caballo.y === conflictingPiece.piece1.y
+        );
+      
+        // If it's not conflicting, create the peon
+        if (!isConflicting) {
+          return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
         }
-        return null; // Skip creating an object for the specified coordinates
-    }).filter(caballo => caballo !== null);
+      
+        return null; // Skip creating an object for conflicting coordinates
+      }).filter(caballo => caballo !== null);
+      
+      const movimientos_disponibles_caballos = caballos.map(caballo => caballo.obtenerMovimientosDisponibles());
+      console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
     
-    const movimientos_disponibles_caballos = [];
-    caballos.forEach(caballo => {
-        movimientos_disponibles_caballos.push(caballo.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
 
     // Comprobar movimientos disponibles de los alfiles
     const alfiles = modifiedChessboardState.alfiles.map(alfil => {
-        if (alfil.x !== modifiedChessboardState.casilla_con_pieza_comida.x || alfil.y !== modifiedChessboardState.casilla_con_pieza_comida.y) {
-            return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
+        // Check if the current peon is conflicting with any piece
+        const isConflicting = conflictingPieces.some(conflictingPiece => 
+            alfil.x === conflictingPiece.piece1.x && alfil.y === conflictingPiece.piece1.y
+        );
+      
+        // If it's not conflicting, create the peon
+        if (!isConflicting) {
+          return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
         }
-        return null; // Skip creating an object for the specified coordinates
-    }).filter(alfil => alfil !== null);
-    
-    const movimientos_disponibles_alfiles = [];
-    alfiles.forEach(alfil => {
-        movimientos_disponibles_alfiles.push(alfil.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
+      
+        return null; // Skip creating an object for conflicting coordinates
+      }).filter(alfil => alfil !== null);
+      
+      const movimientos_disponibles_alfiles = alfiles.map(alfil => alfil.obtenerMovimientosDisponibles());
+      console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
 
     // Comprobar movimientos disponibles de las torres
     const torres = modifiedChessboardState.torres.map(torre => {
-        if (torre.x !== modifiedChessboardState.casilla_con_pieza_comida.x || torre.y !== modifiedChessboardState.casilla_con_pieza_comida.y) {
-            return new Torre(torre.x, torre.y, torre.color, tablero);
+        // Check if the current peon is conflicting with any piece
+        const isConflicting = conflictingPieces.some(conflictingPiece => 
+            torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
+        );
+      
+        if (!isConflicting) {
+          return new Torre(torre.x, torre.y, torre.color, tablero);
         }
-        return null; // Skip creating an object for the specified coordinates
-    }).filter(torre => torre !== null);
-    
-    const movimientos_disponibles_torres = [];
-    torres.forEach(torre => {
-        movimientos_disponibles_torres.push(torre.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos torres: ", movimientos_disponibles_torres);
+      
+        return null; // Skip creating an object for conflicting coordinates
+      }).filter(torre => torre !== null);
+      
+      const movimientos_disponibles_torres = torres.map(torre => torre.obtenerMovimientosDisponibles());
+      console.log("Movimientos torres: ", movimientos_disponibles_torres);
 
     // Comprobar movimientos disponibles de la dama
 
     const damas = modifiedChessboardState.damas.map(dama => {
-        if (dama.x !== modifiedChessboardState.casilla_con_pieza_comida.x || dama.y !== modifiedChessboardState.casilla_con_pieza_comida.y) {
-            return new Dama(dama.x, dama.y, dama.color, tablero);
+        // Check if the current peon is conflicting with any piece
+        const isConflicting = conflictingPieces.some(conflictingPiece => 
+            dama.x === conflictingPiece.piece1.x && dama.y === conflictingPiece.piece1.y
+        );
+      
+        // If it's not conflicting, create the peon
+        if (!isConflicting) {
+          return new Dama(dama.x, dama.y, dama.color, tablero);
         }
-        return null; // Skip creating an object for the specified coordinates
-    }).filter(dama => dama !== null);
-    
-    const movimientos_disponibles_damas = [];
-    damas.forEach(dama => {
-        movimientos_disponibles_damas.push(dama.obtenerMovimientosDisponibles());
-    });
-    console.log("Movimientos damas: ", movimientos_disponibles_damas);
+      
+        return null; // Skip creating an object for conflicting coordinates
+      }).filter(dama => dama !== null);
+      
+      const movimientos_disponibles_damas = damas.map(dama => dama.obtenerMovimientosDisponibles());
+      console.log("Movimientos damas: ", movimientos_disponibles_damas);
 
     const allMovements = {
         reyes: movimientos_disponibles_reyes,

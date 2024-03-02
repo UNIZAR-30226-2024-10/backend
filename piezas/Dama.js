@@ -7,6 +7,7 @@ class Dama {
         this.Posicion = { x, y };
         this.color = color;
         this.tablero = tablero;
+        this.puntos = 9;
     }
     getColor() {
         return this.color;

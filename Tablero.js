@@ -130,20 +130,14 @@ class Tablero {
 
     actualizarTablero(chessboardState) {
         for (const tipo_pieza in chessboardState) {
-            if(tipo_pieza !== "turno") {
+            if(tipo_pieza !== "turno" && tipo_pieza !== "pieza_comida") {
                 if (chessboardState.hasOwnProperty(tipo_pieza)) {
                     const piezas = chessboardState[tipo_pieza];
-                    
-                    if (Array.isArray(piezas)) {
-                        for (let i = 0; i < piezas.length; i++) {
-                            const pieza = piezas[i];
-                            const { x, y, color } = pieza;
-                            let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
-                            this.casillas[x][y].setPieza(objeto_pieza);
-                        }
-                    } else {
-                        const { x, y, color } = piezas;
+                    for (let i = 0; i < piezas.length; i++) {
+                        const pieza = piezas[i];
+                        const { x, y, color } = pieza;
                         let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
+                        console.log("Tipo piezaaaa: ", x, y, color, tipo_pieza, objeto_pieza);
                         this.casillas[x][y].setPieza(objeto_pieza);
                     }
                 }
@@ -161,12 +155,11 @@ class Tablero {
                 return new Caballo(x, y, color, this);
             case 'torres':
                 return new Torre(x, y, color, this);
-            case 'dama':
+            case 'damas':
                 return new Dama(x, y, color, this);
-            case 'rey':
+            case 'reyes':
                 return new Rey(x, y, color, this);
             default:
-                // Handle unknown piece type
                 return null;
         }
     }

@@ -6,6 +6,7 @@ class Peon {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
+        this.puntos = 1;
     }
     getColor() {
         return this.color;

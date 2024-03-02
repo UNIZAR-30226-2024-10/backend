@@ -7,6 +7,7 @@ class Alfil {
         this.Posicion = { x, y };
         this.color = color;
         this.tablero = tablero;
+        this.puntos = 3;
     }
     getColor() {
         return this.color;
@@ -61,8 +62,7 @@ class Alfil {
                     movimientos.push({ x, y });
                 } else {
                     if (casilla.getPieza().getColor() !== this.color) {
-                        console.log("puedo zamparme " + casilla.getPieza().getClassName() + " " + casilla.getPieza().getColor());
-                        movimientos.push({ x, y});
+                        movimientos.push({x, y});
                     }
                     break;
                 }

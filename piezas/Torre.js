@@ -5,6 +5,7 @@ class Torre {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
+        this.puntos = 5;
     }
     getColor() {
         return this.color;

@@ -55,24 +55,37 @@ class Rey {
         const piezasOponente = this.obtenerPiezas(colorOponente);
     
         piezasOponente.forEach(pieza => {
-            const movimientos = pieza.obtenerMovimientosDisponibles();
             if (pieza instanceof Peon) {
-                if(this._esMovimientoValido(pieza.Posicion.x - 1, pieza.Posicion.y - 1)) {
-                    posicionesAtacadasPorOponente.push({ x: pieza.Posicion.x - 1, y: pieza.Posicion.y - 1 });
+                const x1 = pieza.Posicion.x - 1;
+                const y1 = pieza.Posicion.y - 1;
+                const x2 = pieza.Posicion.x + 1;
+                const y2 = pieza.Posicion.y - 1;
+    
+                if (this._esMovimientoValido(x1, y1)) {
+                    posicionesAtacadasPorOponente.push({ x: x1, y: y1 });
                 }
-                if(this._esMovimientoValido(pieza.Posicion.x + 1, pieza.Posicion.y - 1)) {
-                    posicionesAtacadasPorOponente.push({ x: pieza.Posicion.x + 1, y: pieza.Posicion.y - 1 });
+    
+                if (this._esMovimientoValido(x2, y2)) {
+                    posicionesAtacadasPorOponente.push({ x: x2, y: y2 });
+                }
+            } else {
+                // You can add logic here for other types of pieces if needed
+                // For now, let's assume other pieces attack all possible positions
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        const x = pieza.Posicion.x + dx;
+                        const y = pieza.Posicion.y + dy;
+                        if (this._esMovimientoValido(x, y)) {
+                            posicionesAtacadasPorOponente.push({ x, y });
+                        }
+                    }
                 }
             }
-                
-            else {
-                posicionesAtacadasPorOponente.push(...movimientos);
-            }
-            
         });
     
         return posicionesAtacadasPorOponente;
     }
+    
     
     
     movimientoCoincideConCasilla(movimientos, x, y) {
