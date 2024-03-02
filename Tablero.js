@@ -130,20 +130,22 @@ class Tablero {
 
     actualizarTablero(chessboardState) {
         for (const tipo_pieza in chessboardState) {
-            if (chessboardState.hasOwnProperty(tipo_pieza)) {
-                const piezas = chessboardState[tipo_pieza];
-                
-                if (Array.isArray(piezas)) {
-                    for (let i = 0; i < piezas.length; i++) {
-                        const pieza = piezas[i];
-                        const { x, y, color } = pieza;
+            if(tipo_pieza !== "turno") {
+                if (chessboardState.hasOwnProperty(tipo_pieza)) {
+                    const piezas = chessboardState[tipo_pieza];
+                    
+                    if (Array.isArray(piezas)) {
+                        for (let i = 0; i < piezas.length; i++) {
+                            const pieza = piezas[i];
+                            const { x, y, color } = pieza;
+                            let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
+                            this.casillas[x][y].setPieza(objeto_pieza);
+                        }
+                    } else {
+                        const { x, y, color } = piezas;
                         let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
                         this.casillas[x][y].setPieza(objeto_pieza);
                     }
-                } else {
-                    const { x, y, color } = piezas;
-                    let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
-                    this.casillas[x][y].setPieza(objeto_pieza);
                 }
             }
         }

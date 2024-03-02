@@ -1,5 +1,6 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js'); // Asegúrate de importar correctamente Pieza.js
+const Peon = require('./Peon.js');
 //const Posicion = require('./Posicion.js'); // Asegúrate de importar correctamente Posicion.js
 
 class Rey {
@@ -48,26 +49,32 @@ class Rey {
         return piezas;
     }
 
-    obtenerMovimientosOponente(colorRey) {
-        let movimientosOponente = [];
+    obtenerPosicionesAtacadasPorOponente(colorRey) {
+        let posicionesAtacadasPorOponente = [];
         const colorOponente = colorRey === 'blancas' ? 'negras' : 'blancas';
         const piezasOponente = this.obtenerPiezas(colorOponente);
     
         piezasOponente.forEach(pieza => {
             const movimientos = pieza.obtenerMovimientosDisponibles();
-            movimientosOponente.push(...movimientos);
+            if (pieza instanceof Peon) {
+                if(this._esMovimientoValido(pieza.Posicion.x - 1, pieza.Posicion.y - 1)) {
+                    posicionesAtacadasPorOponente.push({ x: pieza.Posicion.x - 1, y: pieza.Posicion.y - 1 });
+                }
+                if(this._esMovimientoValido(pieza.Posicion.x + 1, pieza.Posicion.y - 1)) {
+                    posicionesAtacadasPorOponente.push({ x: pieza.Posicion.x + 1, y: pieza.Posicion.y - 1 });
+                }
+            }
+                
+            else {
+                posicionesAtacadasPorOponente.push(...movimientos);
+            }
+            
         });
     
-        return movimientosOponente;
+        return posicionesAtacadasPorOponente;
     }
     
-    imprimirMovimientosOponente(colorRey) {
-        const movimientos = this.obtenerMovimientosOponente(colorRey);
-        console.log("Movimientos disponibles del oponente:");
-        movimientos.forEach(movimiento => {
-            console.log(`(${movimiento.x}, ${movimiento.y})`);
-        });
-    }
+    
     movimientoCoincideConCasilla(movimientos, x, y) {
         return movimientos.some(movimiento => movimiento.x === x && movimiento.y === y);
     }
@@ -91,10 +98,14 @@ class Rey {
                 }
             }
         }
+
+        console.log("Movimientos disponibles rey antes de comprobar jaques: ", movimientos_disponibles_rey);
+
     
         // Filtrar los movimientos que resulten en jaque
-        const movimientos_oponente = this.obtenerMovimientosOponente(this.color); // Aquí se está usando this.color en lugar de this.colorRey
-        const casillasAtacadas = movimientos_oponente.map(movimiento => ({ x: movimiento.x, y: movimiento.y }));
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(this.color);
+        console.log("Movimientos oponente que dan jaque: ", posicionesAtacadasPorOponente);
+        const casillasAtacadas = posicionesAtacadasPorOponente.map(movimiento => ({ x: movimiento.x, y: movimiento.y }));
         const movimientosSinJaque = movimientos_disponibles_rey.filter(movimiento => {
             const x = movimiento.x;
             const y = movimiento.y;

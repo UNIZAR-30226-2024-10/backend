@@ -1,4 +1,6 @@
-const Pieza = require('./piezas/Pieza'); 
+const Pieza = require('./piezas/Pieza');
+
+
 class Casilla {
     constructor() {
         this.color = true;
