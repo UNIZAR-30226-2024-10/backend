@@ -61,21 +61,37 @@ router.post("/", (req, res) => {
     
     let conflictingPieces = [];
     
+
+    // Iterate through each array of pieces
+    for (const pieces of pieceArrays) {
+      // Check for conflicting coordinates within the same array
+      for (let i = 0; i < pieces.length - 1; i++) {
+          for (let j = i + 1; j < pieces.length; j++) {
+              const piece1 = pieces[i];
+              const piece2 = pieces[j];
+
+              if (piece1.x === piece2.x && piece1.y === piece2.y) {
+                  conflictingPieces.push({ piece1, piece2 });
+              }
+          }
+      }
+    }
+
     // Iterate through each pair of pieces from different arrays
     for (let i = 0; i < pieceArrays.length - 1; i++) {
-        for (let j = i + 1; j < pieceArrays.length; j++) {
-            const pieces1 = pieceArrays[i];
-            const pieces2 = pieceArrays[j];
-    
-            // Check for conflicting coordinates between pieces from different arrays
-            for (const piece1 of pieces1) {
-                for (const piece2 of pieces2) {
-                    if (piece1.x === piece2.x && piece1.y === piece2.y) {
-                        conflictingPieces.push({ piece1, piece2 });
-                    }
-                }
-            }
-        }
+      for (let j = i + 1; j < pieceArrays.length; j++) {
+          const pieces1 = pieceArrays[i];
+          const pieces2 = pieceArrays[j];
+
+          // Check for conflicting coordinates between pieces from different arrays
+          for (const piece1 of pieces1) {
+              for (const piece2 of pieces2) {
+                  if (piece1.x === piece2.x && piece1.y === piece2.y) {
+                      conflictingPieces.push({ piece1, piece2 });
+                  }
+              }
+          }
+      }
     }
     
     console.log("Piezas en conflicto: ", conflictingPieces);
@@ -99,18 +115,24 @@ router.post("/", (req, res) => {
     const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
     const movimientos_disponibles_reyes = [];
     reyes.forEach(rey => {
-      if (turno === rey.color){
-        movimientos_disponibles_reyes.push(rey.obtenerMovimientosDisponibles());
-        estaEnJaque = rey.jaque(rey);
-      }
+      if (turno === rey.color) {
+        // Add the king's position to the array
+        movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
+
+        // Add the king's available movements to the array
+        movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
+
+        // Check if the king is in check
+        estaEnJaque = rey.jaque(rey)[0];
+        console.log("Estoy en jaque: ", estaEnJaque);
+
+    }
     });
     console.log("Movimientos rey: ", movimientos_disponibles_reyes);
 
-    if (!estaEnJaque){
+    //if (!estaEnJaque){
 
     // Comprobar movimientos disponibles de los peones
-
-
     const peones = modifiedChessboardState.peones.map(peon => {
         // Check if the current peon is conflicting with any piece
         const isConflicting = conflictingPieces.some(conflictingPiece => 
@@ -121,12 +143,32 @@ router.post("/", (req, res) => {
         if (!isConflicting) {
           return new Peon(peon.x, peon.y, peon.color, tablero);
         }
-      
-        return null; // Skip creating an object for conflicting coordinates
+        else {
+          if(peon.color !== turno) {
+            // PEON ES EL QUE COME
+            return new Peon(peon.x, peon.y, peon.color, tablero);
+          }
+          else {
+            // PEON ES EL COMIDO
+            return null;
+          }
+        }
       }).filter(peon => peon !== null);
       
-      const movimientos_disponibles_peones = peones.map(peon => peon.obtenerMovimientosDisponibles());
+      const movimientos_disponibles_peones = [];
+      // Add the king's position to the array
+      peones.forEach(peon => {
+      // Create a new list for each caballo
+      const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
+      
+      // Append movements to the new list
+      peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
+  
+      // Append the new list to the main list
+      movimientos_disponibles_peones.push(peonMovimientos);
+  
       console.log("Movimientos peones: ", movimientos_disponibles_peones);
+    });
 
 
     // Comprobar movimientos disponibles de los caballos
@@ -141,12 +183,32 @@ router.post("/", (req, res) => {
         if (!isConflicting) {
           return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
         }
-      
-        return null; // Skip creating an object for conflicting coordinates
+        else {
+          if(caballo.color !== turno) {
+            // CABALLO ES EL QUE COME
+            return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
+          }
+          else {
+            // CABALLO ES EL COMIDO
+            return null;
+          }
+        }
       }).filter(caballo => caballo !== null);
       
-      const movimientos_disponibles_caballos = caballos.map(caballo => caballo.obtenerMovimientosDisponibles());
-      console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
+      const movimientos_disponibles_caballos = [];
+
+      caballos.forEach(caballo => {
+        // Create a new list for each caballo
+        const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
+        
+        // Append movements to the new list
+        caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles());
+    
+        // Append the new list to the main list
+        movimientos_disponibles_caballos.push(caballoMovimientos);
+    
+        console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
+    });
     
 
     // Comprobar movimientos disponibles de los alfiles
@@ -160,12 +222,32 @@ router.post("/", (req, res) => {
         if (!isConflicting) {
           return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
         }
-      
-        return null; // Skip creating an object for conflicting coordinates
+        else {
+          if(alfil.color !== turno) {
+            // ALFIL ES EL QUE COME
+            return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
+          }
+          else {
+            // ALFIL ES EL COMIDO
+            return null;
+          }
+        }
       }).filter(alfil => alfil !== null);
       
-      const movimientos_disponibles_alfiles = alfiles.map(alfil => alfil.obtenerMovimientosDisponibles());
+      const movimientos_disponibles_alfiles = [];
+      // Add the king's position to the array
+      alfiles.forEach(alfil => {
+      // Create a new list for each caballo
+      const alfilMovimientos = [{ fromX: alfil.Posicion.x, fromY: alfil.Posicion.y, fromColor: alfil.color }];
+      
+      // Append movements to the new list
+      alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles());
+  
+      // Append the new list to the main list
+      movimientos_disponibles_alfiles.push(alfilMovimientos);
+  
       console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
+    });
 
     // Comprobar movimientos disponibles de las torres
     const torres = modifiedChessboardState.torres.map(torre => {
@@ -177,12 +259,32 @@ router.post("/", (req, res) => {
         if (!isConflicting) {
           return new Torre(torre.x, torre.y, torre.color, tablero);
         }
-      
-        return null; // Skip creating an object for conflicting coordinates
+        else {
+          if(torre.color !== turno) {
+            // TORRE ES EL QUE COME
+            return new Torre(torre.x, torre.y, torre.color, tablero);
+          }
+          else {
+            // TORRE ES EL COMIDO
+            return null;
+          }
+        }
       }).filter(torre => torre !== null);
       
-      const movimientos_disponibles_torres = torres.map(torre => torre.obtenerMovimientosDisponibles());
+      const movimientos_disponibles_torres = [];
+      // Add the king's position to the array
+      torres.forEach(torre => {
+      // Create a new list for each caballo
+      const torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
+      
+      // Append movements to the new list
+      torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
+  
+      // Append the new list to the main list
+      movimientos_disponibles_torres.push(torreMovimientos);
+  
       console.log("Movimientos torres: ", movimientos_disponibles_torres);
+    });
 
     // Comprobar movimientos disponibles de la dama
 
@@ -196,12 +298,32 @@ router.post("/", (req, res) => {
         if (!isConflicting) {
           return new Dama(dama.x, dama.y, dama.color, tablero);
         }
-      
-        return null; // Skip creating an object for conflicting coordinates
+        else {
+          if(dama.color !== turno) {
+            // DAMA ES EL QUE COME
+            return new Torre(dama.x, dama.y, dama.color, tablero);
+          }
+          else {
+            // DAMA ES EL COMIDO
+            return null;
+          }
+        }
       }).filter(dama => dama !== null);
       
-      const movimientos_disponibles_damas = damas.map(dama => dama.obtenerMovimientosDisponibles());
+      const movimientos_disponibles_damas = [];
+      // Add the king's position to the array
+      damas.forEach(dama => {
+      // Create a new list for each caballo
+      const damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+      
+      // Append movements to the new list
+      damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
+  
+      // Append the new list to the main list
+      movimientos_disponibles_damas.push(damaMovimientos);
+  
       console.log("Movimientos damas: ", movimientos_disponibles_damas);
+    });
     
     const allMovements = {
         reyes: movimientos_disponibles_reyes,
@@ -212,15 +334,22 @@ router.post("/", (req, res) => {
         damas: movimientos_disponibles_damas
     };
     res.json({allMovements});
-  }
-  else {
-    //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
-    const allMovements = {
-      reyes:movimientos_disponibles_reyes
-    };
-    console.log("Estoy en jaque");
-    res.json({allMovements});
-  }
+    reyes.forEach(rey => {
+      rey.jaqueMate(rey, allMovements);
+  });
+  //}
+  // else {
+  //   //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
+  //   const allMovements = {
+  //     reyes: movimientos_disponibles_reyes
+  //   };
+  //   console.log("Estoy en jaque");
+  //   reyes.forEach(rey => {
+  //     rey.jaqueMate(rey, allMovements);
+  // });
+  //   res.json({allMovements});
+  // }
+  
 });
 
 

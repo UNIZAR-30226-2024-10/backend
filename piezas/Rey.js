@@ -115,8 +115,7 @@ class Rey {
 
             }
         });
-        //console.log("Movimientos oponente ", posicionesAtacadasPorOponente);
-        return posicionesAtacadasPorOponente;
+        return [posicionesAtacadasPorOponente, piezasOponente];
     }
     
     
@@ -163,9 +162,71 @@ class Rey {
     }
     
     jaque(pieza) {
-        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color);
-        return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color)[0];
+        const piezas_del_oponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color)[1];
+        return [this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y), piezas_del_oponente];
     }
+
+
+    jaqueMate(pieza, movimientos_disponibles_oponente) {
+        let jaque_mate = false;
+        let hay_jaque = this.jaque(pieza)[0];
+        let piezas_del_oponente = this.jaque(pieza)[1];
+    
+        if (hay_jaque) {
+            // cogemos cada pieza
+            for (const piezaType in movimientos_disponibles_oponente) {
+                const movimientosPieza = movimientos_disponibles_oponente[piezaType];
+                
+                // Nos quedamos con una serie de movimientos concretos de una pieza
+                for(const movimiento of movimientosPieza) {
+                    const x = movimiento.x;
+                    const y = movimiento.y;
+                    // === y && movimientosPieza[0].fromColor !== piezaa.color
+                    for (const piezaa of piezas_del_oponente) {
+                        console.log("yeeeee:", movimiento, "wooo", movimientosPieza, "gaas", piezaa, "X", x, "Y", y);
+                        if (piezaa.Posicion.x === x && piezaa.Posicion.y) {
+                            // Match found, handle your logic here
+                            console.log("Match found:", piezaa, movimiento, movimientosPieza);
+                            jaque_mate = true; // Update the jaque_mate variable accordingly
+                            // return jaque_mate;
+                            // break; // Exit the inner loop once a match is found
+                        }
+                    }
+                }
+                
+            }
+        }
+    }
+
+    // jaqueMate(pieza, movimientos_disponibles_oponente) {
+    //     let jaque_mate = false;
+    //     let hay_jaque = this.jaque(pieza)[0];
+    //     let piezas_del_oponente = this.jaque(pieza)[1];
+    
+    //     if (hay_jaque) {
+    //         for (const piezaType in movimientos_disponibles_oponente) {
+    //             const movimientosPieza = movimientos_disponibles_oponente[piezaType];
+    
+    //             for (const movimiento of movimientosPieza) {
+    //                 const x = movimiento.x;
+    //                 const y = movimiento.y;
+    
+    //                 for (const piezaa of piezas_del_oponente) {
+    //                     if (piezaa.Posicion.x === x && piezaa.Posicion.y === y && movimiento.fromColor !== piezaa.color) {
+    //                         // Match found, handle your logic here
+    //                         console.log("Match found:", piezaa, movimiento, movimientosPieza);
+    //                         jaque_mate = true; // Update the jaque_mate variable accordingly
+    //                         // return jaque_mate;
+    //                         // break; // Exit the inner loop once a match is found
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    
+    
     
 
     imprimirMovimientosDisponibles() {
