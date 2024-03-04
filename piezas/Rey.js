@@ -106,7 +106,7 @@ class Rey {
             
                         if (pieza._esMovimientoValido(x, y)) {
                             const casilla = casillas[x][y];
-                            if (casilla !== undefined && casilla.getPieza() === null) {
+                            if (casilla !== undefined) {
                                 posicionesAtacadasPorOponente.push({ x, y });
                             }
                         }
@@ -138,7 +138,7 @@ class Rey {
     
                 if (this._esMovimientoValido(x, y)) {
                     const casilla = casillas[x][y];
-                    if (casilla !== undefined && casilla.getPieza() === null) {
+                    if (casilla !== undefined) {
                         movimientos_disponibles_rey.push({ x, y });
                     }
                 }
@@ -160,6 +160,11 @@ class Rey {
         });
     
         return movimientosSinJaque;
+    }
+    
+    jaque(pieza) {
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color);
+        return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
     
 

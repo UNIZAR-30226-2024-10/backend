@@ -99,11 +99,14 @@ router.post("/", (req, res) => {
     const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
     const movimientos_disponibles_reyes = [];
     reyes.forEach(rey => {
+      if (turno === rey.color){
         movimientos_disponibles_reyes.push(rey.obtenerMovimientosDisponibles());
+        estaEnJaque = rey.jaque(rey);
+      }
     });
-    console.log("Movimientos reyes: ", movimientos_disponibles_reyes);
+    console.log("Movimientos rey: ", movimientos_disponibles_reyes);
 
-
+    if (!estaEnJaque){
 
     // Comprobar movimientos disponibles de los peones
 
@@ -199,7 +202,7 @@ router.post("/", (req, res) => {
       
       const movimientos_disponibles_damas = damas.map(dama => dama.obtenerMovimientosDisponibles());
       console.log("Movimientos damas: ", movimientos_disponibles_damas);
-
+    
     const allMovements = {
         reyes: movimientos_disponibles_reyes,
         peones: movimientos_disponibles_peones,
@@ -208,8 +211,15 @@ router.post("/", (req, res) => {
         torres: movimientos_disponibles_torres,
         damas: movimientos_disponibles_damas
     };
-
     res.json({allMovements});
+  }
+  else {
+    const allMovements = {
+      reyes:movimientos_disponibles_reyes
+    };
+    console.log("Estoy en jaque");
+    res.json({allMovements});
+  }
 });
 
 
