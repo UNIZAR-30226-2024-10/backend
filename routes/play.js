@@ -214,6 +214,7 @@ router.post("/", (req, res) => {
     res.json({allMovements});
   }
   else {
+    //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
     const allMovements = {
       reyes:movimientos_disponibles_reyes
     };
