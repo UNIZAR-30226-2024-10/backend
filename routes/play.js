@@ -41,6 +41,8 @@ router.post("/", (req, res) => {
 
 
     let modifiedChessboardState = req.body;
+    // let modifiedChessboardState = req.params.modChess;
+
     console.log("TABLERO MODIFICADO: ", modifiedChessboardState);
     
     tablero.actualizarTablero(modifiedChessboardState);
