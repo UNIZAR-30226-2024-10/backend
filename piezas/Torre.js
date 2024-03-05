@@ -67,8 +67,7 @@ class Torre {
                 } else {
                 
                     if (casilla.getPieza().getColor() !== this.color) {
-                        console.log("puedo zamparme " + casilla.getPieza().getClassName() + " " + casilla.getPieza().getColor());
-                        movimientos.push({ x, y});
+                        movimientos.push({ x, y });
                     }
                     break;
                 }

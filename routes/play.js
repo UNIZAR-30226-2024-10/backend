@@ -66,9 +66,9 @@ router.post("/", (req, res) => {
     let conflictingPieces = [];
     
 
-    // Iterate through each array of pieces
+    // Mirar piezas en la misma casilla (comer)
     for (const pieces of pieceArrays) {
-      // Check for conflicting coordinates within the same array
+      
       for (let i = 0; i < pieces.length - 1; i++) {
           for (let j = i + 1; j < pieces.length; j++) {
               const piece1 = pieces[i];
@@ -81,13 +81,13 @@ router.post("/", (req, res) => {
       }
     }
 
-    // Iterate through each pair of pieces from different arrays
+    
     for (let i = 0; i < pieceArrays.length - 1; i++) {
       for (let j = i + 1; j < pieceArrays.length; j++) {
           const pieces1 = pieceArrays[i];
           const pieces2 = pieceArrays[j];
 
-          // Check for conflicting coordinates between pieces from different arrays
+          
           for (const piece1 of pieces1) {
               for (const piece2 of pieces2) {
                   if (piece1.x === piece2.x && piece1.y === piece2.y) {
@@ -104,7 +104,22 @@ router.post("/", (req, res) => {
     const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
     const movimientos_disponibles_reyes = [];
     reyes.forEach(rey => {
+      if(rey.color === "blancas") {
+        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 0) {
+          if(!ha_movido_rey_blanco) {
+            ha_movido_rey_blanco = true;
+          }
+        }
+      }
+      else {
+        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 7) {
+          if(!ha_movido_rey_negro) {
+            ha_movido_rey_negro = true;
+          }
+        }
+      }
       if (turno === rey.color) {
+        
         // Add the king's position to the array
         movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
 
@@ -114,6 +129,8 @@ router.post("/", (req, res) => {
         // Check if the king is in check
         estaEnJaque = rey.jaque(rey)[0];
         console.log("Estoy en jaque: ", estaEnJaque);
+        console.log("REY BLANCO: ", ha_movido_rey_blanco);
+        console.log("REY NEGRO: ", ha_movido_rey_negro);
 
     }
     });
@@ -238,6 +255,7 @@ router.post("/", (req, res) => {
 
     // Comprobar movimientos disponibles de las torres
     const torres = modifiedChessboardState.torres.map(torre => {
+      console.log("JAJAJAJAJ");
         // Check if the current peon is conflicting with any piece
         const isConflicting = conflictingPieces.some(conflictingPiece => 
             torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
@@ -261,15 +279,43 @@ router.post("/", (req, res) => {
       const movimientos_disponibles_torres = [];
       // Add the king's position to the array
       torres.forEach(torre => {
-      // Create a new list for each caballo
+          // COMPROBAR SI LAS TORRES SE HAN MOVIDO DE SU POSICION INICIAL
+          if(torre.color === "blancasI") {
+            
+            if(torre.Posicion.x !== 0 || torre.Posicion.y !== 0) {
+              ha_movido_torre_blanca_izqda = true;
+            }
+          }
+          else if(torre.color === "blancasD") {
+            console.log("GoGoGo");
+            if(torre.Posicion.x !== 7 || torre.Posicion.y !== 0) {
+              ha_movido_torre_blanca_dcha = true;
+            }
+          }
+          else if(torre.color === "negrasI") {
+            if(torre.Posicion.x !== 0 || torre.Posicion.y !== 7) {
+              ha_movido_torre_negra_izqda = true;
+            }
+          }
+          else if(torre.color === "negrasD") {
+            if(torre.Posicion.x !== 7 || torre.Posicion.y !== 7) {
+              ha_movido_torre_negra_dcha = true;
+            }
+          }
+      
       const torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
       
-      // Append movements to the new list
+      
       torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
   
-      // Append the new list to the main list
+      
       movimientos_disponibles_torres.push(torreMovimientos);
 
+      console.log("TORRE BLANCA IZQDA: ", ha_movido_torre_blanca_izqda);
+      console.log("TORRE BLANCA DCHA: ", ha_movido_torre_blanca_dcha);
+      
+      console.log("TORRE NEGRA IZQDA: ", ha_movido_torre_negra_izqda);
+      console.log("TORRE NEGRA DCHA: ", ha_movido_torre_negra_dcha);
     });
 
     // Comprobar movimientos disponibles de la dama
