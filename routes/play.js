@@ -11,7 +11,12 @@ const tablero = new Tablero('./ChessHub.db');
 
 const router = express.Router()
 
-let historial_partida = [];
+let ha_movido_rey_blanco = false;
+let ha_movido_rey_negro = false;
+let ha_movido_torre_blanca_dcha = false;
+let ha_movido_torre_blanca_izqda = false;
+let ha_movido_torre_negra_dcha = false;
+let ha_movido_torre_negra_izqda = false;
 
 
 // Ruta /play, para poder iniciar a jugar (como un lobby)
@@ -36,6 +41,7 @@ router.post("/", (req, res) => {
 
 
     let modifiedChessboardState = req.body;
+    console.log("TABLERO MODIFICADO: ", modifiedChessboardState);
     
     tablero.actualizarTablero(modifiedChessboardState);
     console.log("Tablero actualizado");
@@ -90,20 +96,6 @@ router.post("/", (req, res) => {
       }
     }
     
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     // Comprobar movimientos disponibles del rey
