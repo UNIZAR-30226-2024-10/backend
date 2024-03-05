@@ -57,9 +57,7 @@ class Rey {
     obtenerPosicionesAtacadasPorOponente(colorRey) {
         let posicionesAtacadasPorOponente = [];
         const colorOponente = colorRey === 'blancas' ? 'negras' : 'blancas';
-        console.log("Color oponenete", colorOponente);
         const piezasOponente = this.obtenerPiezas(colorRey);
-        console.log("Piezas del oponente ", piezasOponente);
         piezasOponente.forEach(pieza => {
             if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
                 //console.log("Tengo ", pieza.obtenerMovimientosDisponibles());
@@ -144,13 +142,10 @@ class Rey {
             }
         }
 
-        console.log("Movimientos disponibles rey antes de comprobar jaques: ", movimientos_disponibles_rey);
-
     
         // Filtrar los movimientos que resulten en jaque
         console.log("color ", this.color);
         const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(this.color);
-        console.log("Movimientos oponente que dan jaque: ", posicionesAtacadasPorOponente);
         const casillasAtacadas = posicionesAtacadasPorOponente.map(movimiento => ({ x: movimiento.x, y: movimiento.y }));
         const movimientosSinJaque = movimientos_disponibles_rey.filter(movimiento => {
             const x = movimiento.x;

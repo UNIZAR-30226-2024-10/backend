@@ -58,7 +58,7 @@ class Peon {
                 this._agregarMovimiento(this.Posicion.x, this.Posicion.y - 1, movimientos_disponibles_peon);
             }
             if (this.Posicion.y === 6){
-                let casillaAux = casillas[this.Posicion.x][this.Posicion.y + 1];
+                let casillaAux = casillas[this.Posicion.x][this.Posicion.y - 1];
                 if(casillaAux.getPieza() === null) {
                     casilla = casillas[this.Posicion.x][this.Posicion.y - 2];
                     if(casilla !== undefined && casilla !== null && casilla.getPieza() === null) {

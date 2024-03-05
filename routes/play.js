@@ -34,13 +34,9 @@ router.get("/start_game", (req, res) => {
 
 router.post("/", (req, res) => {
 
-        // Nuevos campos en el JSON:
-        // - turno: string
-        // Casilla de la última pieza comida. Si no se ha comido ninguna, x: -1 e y: -1
 
-
-    const modifiedChessboardState = req.body;
-
+    let modifiedChessboardState = req.body;
+    
     tablero.actualizarTablero(modifiedChessboardState);
     console.log("Tablero actualizado");
     tablero.mostrarTablero();
@@ -94,7 +90,6 @@ router.post("/", (req, res) => {
       }
     }
     
-    console.log("Piezas en conflicto: ", conflictingPieces);
 
     
 
@@ -166,8 +161,7 @@ router.post("/", (req, res) => {
   
       // Append the new list to the main list
       movimientos_disponibles_peones.push(peonMovimientos);
-  
-      console.log("Movimientos peones: ", movimientos_disponibles_peones);
+
     });
 
 
@@ -179,8 +173,9 @@ router.post("/", (req, res) => {
             caballo.x === conflictingPiece.piece1.x && caballo.y === conflictingPiece.piece1.y
         );
       
-        // If it's not conflicting, create the peon
+        
         if (!isConflicting) {
+          
           return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
         }
         else {
@@ -203,11 +198,10 @@ router.post("/", (req, res) => {
         
         // Append movements to the new list
         caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles());
+        console.log("Movimientos caballooooooo", caballoMovimientos);
     
         // Append the new list to the main list
         movimientos_disponibles_caballos.push(caballoMovimientos);
-    
-        console.log("Movimientos caballos: ", movimientos_disponibles_caballos);
     });
     
 
@@ -245,8 +239,7 @@ router.post("/", (req, res) => {
   
       // Append the new list to the main list
       movimientos_disponibles_alfiles.push(alfilMovimientos);
-  
-      console.log("Movimientos alfiles: ", movimientos_disponibles_alfiles);
+
     });
 
     // Comprobar movimientos disponibles de las torres
@@ -282,8 +275,7 @@ router.post("/", (req, res) => {
   
       // Append the new list to the main list
       movimientos_disponibles_torres.push(torreMovimientos);
-  
-      console.log("Movimientos torres: ", movimientos_disponibles_torres);
+
     });
 
     // Comprobar movimientos disponibles de la dama
@@ -321,8 +313,7 @@ router.post("/", (req, res) => {
   
       // Append the new list to the main list
       movimientos_disponibles_damas.push(damaMovimientos);
-  
-      console.log("Movimientos damas: ", movimientos_disponibles_damas);
+
     });
     
     const allMovements = {
