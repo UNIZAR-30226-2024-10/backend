@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(cors());
 // Configurar middleware para analizar el cuerpo de las solicitudes como JSON
-// app.use(express.json());
 app.use(bodyParser.json());
 // Rutas de los usuarios
 const userRouter = require("./routes/users")
