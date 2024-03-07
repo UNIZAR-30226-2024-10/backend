@@ -29,7 +29,7 @@ class Caballo {
     }
 
     obtenerMovimientosDisponibles() {
-        const movimientos_disponibles_caballo = [];
+        let movimientos_disponibles_caballo = [];
 
         const casillas = this.tablero.getCasillas();
         let casilla;

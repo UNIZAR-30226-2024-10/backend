@@ -41,12 +41,10 @@ router.post("/", (req, res) => {
 
 
     let modifiedChessboardState = req.body;
-    // let modifiedChessboardState = req.params.modChess;
 
-    console.log("TABLERO MODIFICADO: ", modifiedChessboardState);
-    
     tablero.actualizarTablero(modifiedChessboardState);
     console.log("Tablero actualizado");
+
     tablero.mostrarTablero();
 
     // Comprobar a quién le toca mover
@@ -161,7 +159,7 @@ router.post("/", (req, res) => {
         }
       }).filter(peon => peon !== null);
       
-      const movimientos_disponibles_peones = [];
+      let movimientos_disponibles_peones = [];
       // Add the king's position to the array
       peones.forEach(peon => {
       // Create a new list for each caballo
@@ -201,7 +199,7 @@ router.post("/", (req, res) => {
         }
       }).filter(caballo => caballo !== null);
       
-      const movimientos_disponibles_caballos = [];
+      let movimientos_disponibles_caballos = [];
 
       caballos.forEach(caballo => {
         // Create a new list for each caballo
@@ -239,7 +237,7 @@ router.post("/", (req, res) => {
         }
       }).filter(alfil => alfil !== null);
       
-      const movimientos_disponibles_alfiles = [];
+      let movimientos_disponibles_alfiles = [];
       // Add the king's position to the array
       alfiles.forEach(alfil => {
       // Create a new list for each caballo
@@ -255,7 +253,6 @@ router.post("/", (req, res) => {
 
     // Comprobar movimientos disponibles de las torres
     const torres = modifiedChessboardState.torres.map(torre => {
-      console.log("JAJAJAJAJ");
         // Check if the current peon is conflicting with any piece
         const isConflicting = conflictingPieces.some(conflictingPiece => 
             torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
@@ -276,7 +273,7 @@ router.post("/", (req, res) => {
         }
       }).filter(torre => torre !== null);
       
-      const movimientos_disponibles_torres = [];
+      let movimientos_disponibles_torres = [];
       // Add the king's position to the array
       torres.forEach(torre => {
           // COMPROBAR SI LAS TORRES SE HAN MOVIDO DE SU POSICION INICIAL
@@ -287,7 +284,6 @@ router.post("/", (req, res) => {
             }
           }
           else if(torre.color === "blancasD") {
-            console.log("GoGoGo");
             if(torre.Posicion.x !== 7 || torre.Posicion.y !== 0) {
               ha_movido_torre_blanca_dcha = true;
             }
@@ -302,12 +298,18 @@ router.post("/", (req, res) => {
               ha_movido_torre_negra_dcha = true;
             }
           }
+
+
       
-      const torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
+      let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
       
       
       torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
+      // Llamar a la funcion de enroque
+      let movimientos_enroque = torre.obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izqda, ha_movido_torre_blanca_dcha,
+        ha_movido_torre_negra_izqda, ha_movido_torre_negra_dcha, torre.color);
   
+      torreMovimientos.push(movimientos_enroque);
       
       movimientos_disponibles_torres.push(torreMovimientos);
 
@@ -342,11 +344,11 @@ router.post("/", (req, res) => {
         }
       }).filter(dama => dama !== null);
       
-      const movimientos_disponibles_damas = [];
+      let movimientos_disponibles_damas = [];
       // Add the king's position to the array
       damas.forEach(dama => {
       // Create a new list for each caballo
-      const damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+      let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
       
       // Append movements to the new list
       damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
@@ -356,7 +358,7 @@ router.post("/", (req, res) => {
 
     });
     
-    const allMovements = {
+    let allMovements = {
         reyes: movimientos_disponibles_reyes,
         peones: movimientos_disponibles_peones,
         caballos: movimientos_disponibles_caballos,

@@ -31,7 +31,7 @@ class Dama {
     }
 
     obtenerMovimientosDisponibles() {
-        const movimientos_disponibles_dama = [];
+        let movimientos_disponibles_dama = [];
         // Eje +x
         this._agregarMovimientosEnEje(1, 0, movimientos_disponibles_dama);
 

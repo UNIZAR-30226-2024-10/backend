@@ -30,7 +30,7 @@ class Peon {
     }
 
     obtenerMovimientosDisponibles() {
-        const movimientos_disponibles_peon = [];
+        let movimientos_disponibles_peon = [];
         const casillas = this.tablero.getCasillas();
         let casilla;
 

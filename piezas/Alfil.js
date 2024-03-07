@@ -31,7 +31,7 @@ class Alfil {
     }
 
     obtenerMovimientosDisponibles() {
-        const movimientos_disponibles_alfil = [];
+        let movimientos_disponibles_alfil = [];
 
         this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_alfil); // Diagonal +
         this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_alfil); // Diagonal -
