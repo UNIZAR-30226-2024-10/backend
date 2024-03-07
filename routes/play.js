@@ -7,8 +7,6 @@ const Alfil = require('../piezas/Alfil');
 const Torre = require('../piezas/Torre');
 const Dama = require('../piezas/Dama');
 
-const tablero = new Tablero('./ChessHub.db');
-
 const router = express.Router()
 
 let ha_movido_rey_blanco = false;
@@ -39,6 +37,7 @@ router.get("/start_game", (req, res) => {
 
 router.post("/", (req, res) => {
 
+  const tablero = new Tablero('./ChessHub.db');
 
     let modifiedChessboardState = req.body;
 
