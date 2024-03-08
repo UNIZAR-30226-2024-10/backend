@@ -31,7 +31,7 @@ class Alfil {
     }
 
     obtenerMovimientosDisponibles() {
-        const movimientos_disponibles_alfil = [];
+        let movimientos_disponibles_alfil = [];
 
         this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_alfil); // Diagonal +
         this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_alfil); // Diagonal -
@@ -56,11 +56,14 @@ class Alfil {
             const y = this.Posicion.y + k * deltaY;
 
             const casilla = this.tablero.getCasillas()[x][y];
-
+            
             if (casilla !== undefined && casilla !== null) {
+                // Si no hay pieza se puede mover
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
-                } else {
+                } 
+                else {
+                    // Si hay pieza y es del color contrario se puede comer
                     if (casilla.getPieza().getColor() !== this.color) {
                         movimientos.push({x, y});
                     }

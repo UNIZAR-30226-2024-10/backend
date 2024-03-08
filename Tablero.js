@@ -130,14 +130,13 @@ class Tablero {
 
     actualizarTablero(chessboardState) {
         for (const tipo_pieza in chessboardState) {
-            if(tipo_pieza !== "turno" && tipo_pieza !== "pieza_comida") {
+            if(tipo_pieza !== "turno") {
                 if (chessboardState.hasOwnProperty(tipo_pieza)) {
                     const piezas = chessboardState[tipo_pieza];
                     for (let i = 0; i < piezas.length; i++) {
                         const pieza = piezas[i];
                         const { x, y, color } = pieza;
                         let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
-                        console.log("Tipo piezaaaa: ", x, y, color, tipo_pieza, objeto_pieza);
                         this.casillas[x][y].setPieza(objeto_pieza);
                     }
                 }
