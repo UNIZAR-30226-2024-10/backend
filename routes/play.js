@@ -96,43 +96,6 @@ router.post("/", (req, res) => {
     }
     
 
-
-    // Comprobar movimientos disponibles del rey
-    const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
-    const movimientos_disponibles_reyes = [];
-    reyes.forEach(rey => {
-      if(rey.color === "blancas") {
-        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 0) {
-          if(!ha_movido_rey_blanco) {
-            ha_movido_rey_blanco = true;
-          }
-        }
-      }
-      else {
-        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 7) {
-          if(!ha_movido_rey_negro) {
-            ha_movido_rey_negro = true;
-          }
-        }
-      }
-      if (turno === rey.color) {
-        
-        // Add the king's position to the array
-        movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
-
-        // Add the king's available movements to the array
-        movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
-
-        // Check if the king is in check
-        estaEnJaque = rey.jaque(rey)[0];
-        console.log("Estoy en jaque: ", estaEnJaque);
-        console.log("REY BLANCO: ", ha_movido_rey_blanco);
-        console.log("REY NEGRO: ", ha_movido_rey_negro);
-
-    }
-    });
-    console.log("Movimientos rey: ", movimientos_disponibles_reyes);
-
     //if (!estaEnJaque){
 
     // Comprobar movimientos disponibles de los peones
@@ -253,7 +216,7 @@ router.post("/", (req, res) => {
     // Comprobar movimientos disponibles de las torres
     const torres = modifiedChessboardState.torres.map(torre => {
         // Check if the current peon is conflicting with any piece
-        const isConflicting = conflictingPieces.some(conflictingPiece => 
+        const isConflicting = conflictingPieces.some(conflictingPiece =>
             torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
         );
       
@@ -276,23 +239,23 @@ router.post("/", (req, res) => {
       // Add the king's position to the array
       torres.forEach(torre => {
           // COMPROBAR SI LAS TORRES SE HAN MOVIDO DE SU POSICION INICIAL
-          if(torre.color === "blancasI") {
+          if(torre.color === "blancas" && torre.lado === "izquierda") {
             
             if(torre.Posicion.x !== 0 || torre.Posicion.y !== 0) {
               ha_movido_torre_blanca_izqda = true;
             }
           }
-          else if(torre.color === "blancasD") {
+          else if(torre.color === "blancas" && torre.lado === "derecha") {
             if(torre.Posicion.x !== 7 || torre.Posicion.y !== 0) {
               ha_movido_torre_blanca_dcha = true;
             }
           }
-          else if(torre.color === "negrasI") {
+          else if(torre.color === "negras" && torre.lado === "izquierda") {
             if(torre.Posicion.x !== 0 || torre.Posicion.y !== 7) {
               ha_movido_torre_negra_izqda = true;
             }
           }
-          else if(torre.color === "negrasD") {
+          else if(torre.color === "negras" && torre.lado === "derecha") {
             if(torre.Posicion.x !== 7 || torre.Posicion.y !== 7) {
               ha_movido_torre_negra_dcha = true;
             }
@@ -305,12 +268,12 @@ router.post("/", (req, res) => {
       
       torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
       // Llamar a la funcion de enroque
-      let movimientos_enroque = torre.obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izqda, ha_movido_torre_blanca_dcha,
-        ha_movido_torre_negra_izqda, ha_movido_torre_negra_dcha, torre.color);
+      //let movimientos_enroque = torre.obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izqda, ha_movido_torre_blanca_dcha,
+      //  ha_movido_torre_negra_izqda, ha_movido_torre_negra_dcha, torre.color);
   
-      torreMovimientos.push(movimientos_enroque);
+      //torreMovimientos.push(movimientos_enroque);
       
-      movimientos_disponibles_torres.push(torreMovimientos);
+      //movimientos_disponibles_torres.push(torreMovimientos);
 
       console.log("TORRE BLANCA IZQDA: ", ha_movido_torre_blanca_izqda);
       console.log("TORRE BLANCA DCHA: ", ha_movido_torre_blanca_dcha);
@@ -319,6 +282,53 @@ router.post("/", (req, res) => {
       console.log("TORRE NEGRA DCHA: ", ha_movido_torre_negra_dcha);
     });
 
+
+    // Comprobar movimientos disponibles del rey
+    const reyes = modifiedChessboardState.reyes.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
+    const movimientos_disponibles_reyes = [];
+    reyes.forEach(rey => {
+      if(rey.color === "blancas") {
+        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 0) {
+          if(!ha_movido_rey_blanco) {
+            ha_movido_rey_blanco = true;
+          }
+        }
+      }
+      else {
+        if(rey.Posicion.x !== 4 || rey.Posicion.y !== 7) {
+          if(!ha_movido_rey_negro) {
+            ha_movido_rey_negro = true;
+          }
+        }
+      }
+      if (turno === rey.color) {
+        
+        // Add the king's position to the array
+        movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
+
+        // Add the king's available movements to the array
+        movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
+        if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
+          ha_movido_torre_blanca_izqda, turno, 'corto')){
+            const x = 6;
+            const y = rey.Posicion.y;
+            movimientos_disponibles_reyes.push({x, y});
+        }
+        if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
+          ha_movido_torre_blanca_izqda, turno, 'largo')){
+            const x = 2;
+            const y = rey.Posicion.y;
+            movimientos_disponibles_reyes.push({x, y});
+          }
+        // Check if the king is in check
+        estaEnJaque = rey.jaque(rey)[0];
+        console.log("Estoy en jaque: ", estaEnJaque);
+        console.log("REY BLANCO: ", ha_movido_rey_blanco);
+        console.log("REY NEGRO: ", ha_movido_rey_negro);
+
+    }
+    });
+    console.log("Movimientos rey: ", movimientos_disponibles_reyes);
     // Comprobar movimientos disponibles de la dama
 
     const damas = modifiedChessboardState.damas.map(dama => {

@@ -1,11 +1,18 @@
 const Tablero = require('../Tablero.js'); // Asegúrate de importar correctamente Tablero.js
 const Pieza = require('./Pieza.js')
 class Torre {
-    constructor(x, y, color, tablero) {
+    constructor(x, y, color, tablero, lado) {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
         this.puntos = 5;
+        this.lado = lado;
+    }
+    getLado(){
+        return this.lado;
+    }
+    setLado(lado){
+        this.lado = lado;
     }
     getColor() {
         return this.color;
@@ -67,22 +74,8 @@ class Torre {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    // Si hay piezas en el camino
-                    // La torre banca de la derecha come algo
-                    if(this.color === "blancasD" && (casilla.getPieza().getColor() === "negras" || casilla.getPieza().getColor() === "negrasD" || casilla.getPieza().getColor() === "negrasI")){
-                        movimientos.push({ x, y });
-                    }
-                    // La torre banca de la izquierda come algo
-                    else if(this.color === "blancasI" && (casilla.getPieza().getColor() === "negras" || casilla.getPieza().getColor() === "negrasD" || casilla.getPieza().getColor() === "negrasI")){
-                        movimientos.push({ x, y });
-                    }
-                    // La torre negra de la derecha come algo
-                    else if(this.color === "negrasD" && (casilla.getPieza().getColor() === "blancas" || casilla.getPieza().getColor() === "blancasD" || casilla.getPieza().getColor() === "blancasI")){
-                        movimientos.push({ x, y });
-                    }
-                    // La torre negra de la izquierda come algo
-                    else if(this.color === "negrasI" && (casilla.getPieza().getColor() === "blancas" || casilla.getPieza().getColor() === "blancasD" || casilla.getPieza().getColor() === "blancasI")){
-                        movimientos.push({ x, y });
+                    if (casilla.getPieza().getColor() !== this.color) {
+                        movimientos.push({ x, y});
                     }
                     break;
                 }
@@ -92,7 +85,7 @@ class Torre {
         }
     }
 
-    obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izquierda, ha_movido_torre_blanca_derecha,
+/*    obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izquierda, ha_movido_torre_blanca_derecha,
         ha_movido_torre_negra_izquierda, ha_movido_torre_negra_derecha, color) {
 
         let movimientos_enroque = [];
@@ -137,10 +130,9 @@ class Torre {
         }
         return movimientos_enroque;
     }
-
+    */
     _esMovimientoValido(x, y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
 }
-
 module.exports = Torre;

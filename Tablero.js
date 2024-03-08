@@ -45,8 +45,8 @@ class Tablero {
         const caballo_izqda_b = new Caballo(1, 0, "blanca");
         const caballo_dcha_b = new Caballo(6, 0, "blanca");
 
-        const torre_dcha_b = new Torre(0, 0, "blanca");
-        const torre_izqda_b = new Torre(7, 0, "blanca");
+        const torre_dcha_b = new Torre(0, 0, "blanca", "derecha");
+        const torre_izqda_b = new Torre(7, 0, "blanca", "izquierda");
 
         const dama_b = new Dama(3, 0, "blanca");
 
@@ -68,8 +68,8 @@ class Tablero {
         const caballo_izqda_n = new Caballo(1, 7, "negra");
         const caballo_dcha_n = new Caballo(6, 7, "negra");
 
-        const torre_dcha_n = new Torre(0, 7, "negra");
-        const torre_izqda_n = new Torre(7, 7, "negra");
+        const torre_dcha_n = new Torre(0, 7, "negra", "derecha");
+        const torre_izqda_n = new Torre(7, 7, "negra", "izquierda");
 
         const dama_n = new Dama(3, 7, "negra");
 
@@ -110,11 +110,11 @@ class Tablero {
                 { x: caballo_dcha_n.Posicion.x, y: caballo_dcha_n.Posicion.y, color: caballo_dcha_n.color }
             ],
             torres: [
-                { x: torre_dcha_b.Posicion.x, y: torre_dcha_b.Posicion.y, color: torre_dcha_b.color },
-                { x: torre_izqda_b.Posicion.x, y: torre_izqda_b.Posicion.y, color: torre_izqda_b.color },
+                { x: torre_dcha_b.Posicion.x, y: torre_dcha_b.Posicion.y, color: torre_dcha_b.color , lado: torre_dcha_b.lado},
+                { x: torre_izqda_b.Posicion.x, y: torre_izqda_b.Posicion.y, color: torre_izqda_b.color,lado: torre_izqda_b.lado },
 
-                { x: torre_dcha_n.Posicion.x, y: torre_dcha_n.Posicion.y, color: torre_dcha_n.color },
-                { x: torre_izqda_n.Posicion.x, y: torre_izqda_n.Posicion.y, color: torre_izqda_n.color }
+                { x: torre_dcha_n.Posicion.x, y: torre_dcha_n.Posicion.y, color: torre_dcha_n.color, lado: torre_dcha_n.lado },
+                { x: torre_izqda_n.Posicion.x, y: torre_izqda_n.Posicion.y, color: torre_izqda_n.color, lado: torre_izqda_n.lado }
             ],
             damas: [
                 { x: dama_b.Posicion.x, y: dama_b.Posicion.y, color: dama_b.color },
@@ -135,16 +135,17 @@ class Tablero {
                     const piezas = chessboardState[tipo_pieza];
                     for (let i = 0; i < piezas.length; i++) {
                         const pieza = piezas[i];
-                        const { x, y, color } = pieza;
-                        let objeto_pieza = this.createPiece(tipo_pieza, x, y, color);
+                        const {x, y, color, lado} = pieza;
+                        let objeto_pieza = this.createPiece(tipo_pieza, x, y, color,lado);
                         this.casillas[x][y].setPieza(objeto_pieza);
                     }
                 }
             }
         }
+
     }
     
-    createPiece(tipo_pieza, x, y, color) {
+    createPiece(tipo_pieza, x, y, color, lado) {
         switch (tipo_pieza) {
             case 'peones':
                 return new Peon(x, y, color, this);
@@ -153,7 +154,7 @@ class Tablero {
             case 'caballos':
                 return new Caballo(x, y, color, this);
             case 'torres':
-                return new Torre(x, y, color, this);
+                return new Torre(x, y, color, this, lado);
             case 'damas':
                 return new Dama(x, y, color, this);
             case 'reyes':
@@ -185,7 +186,7 @@ class Tablero {
             }
         }
     }
-
+/*
 
     hayPiezasEnFilaHaciaDerecha(coord_x_pieza_1, coord_y_pieza_1, coord_x_pieza_2) {
         let hay_pieza = false;
@@ -378,6 +379,6 @@ class Tablero {
         }
         return jaque_mate;
     }
-
+*/
 }
 module.exports = Tablero;

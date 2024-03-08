@@ -45,7 +45,7 @@ class Rey {
                 const pieza = casilla.getPieza();
                 
                 // Si la casilla contiene una pieza y es del color especificado, agrégala a la lista de piezas
-                if (pieza !== null && pieza.getColor() !== color) {
+                if (pieza !== null && pieza.getColor() === color) {
                     piezas.push(pieza);
                 }
             }
@@ -57,7 +57,7 @@ class Rey {
     obtenerPosicionesAtacadasPorOponente(colorRey) {
         let posicionesAtacadasPorOponente = [];
         const colorOponente = colorRey === 'blancas' ? 'negras' : 'blancas';
-        const piezasOponente = this.obtenerPiezas(colorRey);
+        const piezasOponente = this.obtenerPiezas(colorOponente);
         piezasOponente.forEach(pieza => {
             if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
                 //console.log("Tengo ", pieza.obtenerMovimientosDisponibles());
@@ -113,7 +113,7 @@ class Rey {
 
             }
         });
-        return [posicionesAtacadasPorOponente, piezasOponente];
+        return posicionesAtacadasPorOponente;
     }
     
     
@@ -135,13 +135,20 @@ class Rey {
     
                 if (this._esMovimientoValido(x, y)) {
                     const casilla = casillas[x][y];
-                    if (casilla !== undefined) {
-                        movimientos_disponibles_rey.push({ x, y });
+                    if (casilla !== undefined && casilla !== null) {
+                        if (casilla.getPieza() === null) {
+                            movimientos_disponibles_rey.push({ x, y });
+                        } else {
+                            if (casilla.getPieza().getColor() !== this.color) {
+                                movimientos_disponibles_rey.push({ x, y});
+                            }
+                            break;
+                        }
                     }
                 }
             }
         }
-
+    
     
         // Filtrar los movimientos que resulten en jaque
         console.log("color ", this.color);
@@ -152,14 +159,12 @@ class Rey {
             const y = movimiento.y;
             return !this.movimientoCoincideConCasilla(casillasAtacadas, x, y);
         });
-    
         return movimientosSinJaque;
     }
     
     jaque(pieza) {
-        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color)[0];
-        const piezas_del_oponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color)[1];
-        return [this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y), piezas_del_oponente];
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color);
+        return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
 
 
@@ -184,7 +189,7 @@ class Rey {
                             // Match found, handle your logic here
                             console.log("Match found:", piezaa, movimiento, movimientosPieza);
                             jaque_mate = true; // Update the jaque_mate variable accordingly
-                            // return jaque_mate;
+                            return jaque_mate;
                             // break; // Exit the inner loop once a match is found
                         }
                     }
@@ -194,6 +199,71 @@ class Rey {
         }
     }
 
+    enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha, ha_movido_torre_negra_izqda
+        ,turno, lado) {
+        // Verificar que el rey y la torre involucrada no se hayan movido
+        const casillas = this.tablero.getCasillas();
+        if (turno === 'blancas' && !ha_movido_rey_blanco || turno === 'negras' && !ha_movido_rey_negro) {
+            // Determinar las posiciones para el enroque
+            if ((lado === "corto" && turno === 'blancas' && !ha_movido_torre_blanca_dcha) || (lado === "corto" && turno === 'negras' && !ha_movido_torre_negra_dcha)) {
+                if (casillas[5][this.Posicion.y].getPieza() !== null || casillas[6][this.Posicion.y].getPieza() !== null){
+                    console.log("No se puede realizar el enroque: Hay piezas en el camino");
+                    return false;
+                }
+                if (this.jaque(this)) {
+                    console.log("No se puede realizar el enroque: El rey está en jaque");
+                    return false;
+                }
+                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente();
+                if (this.movimientoCoincideConCasilla(movimientosSinJaque, 5, this.Posicion.y) ||
+                    this.movimientoCoincideConCasilla(movimientosSinJaque, 6, this.Posicion.y)) {
+                    console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
+                    return false;
+                }
+
+            } else if ((lado === "largo" && turno === 'blancas' && !ha_movido_torre_blanca_izqda) || (lado === "largo" && turno === "negras" && !ha_movido_torre_negra_izqda))  {
+                if (casillas[3][this.Posicion.y].getPieza() !== null || casillas[2][this.Posicion.y].getPieza() !== null){
+                    console.log("No se puede realizar el enroque: Hay piezas en el camino");
+                    return false;
+                }
+                if (this.jaque(this)) {
+                    console.log("No se puede realizar el enroque: El rey está en jaque");
+                    return false;
+                }
+                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno);
+                if (this.movimientoCoincideConCasilla(movimientosSinJaque, 3, this.Posicion.y) ||
+                    this.movimientoCoincideConCasilla(movimientosSinJaque, 2, this.Posicion.y)) {
+                    console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
+                    return false;
+                }
+            } else {
+                console.log("Lado de enroque no válido");
+                return false;
+            }
+
+            // Verificar que el rey no pase por casillas bajo ataque durante el enroque
+            /*const movimientosSinJaque = this.obtenerMovimientosDisponibles();
+            if (this.movimientoCoincideConCasilla(movimientosSinJaque, nuevoReyX, this.Posicion.y) ||
+                this.movimientoCoincideConCasilla(movimientosSinJaque, nuevoTorreX, this.Posicion.y)) {
+                console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
+                return;
+            }*/
+            // Realizar el enroque moviendo el rey y la torre a sus nuevas posiciones
+            /*const torre = casillas[torreX][torreY].getPieza();
+            casillas[this.Posicion.x][this.Posicion.y].setPieza(null);
+            casillas[nuevoReyX][this.Posicion.y].setPieza(this);
+            this.Posicion.x = nuevoReyX;
+            torre.Posicion.x = nuevoTorreX;
+            casillas[torreX][torreY].setPieza(null);
+            casillas[nuevoTorreX][torreY].setPieza(torre);
+            console.log("Enroque realizado con éxito");*/
+            return true;
+        } else {
+            console.log("No se puede realizar el enroque: El rey o la torre han sido movidos previamente");
+        }
+    }
+
+    
     // jaqueMate(pieza, movimientos_disponibles_oponente) {
     //     let jaque_mate = false;
     //     let hay_jaque = this.jaque(pieza)[0];

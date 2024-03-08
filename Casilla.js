@@ -5,6 +5,7 @@ class Casilla {
     constructor() {
         this.color = true;
         this.pieza = null; // La pieza es inicialmente nula, puedes establecerla después
+        this.lado = true;
     }
     
     getColor() {
@@ -22,7 +23,7 @@ class Casilla {
     setPieza(pieza) {
         this.pieza = pieza;
     }
-
+    
     isFilled() {
         
     }
