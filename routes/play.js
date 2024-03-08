@@ -216,7 +216,7 @@ router.post("/", (req, res) => {
   else {
     //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
     const allMovements = {
-      reyes:movimientos_disponibles_reyes
+      reyes: movimientos_disponibles_reyes
     };
     console.log("Estoy en jaque");
     res.json({allMovements});
