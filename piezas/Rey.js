@@ -13,6 +13,7 @@ class Rey {
         this.Posicion = {x, y};
         this.color = color;
         this.tablero = tablero;
+        this.estoy_en_jaque = false;
     }
     getColor() {
         return this.color;
@@ -60,7 +61,7 @@ class Rey {
         const piezasOponente = this.obtenerPiezas(colorOponente);
         piezasOponente.forEach(pieza => {
             if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
-                //console.log("Tengo ", pieza.obtenerMovimientosDisponibles());
+                
                 const movimientosDisponibles = pieza.obtenerMovimientosDisponibles();
                 posicionesAtacadasPorOponente.push(...movimientosDisponibles);
             }
@@ -167,36 +168,64 @@ class Rey {
         return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
 
+    puedo_comer_a_la_que_hace_jaque(pieza, movimientos_disponibles_oponente) {
+
+    }
 
     jaqueMate(pieza, movimientos_disponibles_oponente) {
-        let jaque_mate = false;
-        let hay_jaque = this.jaque(pieza)[0];
-        let piezas_del_oponente = this.jaque(pieza)[1];
-    
-        if (hay_jaque) {
-            // cogemos cada pieza
+        console.log("Movimientos disponibles del oponente: ", movimientos_disponibles_oponente);
+        let jaque_mate = true; // Si hay jaque, es jaque mate hasta que se demuestre lo contrario
+        let coordenadasDesdeJaque;
+        console.log("COORDENADAS REY: ", pieza.Posicion.x, pieza.Posicion.y);
+        
+        // Obtener desde dónde nos hacen jaque
+        outerLoop:
+        for (const piezaType in movimientos_disponibles_oponente) {
+            console.log("piezaType: ", piezaType);
+            let movimientosPieza = movimientos_disponibles_oponente[piezaType];
+            console.log("tusabe: ", movimientosPieza);
+            for (const movimiento of movimientosPieza) {
+                console.log("movimiento: ", movimiento);
+                if(piezaType !== "reyes") {
+                    coordenadasDesdeJaque = this.getFromValues(movimiento, pieza.Posicion.x, pieza.Posicion.y);
+                    console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
+                    if (coordenadasDesdeJaque !== null) {
+                        break outerLoop;
+                    }
+                }  
+            }  
+        }
+        
+        // Una vez tenemos desde dónde nos hacen jaque, comprobamos si podemos comer a la pieza que nos hace jaque
+        if (coordenadasDesdeJaque !== null) {
             for (const piezaType in movimientos_disponibles_oponente) {
+                console.log("Tipo de pieza: ", piezaType);
                 const movimientosPieza = movimientos_disponibles_oponente[piezaType];
-                
-                // Nos quedamos con una serie de movimientos concretos de una pieza
-                for(const movimiento of movimientosPieza) {
-                    const x = movimiento.x;
-                    const y = movimiento.y;
-                    // === y && movimientosPieza[0].fromColor !== piezaa.color
-                    for (const piezaa of piezas_del_oponente) {
-                        console.log("yeeeee:", movimiento, "wooo", movimientosPieza, "gaas", piezaa, "X", x, "Y", y);
-                        if (piezaa.Posicion.x === x && piezaa.Posicion.y) {
-                            // Match found, handle your logic here
-                            console.log("Match found:", piezaa, movimiento, movimientosPieza);
-                            jaque_mate = true; // Update the jaque_mate variable accordingly
-                            return jaque_mate;
-                            // break; // Exit the inner loop once a match is found
+                console.log("Tipo de movimiento: ", movimientosPieza);
+                for (const movimiento of movimientosPieza) {
+                    console.log("Tipo de movimientooooo: ", movimiento);
+                    for (const tupla of Object.entries(movimiento)) {
+                        const [key, value] = tupla;
+                        console.log("Valor de la tupla: ", value);
+                        if (value.x === coordenadasDesdeJaque.fromX && value.y === coordenadasDesdeJaque.fromY) {
+                            console.log("Encontrado tusaaaa a comel:", value, movimientosPieza);
+                            jaque_mate = false;
                         }
                     }
                 }
-                
             }
         }
+        return jaque_mate;
+    }
+
+    getFromValues(list, x, y) {
+        for (const tuple of list) {
+            console.log("Tupla: ", tuple);
+            if (tuple.x === x && tuple.y === y) {
+            return { fromX: list[0].fromX, fromY: list[0].fromY };
+            }
+        }
+        return null; // Return null if no match is found
     }
 
     enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha, ha_movido_torre_negra_izqda

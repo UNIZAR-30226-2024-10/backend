@@ -303,7 +303,7 @@ router.post("/", (req, res) => {
       }
       if (turno === rey.color) {
         
-        // Add the king's position to the array
+        
         movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
 
         // Add the king's available movements to the array
@@ -321,10 +321,13 @@ router.post("/", (req, res) => {
             movimientos_disponibles_reyes.push({x, y});
           }
         // Check if the king is in check
-        estaEnJaque = rey.jaque(rey)[0];
+        estaEnJaque = rey.jaque(rey);
         console.log("Estoy en jaque: ", estaEnJaque);
-        console.log("REY BLANCO: ", ha_movido_rey_blanco);
-        console.log("REY NEGRO: ", ha_movido_rey_negro);
+        let jaque_mate = false;
+        if(estaEnJaque) {
+          rey.estoy_en_jaque = true;
+        }
+
 
     }
     });
@@ -342,9 +345,10 @@ router.post("/", (req, res) => {
           return new Dama(dama.x, dama.y, dama.color, tablero);
         }
         else {
+          console.log("WOWOWOWO");
           if(dama.color !== turno) {
             // DAMA ES EL QUE COME
-            return new Torre(dama.x, dama.y, dama.color, tablero);
+            return new Dama(dama.x, dama.y, dama.color, tablero);
           }
           else {
             // DAMA ES EL COMIDO
@@ -354,16 +358,16 @@ router.post("/", (req, res) => {
       }).filter(dama => dama !== null);
       
       let movimientos_disponibles_damas = [];
-      // Add the king's position to the array
-      damas.forEach(dama => {
-      // Create a new list for each caballo
-      let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
-      
-      // Append movements to the new list
-      damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
-  
-      // Append the new list to the main list
-      movimientos_disponibles_damas.push(damaMovimientos);
+        // Add the king's position to the array
+        damas.forEach(dama => {
+        // Create a new list for each caballo
+        let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+        
+        // Append movements to the new list
+        damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
+    
+        // Append the new list to the main list
+        movimientos_disponibles_damas.push(damaMovimientos);
 
     });
     
@@ -377,7 +381,10 @@ router.post("/", (req, res) => {
     };
     res.json({allMovements});
     reyes.forEach(rey => {
-      rey.jaqueMate(rey, allMovements);
+      if(rey.estoy_en_jaque) {
+          jaque_mate = rey.jaqueMate(rey, allMovements);
+          console.log("Es mate: ", jaque_mate);
+      }
   });
   //}
   // else {
