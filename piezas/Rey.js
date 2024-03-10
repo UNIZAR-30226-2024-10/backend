@@ -168,9 +168,158 @@ class Rey {
         return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
 
-    puedo_comer_a_la_que_hace_jaque(pieza, movimientos_disponibles_oponente) {
+    // TODO ESTO ES PARA LAS CLAVADAS ----------------------------------------------------------------
 
+    findFirstWhitePieceInPath(chessState, blackPiecesInPath) {
+        const directions = [
+            { dx: 1, dy: 0 },  // Right
+            { dx: -1, dy: 0 }, // Left
+            { dx: 0, dy: 1 },  // Down
+            { dx: 0, dy: -1 }, // Up
+            { dx: 1, dy: 1 },  // Diagonal down-right
+            { dx: 1, dy: -1 }, // Diagonal up-right
+            { dx: -1, dy: 1 }, // Diagonal down-left
+            { dx: -1, dy: -1 } // Diagonal up-left
+        ];
+    
+        for (const blackPiece of blackPiecesInPath) {
+            const { dirDX, dirDY, x: blackX, y: blackY } = blackPiece;
+
+            console.log("Black piece: ", dirDX, dirDY, blackX, blackY);
+            
+            // Find the corresponding white piece in the same direction
+
+            
+            let whiteX = blackX;
+            let whiteY = blackY;
+    
+            let whitePieceCount = 0;
+            console.log("White piece count: ", whitePieceCount, whiteX, whiteY, dirDX, dirDY);
+            while (whiteX >= 0 && whiteX < 8 && whiteY >= 0 && whiteY < 8) {
+                const pieceAtPosition = this.getPieceAtPosition(chessState, whiteX, whiteY);
+                console.log("Piece at position: ", pieceAtPosition, whiteX, whiteY);
+                if (pieceAtPosition !== null && pieceAtPosition.color === 'blancas') {
+                    console.log("Holaaaa", pieceAtPosition);
+                    // White piece found
+                    whitePieceCount++;
+    
+                    if (whitePieceCount > 1) {
+                        // More than one white piece found, exit the loop
+                        break;
+                    }
+                }
+    
+                whiteX += dirDX;
+                whiteY += dirDY;
+            }
+    
+            if (whitePieceCount === 1) {
+                // Return the coordinates of the single white piece found
+                console.log("White piece found in direction: ", dirDX, dirDY, whiteX - dirDX, whiteY - dirDY);
+                //return { x: whiteX - dirDX, y: whiteY - dirDY };
+            }
+        }
+    
+        // Return null if no valid white piece is found in any direction
+        return null;
     }
+    
+    getPieceAtPosition(chessState, x, y) {
+        // Helper function to get the piece at a given position on the chess board
+        for (const pieceType in chessState) {
+            console.log("PieceType: ", pieceType);
+            if (pieceType !== 'turno') {
+                for (const piece of chessState[pieceType]) {
+                    // console.log("Piece: ", piece);
+                    if (piece.x === x && piece.y === y) {
+                        return piece;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+   verificar_clavadas(pieza, chess_state) {
+        // Verificar clavadas hacia la derecha
+        let posicion_rey_x = pieza.Posicion.x;
+        let posicion_rey_y = pieza.Posicion.y;
+        console.log("Posicion Rey: ", posicion_rey_x, posicion_rey_y);
+
+
+        let primeras_piezas_contarias_diagonales = this.encontrar_piezas_contrarias_en_diagonales(pieza, this.tablero.getCasillas(), posicion_rey_x, posicion_rey_y);
+
+        let primeras_piezas_contarias_transversales = this.encontrar_piezas_contrarias_en_todas_las_direcciones(pieza, this.tablero.getCasillas(), posicion_rey_x, posicion_rey_y);
+
+        console.log("Primeras piezas contrarias transversales: ", primeras_piezas_contarias_transversales);
+        console.log("Primeras piezas contrarias diagonales: ", primeras_piezas_contarias_diagonales);
+
+        this.findFirstWhitePieceInPath(chess_state, primeras_piezas_contarias_transversales);
+
+        
+   }
+
+
+
+    encontrar_piezas_contrarias_en_todas_las_direcciones(pieza, tablero, x, y) {
+        const directions = [
+            { dx: 1, dy: 0 },  // Right
+            { dx: -1, dy: 0 }, // Left
+            { dx: 0, dy: 1 },  // Down
+            { dx: 0, dy: -1 }  // Up
+        ];
+
+        let primeras_piezas_contarias = [];
+
+        for (const dir of directions) {
+            let newX = x + dir.dx;
+            let newY = y + dir.dy;
+
+            while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                // Check if there's a black piece at the current position
+                if (tablero[newX][newY] !== null && tablero[newX][newY].getPieza() !== null && tablero[newX][newY].getPieza().getColor() !== pieza.color) {
+                    console.log(`Pieza negra encontrada en dirección (${dir.dx}, ${dir.dy}): `, newX, newY);
+                    primeras_piezas_contarias.push({ dirDX: dir.dx, dirDY: dir.dy, x: newX, y: newY });
+                }
+
+                newX += dir.dx;
+                newY += dir.dy;
+            }
+        }
+        return primeras_piezas_contarias;
+    }
+
+    encontrar_piezas_contrarias_en_diagonales(pieza, tablero, x, y) {
+        const directions = [
+            { dx: 1, dy: 1 },  // Diagonal down-right
+            { dx: 1, dy: -1 }, // Diagonal up-right
+            { dx: -1, dy: 1 }, // Diagonal down-left
+            { dx: -1, dy: -1 } // Diagonal up-left
+        ];
+    
+        const blackPieces = [];
+    
+        for (const dir of directions) {
+            let newX = x + dir.dx;
+            let newY = y + dir.dy;
+    
+            while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                // Check if there's a black piece at the current position
+                if (tablero[newX][newY] !== null && tablero[newX][newY].getPieza() !== null && tablero[newX][newY].getPieza().getColor() !== pieza.color) {
+                    console.log(`Pieza negra encontrada en diagonal (${dir.dx}, ${dir.dy}): `, newX, newY);
+                    blackPieces.push({ x: newX, y: newY });
+                }
+    
+                newX += dir.dx;
+                newY += dir.dy;
+            }
+        }
+    
+        return blackPieces;
+    }
+
+    // ---------------------------------------------------------------------------
+
 
     jaqueMate(pieza, movimientos_disponibles_oponente) {
         console.log("Movimientos disponibles del oponente: ", movimientos_disponibles_oponente);
@@ -206,7 +355,6 @@ class Rey {
                     console.log("Tipo de movimientooooo: ", movimiento);
                     for (const tupla of Object.entries(movimiento)) {
                         const [key, value] = tupla;
-                        console.log("Valor de la tupla: ", value);
                         if (value.x === coordenadasDesdeJaque.fromX && value.y === coordenadasDesdeJaque.fromY) {
                             console.log("Encontrado tusaaaa a comel:", value, movimientosPieza);
                             jaque_mate = false;
@@ -220,12 +368,11 @@ class Rey {
 
     getFromValues(list, x, y) {
         for (const tuple of list) {
-            console.log("Tupla: ", tuple);
             if (tuple.x === x && tuple.y === y) {
-            return { fromX: list[0].fromX, fromY: list[0].fromY };
+                return { fromX: list[0].fromX, fromY: list[0].fromY };
             }
         }
-        return null; // Return null if no match is found
+        return null;
     }
 
     enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha, ha_movido_torre_negra_izqda

@@ -381,6 +381,7 @@ router.post("/", (req, res) => {
     };
     res.json({allMovements});
     reyes.forEach(rey => {
+      // rey.verificar_clavadas(rey, modifiedChessboardState);
       if(rey.estoy_en_jaque) {
           jaque_mate = rey.jaqueMate(rey, allMovements);
           console.log("Es mate: ", jaque_mate);
