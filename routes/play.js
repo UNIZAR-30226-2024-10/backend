@@ -41,6 +41,12 @@ router.post("/", (req, res) => {
 
     let modifiedChessboardState = req.body;
 
+    let numEnvio = modifiedChessboardState.envio;
+    console.log("Numero de envío: ", numEnvio);
+
+    // Comprobar el numero de envio
+    
+
     tablero.actualizarTablero(modifiedChessboardState);
     console.log("Tablero actualizado");
 
@@ -379,6 +385,18 @@ router.post("/", (req, res) => {
         torres: movimientos_disponibles_torres,
         damas: movimientos_disponibles_damas
     };
+
+
+
+
+
+
+
+
+
+
+
+
     res.json({allMovements});
     reyes.forEach(rey => {
       // rey.verificar_clavadas(rey, modifiedChessboardState);

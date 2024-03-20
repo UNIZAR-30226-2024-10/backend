@@ -130,7 +130,7 @@ class Tablero {
 
     actualizarTablero(chessboardState) {
         for (const tipo_pieza in chessboardState) {
-            if(tipo_pieza !== "turno") {
+            if(tipo_pieza !== "turno" && tipo_pieza !== "envio") {
                 if (chessboardState.hasOwnProperty(tipo_pieza)) {
                     const piezas = chessboardState[tipo_pieza];
                     for (let i = 0; i < piezas.length; i++) {
