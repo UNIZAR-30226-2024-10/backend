@@ -41,8 +41,7 @@ router.post("/", (req, res) => {
 
     let modifiedChessboardState = req.body;
 
-    let numEnvio = modifiedChessboardState.envio;
-    console.log("Numero de envío: ", numEnvio);
+    let jugadaLegal = true;
 
     // Comprobar el numero de envio
     
@@ -307,7 +306,6 @@ router.post("/", (req, res) => {
           }
         }
       }
-      if (turno === rey.color) {
         
         
         movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
@@ -328,14 +326,17 @@ router.post("/", (req, res) => {
           }
         // Check if the king is in check
         estaEnJaque = rey.jaque(rey);
-        console.log("Estoy en jaque: ", estaEnJaque);
+        console.log("Estoy en jaque: ", estaEnJaque, rey.color);
         let jaque_mate = false;
         if(estaEnJaque) {
+          console.log("Color de rey en jaque: ", rey.color);
           rey.estoy_en_jaque = true;
+          if(turno !== rey.color) {
+            console.log("Ilegal 1");
+            jugadaLegal = false;
+          }
         }
 
-
-    }
     });
     console.log("Movimientos rey: ", movimientos_disponibles_reyes);
     // Comprobar movimientos disponibles de la dama
@@ -397,7 +398,7 @@ router.post("/", (req, res) => {
 
 
 
-    res.json({allMovements});
+    res.json({jugadaLegal, allMovements});
     reyes.forEach(rey => {
       // rey.verificar_clavadas(rey, modifiedChessboardState);
       if(rey.estoy_en_jaque) {
