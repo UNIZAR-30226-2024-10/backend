@@ -220,7 +220,9 @@ class Rey {
 
             let sePuedeBloquear = this.hasCommonTuple(casillasCaminoJaque, movimientosDePosiblesBloqueantes);
             console.log("Se puede bloquear: ", sePuedeBloquear);
-
+            if (sePuedeBloquear) {
+                jaque_mate = false;
+            }
 
         return jaque_mate;
     }
