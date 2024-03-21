@@ -352,7 +352,6 @@ router.post("/", (req, res) => {
           return new Dama(dama.x, dama.y, dama.color, tablero);
         }
         else {
-          console.log("WOWOWOWO");
           if(dama.color !== turno) {
             // DAMA ES EL QUE COME
             return new Dama(dama.x, dama.y, dama.color, tablero);
@@ -369,10 +368,9 @@ router.post("/", (req, res) => {
         damas.forEach(dama => {
         // Create a new list for each caballo
         let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
-        
         // Append movements to the new list
         damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
-    
+        
         // Append the new list to the main list
         movimientos_disponibles_damas.push(damaMovimientos);
 
@@ -388,6 +386,7 @@ router.post("/", (req, res) => {
     };
 
 
+    console.log("Movimientos disponibles pawn: ", allMovements);
 
 
 
@@ -400,7 +399,6 @@ router.post("/", (req, res) => {
 
     res.json({jugadaLegal, allMovements});
     reyes.forEach(rey => {
-      // rey.verificar_clavadas(rey, modifiedChessboardState);
       if(rey.estoy_en_jaque) {
           jaque_mate = rey.jaqueMate(rey, allMovements);
           console.log("Es mate: ", jaque_mate);
