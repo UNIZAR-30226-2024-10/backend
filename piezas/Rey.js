@@ -168,157 +168,6 @@ class Rey {
         return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
 
-    // TODO ESTO ES PARA LAS CLAVADAS ----------------------------------------------------------------
-
-    findFirstWhitePieceInPath(chessState, blackPiecesInPath) {
-        const directions = [
-            { dx: 1, dy: 0 },  // Right
-            { dx: -1, dy: 0 }, // Left
-            { dx: 0, dy: 1 },  // Down
-            { dx: 0, dy: -1 }, // Up
-            { dx: 1, dy: 1 },  // Diagonal down-right
-            { dx: 1, dy: -1 }, // Diagonal up-right
-            { dx: -1, dy: 1 }, // Diagonal down-left
-            { dx: -1, dy: -1 } // Diagonal up-left
-        ];
-    
-        for (const blackPiece of blackPiecesInPath) {
-            const { dirDX, dirDY, x: blackX, y: blackY } = blackPiece;
-
-            console.log("Black piece: ", dirDX, dirDY, blackX, blackY);
-            
-            // Find the corresponding white piece in the same direction
-
-            
-            let whiteX = blackX;
-            let whiteY = blackY;
-    
-            let whitePieceCount = 0;
-            console.log("White piece count: ", whitePieceCount, whiteX, whiteY, dirDX, dirDY);
-            while (whiteX >= 0 && whiteX < 8 && whiteY >= 0 && whiteY < 8) {
-                const pieceAtPosition = this.getPieceAtPosition(chessState, whiteX, whiteY);
-                console.log("Piece at position: ", pieceAtPosition, whiteX, whiteY);
-                if (pieceAtPosition !== null && pieceAtPosition.color === 'blancas') {
-                    console.log("Holaaaa", pieceAtPosition);
-                    // White piece found
-                    whitePieceCount++;
-    
-                    if (whitePieceCount > 1) {
-                        // More than one white piece found, exit the loop
-                        break;
-                    }
-                }
-    
-                whiteX += dirDX;
-                whiteY += dirDY;
-            }
-    
-            if (whitePieceCount === 1) {
-                // Return the coordinates of the single white piece found
-                console.log("White piece found in direction: ", dirDX, dirDY, whiteX - dirDX, whiteY - dirDY);
-                //return { x: whiteX - dirDX, y: whiteY - dirDY };
-            }
-        }
-    
-        // Return null if no valid white piece is found in any direction
-        return null;
-    }
-    
-    getPieceAtPosition(chessState, x, y) {
-        // Helper function to get the piece at a given position on the chess board
-        for (const pieceType in chessState) {
-            console.log("PieceType: ", pieceType);
-            if (pieceType !== 'turno') {
-                for (const piece of chessState[pieceType]) {
-                    // console.log("Piece: ", piece);
-                    if (piece.x === x && piece.y === y) {
-                        return piece;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-   verificar_clavadas(pieza, chess_state) {
-        // Verificar clavadas hacia la derecha
-        let posicion_rey_x = pieza.Posicion.x;
-        let posicion_rey_y = pieza.Posicion.y;
-        console.log("Posicion Rey: ", posicion_rey_x, posicion_rey_y);
-
-
-        let primeras_piezas_contarias_diagonales = this.encontrar_piezas_contrarias_en_diagonales(pieza, this.tablero.getCasillas(), posicion_rey_x, posicion_rey_y);
-
-        let primeras_piezas_contarias_transversales = this.encontrar_piezas_contrarias_en_todas_las_direcciones(pieza, this.tablero.getCasillas(), posicion_rey_x, posicion_rey_y);
-
-        console.log("Primeras piezas contrarias transversales: ", primeras_piezas_contarias_transversales);
-        console.log("Primeras piezas contrarias diagonales: ", primeras_piezas_contarias_diagonales);
-
-        this.findFirstWhitePieceInPath(chess_state, primeras_piezas_contarias_transversales);
-
-        
-   }
-
-
-
-    encontrar_piezas_contrarias_en_todas_las_direcciones(pieza, tablero, x, y) {
-        const directions = [
-            { dx: 1, dy: 0 },  // Right
-            { dx: -1, dy: 0 }, // Left
-            { dx: 0, dy: 1 },  // Down
-            { dx: 0, dy: -1 }  // Up
-        ];
-
-        let primeras_piezas_contarias = [];
-
-        for (const dir of directions) {
-            let newX = x + dir.dx;
-            let newY = y + dir.dy;
-
-            while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-                // Check if there's a black piece at the current position
-                if (tablero[newX][newY] !== null && tablero[newX][newY].getPieza() !== null && tablero[newX][newY].getPieza().getColor() !== pieza.color) {
-                    console.log(`Pieza negra encontrada en dirección (${dir.dx}, ${dir.dy}): `, newX, newY);
-                    primeras_piezas_contarias.push({ dirDX: dir.dx, dirDY: dir.dy, x: newX, y: newY });
-                }
-
-                newX += dir.dx;
-                newY += dir.dy;
-            }
-        }
-        return primeras_piezas_contarias;
-    }
-
-    encontrar_piezas_contrarias_en_diagonales(pieza, tablero, x, y) {
-        const directions = [
-            { dx: 1, dy: 1 },  // Diagonal down-right
-            { dx: 1, dy: -1 }, // Diagonal up-right
-            { dx: -1, dy: 1 }, // Diagonal down-left
-            { dx: -1, dy: -1 } // Diagonal up-left
-        ];
-    
-        const blackPieces = [];
-    
-        for (const dir of directions) {
-            let newX = x + dir.dx;
-            let newY = y + dir.dy;
-    
-            while (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-                // Check if there's a black piece at the current position
-                if (tablero[newX][newY] !== null && tablero[newX][newY].getPieza() !== null && tablero[newX][newY].getPieza().getColor() !== pieza.color) {
-                    console.log(`Pieza negra encontrada en diagonal (${dir.dx}, ${dir.dy}): `, newX, newY);
-                    blackPieces.push({ x: newX, y: newY });
-                }
-    
-                newX += dir.dx;
-                newY += dir.dy;
-            }
-        }
-    
-        return blackPieces;
-    }
-
-    // ---------------------------------------------------------------------------
 
 
     jaqueMate(pieza, movimientos_disponibles_oponente) {
@@ -330,11 +179,8 @@ class Rey {
         // Obtener desde dónde nos hacen jaque
         outerLoop:
         for (const piezaType in movimientos_disponibles_oponente) {
-            console.log("piezaType: ", piezaType);
             let movimientosPieza = movimientos_disponibles_oponente[piezaType];
-            console.log("tusabe: ", movimientosPieza);
             for (const movimiento of movimientosPieza) {
-                console.log("movimiento: ", movimiento);
                 if(piezaType !== "reyes") {
                     coordenadasDesdeJaque = this.getFromValues(movimiento, pieza.Posicion.x, pieza.Posicion.y);
                     console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
@@ -352,7 +198,6 @@ class Rey {
                 const movimientosPieza = movimientos_disponibles_oponente[piezaType];
                 console.log("Tipo de movimiento: ", movimientosPieza);
                 for (const movimiento of movimientosPieza) {
-                    console.log("Tipo de movimientooooo: ", movimiento);
                     for (const tupla of Object.entries(movimiento)) {
                         const [key, value] = tupla;
                         if (value.x === coordenadasDesdeJaque.fromX && value.y === coordenadasDesdeJaque.fromY) {
@@ -363,7 +208,62 @@ class Rey {
                 }
             }
         }
+
+        // Comprobar si podemos poner una pieza entre el rey y la pieza que nos hace jaque
+            const casillasCaminoJaque = this.getBlockingPositions(coordenadasDesdeJaque, pieza);
+            console.log("Casillas en el camino del jaque: ", casillasCaminoJaque);
+            let movimientosDePosiblesBloqueantes = this.getMovementsByColor(movimientos_disponibles_oponente, pieza.color);
+            console.log("Movimientos de posibles bloqueantes: ", movimientosDePosiblesBloqueantes);
+            // Ya tenemos los movimientos de todas las piezas que pueden bloquear el jaque
+            // Comprobamos si existe algún movimiento entre todas las piezas que pueda
+            // bloquear el jaque
+
+            let sePuedeBloquear = this.hasCommonTuple(casillasCaminoJaque, movimientosDePosiblesBloqueantes);
+            console.log("Se puede bloquear: ", sePuedeBloquear);
+            if (sePuedeBloquear) {
+                jaque_mate = false;
+            }
+
         return jaque_mate;
+    }
+
+    // Obtener los movimientos que bloquean el jaque
+    getBlockingPositions(coordenadasDesdeJaque, pieza) {
+        const blockingPositions = [];
+        const [jaqueX, jaqueY] = [coordenadasDesdeJaque.fromX, coordenadasDesdeJaque.fromY];
+        const dx = Math.sign(pieza.Posicion.x - jaqueX);
+        const dy = Math.sign(pieza.Posicion.y - jaqueY);
+        
+        for (let x = jaqueX + dx, y = jaqueY + dy; x !== pieza.Posicion.x || y !== pieza.Posicion.y; x += dx, y += dy) {
+            blockingPositions.push({ x, y });
+            if (x === pieza.Posicion.x && y === pieza.Posicion.y) {
+                break; // Terminate the loop when reaching the king's position
+            }
+        }
+        
+        return blockingPositions;
+    }
+
+    getMovementsByColor(movementsJson, color) {
+        const movementsByColor = [];
+    
+        for (const pieceType in movementsJson) {
+            let movimientosPieza = movementsJson[pieceType];
+            for (const movimiento of movimientosPieza) {
+                if (pieceType !== "reyes") {
+                    if(movimiento[0].fromColor === color) {
+                        for (const tuple of movimiento) {
+                            movementsByColor.push({x: tuple.x, y: tuple.y});
+                        }
+                        
+                    }
+                    
+                }
+                
+            }
+        }
+    
+        return movementsByColor;
     }
 
     getFromValues(list, x, y) {
@@ -374,6 +274,17 @@ class Rey {
         }
         return null;
     }
+
+    hasCommonTuple(list1, list2) {
+    for (const tuple1 of list1) {
+        for (const tuple2 of list2) {
+            if (tuple1.x === tuple2.x && tuple1.y === tuple2.y) {
+                return true; // Found a common tuple
+            }
+        }
+    }
+    return false; // No common tuple found
+}
 
     enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha, ha_movido_torre_negra_izqda
         ,turno, lado) {
