@@ -119,10 +119,15 @@ router.post("/", (req, res) => {
           }
         }
       }
-        
-        
-        movimientos_disponibles_reyes.push({ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color});
 
+          // Create a new list for each caballo
+          const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
+          
+          // Append movements to the new list
+          reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
+      
+          // Append the new list to the main list
+          movimientos_disponibles_reyes.push(reyMovimientos);
         // Add the king's available movements to the array
         movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
@@ -153,7 +158,7 @@ router.post("/", (req, res) => {
           else {
             //console.log("posicion rey", rey.Posicion.x + " " + rey.Posicion.y);
             const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
-            console.log("Posiciones atacadas: ", posicionesAtacadas);
+            //console.log("Posiciones atacadas: ", posicionesAtacadas);
             const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
             console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
 
@@ -229,16 +234,16 @@ router.post("/", (req, res) => {
       let movimientos_disponibles_peones = [];
       // Add the king's position to the array
       peones.forEach(peon => {
-      // Create a new list for each caballo
-      const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
-      
-      // Append movements to the new list
-      peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
-  
-      // Append the new list to the main list
-      movimientos_disponibles_peones.push(peonMovimientos);
+        // Create a new list for each caballo
+        const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
+        
+        // Append movements to the new list
+        peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
+    
+        // Append the new list to the main list
+        movimientos_disponibles_peones.push(peonMovimientos);
 
-    });
+      });
 
 
     // Comprobar movimientos disponibles de los caballos

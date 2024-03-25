@@ -131,7 +131,7 @@ class Rey {
         const piezasOponente = this.obtenerPiezas(colorOponente);
         
         piezasOponente.forEach(pieza => {
-            if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
+            if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama || pieza instanceof Peon) {
                 const movimientosDisponibles = pieza.obtenerMovimientosDisponibles();
                 // Agregar las propiedades fromX y fromY a cada movimiento
                 movimientosDisponibles.forEach(movimiento => {
@@ -139,32 +139,6 @@ class Rey {
                     movimiento.fromY = pieza.Posicion.y;
                 });
                 posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientosDisponibles);
-            }
-            else if (pieza instanceof Peon) {
-                const x1 = pieza.Posicion.x - 1;
-                const y1 = pieza.Posicion.y + (pieza.color === 'blancas' ? 1 : -1);
-                const x2 = pieza.Posicion.x + 1;
-                const y2 = pieza.Posicion.y + (pieza.color === 'blancas' ? 1 : -1);
-                const movimientos = [];
-                // Agregar las propiedades fromX y fromY al primer movimiento del peón
-                if (pieza._esMovimientoValido(x1,y1)){
-                    movimientos.push({
-                        fromX: pieza.Posicion.x,
-                        fromY: pieza.Posicion.y,
-                        x: x1,
-                        y: y1
-                    });
-                }
-                // Agregar las propiedades fromX y fromY al segundo movimiento del peón
-                if (pieza._esMovimientoValido(x1,y1)){
-                    movimientos.push({
-                        fromX: pieza.Posicion.x,
-                        fromY: pieza.Posicion.y,
-                        x: x2,
-                        y: y2
-                    });
-                }
-                posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientos);
             }
         });
         return posicionesAtacadasPorOponente;
