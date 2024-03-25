@@ -166,32 +166,6 @@ class Rey {
                 }
                 posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientos);
             }
-            else if (pieza instanceof Rey) {
-                const casillas = pieza.tablero.getCasillas();
-                const movimientos = [];
-                for (let dx = -1; dx <= 1; dx++) {
-                    for (let dy = -1; dy <= 1; dy++) {
-                        if (dx === 0 && dy === 0) continue; // No considerar el movimiento de estar en el mismo lugar
-            
-                        const x = pieza.Posicion.x + dx;
-                        const y = pieza.Posicion.y + dy;
-            
-                        if (pieza._esMovimientoValido(x, y)) {
-                            const casilla = casillas[x][y];
-                            if (casilla !== undefined) {
-                                // Agregar las propiedades fromX y fromY a cada movimiento del rey
-                                movimientos.push({
-                                    fromX: pieza.Posicion.x,
-                                    fromY: pieza.Posicion.y,
-                                    x: x,
-                                    y: y
-                                });
-                            }
-                        }
-                    }
-                }
-                posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientos);
-            }
         });
         return posicionesAtacadasPorOponente;
     }
@@ -301,9 +275,9 @@ class Rey {
         const piezasQueComen = [];
         if (coordenadasDesdeJaque !== null) {
             for (const piezaType in movimientos_disponibles) {
-                console.log("Tipo de pieza: ", piezaType);
+                //console.log("Tipo de pieza: ", piezaType);
                 const movimientosPieza = movimientos_disponibles[piezaType];
-                console.log("Movimientos de la pieza: ", movimientosPieza);
+                //console.log("Movimientos de la pieza: ", movimientosPieza);
                 for (const movimiento of movimientosPieza) {
                     // Verificar si el movimiento coincide con las coordenadas de la pieza que da jaque
                     if (movimiento.x === coordenadasDesdeJaque.fromX && movimiento.y === coordenadasDesdeJaque.fromY) {
@@ -322,58 +296,78 @@ class Rey {
         }
         return piezasQueComen.length > 0 ? piezasQueComen : null;
     }
-    
 
-    // Método para comprobar si alguna pieza puede interponerse entre el rey y la pieza que nos hace jaque
-    sePuedePonerEnMedio(coordenadasDesdeJaque, pieza, movimientos_disponibles_oponente) {
-        const casillasCaminoJaque = this.getBlockingPositions(coordenadasDesdeJaque, pieza);
-        console.log("Casillas en el camino del jaque: ", casillasCaminoJaque);
-        let movimientosDePosiblesBloqueantes = this.getMovementsByColor(movimientos_disponibles_oponente, pieza.color);
-        console.log("Movimientos de posibles bloqueantes: ", movimientosDePosiblesBloqueantes);
-        
-        // Comprobamos si existe algún movimiento entre todas las piezas que pueda bloquear el jaque
-        let sePuedeBloquear = this.hasCommonTuple(casillasCaminoJaque, movimientosDePosiblesBloqueantes);
-            return sePuedeBloquear;
+    // Obtener los movimientos que bloquean el jaque
+    getBlockingPositions(coordenadasDesdeJaque, pieza) {
+        const blockingPositions = [];
+        const [jaqueX, jaqueY] = [coordenadasDesdeJaque.fromX, coordenadasDesdeJaque.fromY];
+    
+        // Calculamos el desplazamiento en x e y
+        const dx = Math.sign(pieza.Posicion.x - jaqueX);
+        const dy = Math.sign(pieza.Posicion.y - jaqueY);
+    
+        // Si la pieza y el rey están en la misma fila
+        if (jaqueY === pieza.Posicion.y) {
+            for (let x = jaqueX + dx; x !== pieza.Posicion.x; x += dx) {
+                blockingPositions.push({ x, y: jaqueY });
+            }
         }
-        // Obtener los movimientos que bloquean el jaque
-        getBlockingPositions(coordenadasDesdeJaque, pieza) {
-            const blockingPositions = [];
-            const [jaqueX, jaqueY] = [coordenadasDesdeJaque.fromX, coordenadasDesdeJaque.fromY];
-            const dx = Math.sign(pieza.Posicion.x - jaqueX);
-            const dy = Math.sign(pieza.Posicion.y - jaqueY);
-            
-            for (let x = jaqueX + dx, y = jaqueY + dy; x !== pieza.Posicion.x || y !== pieza.Posicion.y; x += dx, y += dy) {
+        // Si la pieza y el rey están en la misma columna
+        else if (jaqueX === pieza.Posicion.x) {
+            for (let y = jaqueY + dy; y !== pieza.Posicion.y; y += dy) {
+                blockingPositions.push({ x: jaqueX, y });
+            }
+        }
+        // Si la pieza y el rey están en una diagonal
+        else if (Math.abs(pieza.Posicion.x - jaqueX) === Math.abs(pieza.Posicion.y - jaqueY)) {
+            let x = jaqueX + dx;
+            let y = jaqueY + dy;
+            while (x !== pieza.Posicion.x && y !== pieza.Posicion.y) {
                 blockingPositions.push({ x, y });
-                if (x === pieza.Posicion.x && y === pieza.Posicion.y) {
-                    break; // Terminate the loop when reaching the king's position
-                }
-        }
-        
-        return blockingPositions;
-    }
-
-    getMovementsByColor(movementsJson, color) {
-        const movementsByColor = [];
-    
-        for (const pieceType in movementsJson) {
-            let movimientosPieza = movementsJson[pieceType];
-            for (const movimiento of movimientosPieza) {
-                if (pieceType !== "rey") {
-                    if(movimiento[0].fromColor === color) {
-                        for (const tuple of movimiento) {
-                            movementsByColor.push({x: tuple.x, y: tuple.y});
-                        }
-                        
-                    }
-                    
-                }
-                
+                x += dx;
+                y += dy;
             }
         }
     
-        return movementsByColor;
+        return blockingPositions;
     }
+    
 
+    // Método para comprobar si alguna pieza puede interponerse entre el rey y la pieza que nos hace jaque
+    sePuedePonerEnMedio(coordenadasDesdeJaque, pieza, movimientos_disponibles) {
+        const casillasCaminoJaque = this.getBlockingPositions(coordenadasDesdeJaque, pieza);
+        console.log("Casillas en el camino del jaque: ", casillasCaminoJaque);
+        console.log("Movimientos Disponibles", movimientos_disponibles);
+        let movimientosDePosiblesBloqueantes = this.getPiezasBloqueantes(casillasCaminoJaque, movimientos_disponibles);
+        //console.log("Movimientos de posibles bloqueantes: ", movimientosDePosiblesBloqueantes);
+        return movimientosDePosiblesBloqueantes;
+    }
+    getPiezasBloqueantes(casillasCaminoJaque, movimientos_disponibles) {
+        const movimientosBloqueantes = {};
+    
+        for (const piezaType in movimientos_disponibles) {
+            const movimientosPieza = movimientos_disponibles[piezaType];
+            const piezasBloqueantes = movimientosPieza.filter(movimiento => {
+                for (const casilla of casillasCaminoJaque) {
+                    if (movimiento.x === casilla.x && movimiento.y === casilla.y) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+    
+            if (piezasBloqueantes.length > 0) {
+                if (!movimientosBloqueantes[piezaType]) {
+                    movimientosBloqueantes[piezaType] = [];
+                }
+                movimientosBloqueantes[piezaType].push(...piezasBloqueantes);
+            }
+        }
+    
+        return movimientosBloqueantes;
+    }
+    
+    
     getFromValues(list, x, y) {
         for (const tuple of list) {
             if (tuple.x === x && tuple.y === y) {
