@@ -117,6 +117,86 @@ class Rey {
         return posicionesAtacadasPorOponente;
     }
     
+    obtenerPosicionesAtacadasPorOponenteFormato(colorRey) {
+        let posicionesAtacadasPorOponente = {
+            peon: [],
+            alfil: [],
+            caballo: [],
+            torre: [],
+            dama: [],
+            rey: []
+        };
+    
+        const colorOponente = colorRey === 'blancas' ? 'negras' : 'blancas';
+        const piezasOponente = this.obtenerPiezas(colorOponente);
+        
+        piezasOponente.forEach(pieza => {
+            if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
+                const movimientosDisponibles = pieza.obtenerMovimientosDisponibles();
+                // Agregar las propiedades fromX y fromY a cada movimiento
+                movimientosDisponibles.forEach(movimiento => {
+                    movimiento.fromX = pieza.Posicion.x;
+                    movimiento.fromY = pieza.Posicion.y;
+                });
+                posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientosDisponibles);
+            }
+            else if (pieza instanceof Peon) {
+                const x1 = pieza.Posicion.x - 1;
+                const y1 = pieza.Posicion.y + (pieza.color === 'blancas' ? 1 : -1);
+                const x2 = pieza.Posicion.x + 1;
+                const y2 = pieza.Posicion.y + (pieza.color === 'blancas' ? 1 : -1);
+                const movimientos = [];
+                // Agregar las propiedades fromX y fromY al primer movimiento del peón
+                if (pieza._esMovimientoValido(x1,y1)){
+                    movimientos.push({
+                        fromX: pieza.Posicion.x,
+                        fromY: pieza.Posicion.y,
+                        x: x1,
+                        y: y1
+                    });
+                }
+                // Agregar las propiedades fromX y fromY al segundo movimiento del peón
+                if (pieza._esMovimientoValido(x1,y1)){
+                    movimientos.push({
+                        fromX: pieza.Posicion.x,
+                        fromY: pieza.Posicion.y,
+                        x: x2,
+                        y: y2
+                    });
+                }
+                posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientos);
+            }
+            else if (pieza instanceof Rey) {
+                const casillas = pieza.tablero.getCasillas();
+                const movimientos = [];
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        if (dx === 0 && dy === 0) continue; // No considerar el movimiento de estar en el mismo lugar
+            
+                        const x = pieza.Posicion.x + dx;
+                        const y = pieza.Posicion.y + dy;
+            
+                        if (pieza._esMovimientoValido(x, y)) {
+                            const casilla = casillas[x][y];
+                            if (casilla !== undefined) {
+                                // Agregar las propiedades fromX y fromY a cada movimiento del rey
+                                movimientos.push({
+                                    fromX: pieza.Posicion.x,
+                                    fromY: pieza.Posicion.y,
+                                    x: x,
+                                    y: y
+                                });
+                            }
+                        }
+                    }
+                }
+                posicionesAtacadasPorOponente[pieza.constructor.name.toLowerCase()].push(...movimientos);
+            }
+        });
+        return posicionesAtacadasPorOponente;
+    }
+    
+    
     
     
     movimientoCoincideConCasilla(movimientos, x, y) {
@@ -172,73 +252,101 @@ class Rey {
 
     jaqueMate(pieza, movimientos_disponibles_oponente) {
         console.log("Movimientos disponibles del oponente: ", movimientos_disponibles_oponente);
-        let jaque_mate = true; // Si hay jaque, es jaque mate hasta que se demuestre lo contrario
+        let jaque_mate = true;
         let coordenadasDesdeJaque;
         console.log("COORDENADAS REY: ", pieza.Posicion.x, pieza.Posicion.y);
         
         // Obtener desde dónde nos hacen jaque
-        outerLoop:
-        for (const piezaType in movimientos_disponibles_oponente) {
-            let movimientosPieza = movimientos_disponibles_oponente[piezaType];
-            for (const movimiento of movimientosPieza) {
-                if(piezaType !== "reyes") {
-                    coordenadasDesdeJaque = this.getFromValues(movimiento, pieza.Posicion.x, pieza.Posicion.y);
-                    console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
-                    if (coordenadasDesdeJaque !== null) {
-                        break outerLoop;
-                    }
-                }  
-            }  
-        }
+        coordenadasDesdeJaque = this.getCasillaDesdeJaque(pieza, movimientos_disponibles_oponente);
+        console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
         
         // Una vez tenemos desde dónde nos hacen jaque, comprobamos si podemos comer a la pieza que nos hace jaque
-        if (coordenadasDesdeJaque !== null) {
-            for (const piezaType in movimientos_disponibles_oponente) {
-                console.log("Tipo de pieza: ", piezaType);
-                const movimientosPieza = movimientos_disponibles_oponente[piezaType];
-                console.log("Tipo de movimiento: ", movimientosPieza);
-                for (const movimiento of movimientosPieza) {
-                    for (const tupla of Object.entries(movimiento)) {
-                        const [key, value] = tupla;
-                        if (value.x === coordenadasDesdeJaque.fromX && value.y === coordenadasDesdeJaque.fromY) {
-                            console.log("Encontrado tusaaaa a comel:", value, movimientosPieza);
-                            jaque_mate = false;
-                        }
-                    }
-                }
-            }
+        let piezaQuePuedeComer = this.puedeComerPieza(coordenadasDesdeJaque, movimientos_disponibles_oponente);
+        if (piezaQuePuedeComer !== null) {
+            console.log("Encontrado pieza que puede comer:", piezaQuePuedeComer);
+            jaque_mate = false;
         }
 
         // Comprobar si podemos poner una pieza entre el rey y la pieza que nos hace jaque
-            const casillasCaminoJaque = this.getBlockingPositions(coordenadasDesdeJaque, pieza);
-            console.log("Casillas en el camino del jaque: ", casillasCaminoJaque);
-            let movimientosDePosiblesBloqueantes = this.getMovementsByColor(movimientos_disponibles_oponente, pieza.color);
-            console.log("Movimientos de posibles bloqueantes: ", movimientosDePosiblesBloqueantes);
-            // Ya tenemos los movimientos de todas las piezas que pueden bloquear el jaque
-            // Comprobamos si existe algún movimiento entre todas las piezas que pueda
-            // bloquear el jaque
-
-            let sePuedeBloquear = this.hasCommonTuple(casillasCaminoJaque, movimientosDePosiblesBloqueantes);
-            console.log("Se puede bloquear: ", sePuedeBloquear);
-            if (sePuedeBloquear) {
-                jaque_mate = false;
-            }
+        let sePuedeBloquear = this.sePuedePonerEnMedio(coordenadasDesdeJaque, pieza, movimientos_disponibles_oponente);
+        console.log("Se puede bloquear: ", sePuedeBloquear);
+        if (sePuedeBloquear) {
+            jaque_mate = false;
+        }
 
         return jaque_mate;
     }
 
-    // Obtener los movimientos que bloquean el jaque
-    getBlockingPositions(coordenadasDesdeJaque, pieza) {
-        const blockingPositions = [];
-        const [jaqueX, jaqueY] = [coordenadasDesdeJaque.fromX, coordenadasDesdeJaque.fromY];
-        const dx = Math.sign(pieza.Posicion.x - jaqueX);
-        const dy = Math.sign(pieza.Posicion.y - jaqueY);
-        
-        for (let x = jaqueX + dx, y = jaqueY + dy; x !== pieza.Posicion.x || y !== pieza.Posicion.y; x += dx, y += dy) {
-            blockingPositions.push({ x, y });
-            if (x === pieza.Posicion.x && y === pieza.Posicion.y) {
-                break; // Terminate the loop when reaching the king's position
+    getCasillaDesdeJaque(posicionRey, posicionesAtacadas) {
+        // Iterar sobre cada tipo de pieza del oponente
+        for (const tipoPieza in posicionesAtacadas) {
+            // Verificar si el valor asociado a tipoPieza es un array
+            if (Array.isArray(posicionesAtacadas[tipoPieza])) {
+                // Iterar sobre cada movimiento disponible de esa pieza
+                for (const movimiento of posicionesAtacadas[tipoPieza]) {
+                    // Verificar si el movimiento coincide con la posición del rey
+                    if (movimiento.x === posicionRey.Posicion.x && movimiento.y === posicionRey.Posicion.y) {
+                        return {fromX: movimiento.fromX, fromY: movimiento.fromY };
+                    }
+                }
             }
+        }
+        // Si no se encuentra ninguna pieza que amenaza al rey, devolver null
+        return null;
+    }
+    
+    
+
+    puedeComerPieza(coordenadasDesdeJaque, movimientos_disponibles) {
+        const piezasQueComen = [];
+        if (coordenadasDesdeJaque !== null) {
+            for (const piezaType in movimientos_disponibles) {
+                console.log("Tipo de pieza: ", piezaType);
+                const movimientosPieza = movimientos_disponibles[piezaType];
+                console.log("Movimientos de la pieza: ", movimientosPieza);
+                for (const movimiento of movimientosPieza) {
+                    // Verificar si el movimiento coincide con las coordenadas de la pieza que da jaque
+                    if (movimiento.x === coordenadasDesdeJaque.fromX && movimiento.y === coordenadasDesdeJaque.fromY) {
+                        const pieza = {
+                            tipo: piezaType,
+                            fromX: movimiento.fromX,
+                            fromY: movimiento.fromY,
+                            x: movimiento.x,
+                            y: movimiento.y
+                        };
+                        console.log("Encontrada pieza que puede comer:", pieza);
+                        piezasQueComen.push(pieza);
+                    }
+                }
+            }
+        }
+        return piezasQueComen.length > 0 ? piezasQueComen : null;
+    }
+    
+
+    // Método para comprobar si alguna pieza puede interponerse entre el rey y la pieza que nos hace jaque
+    sePuedePonerEnMedio(coordenadasDesdeJaque, pieza, movimientos_disponibles_oponente) {
+        const casillasCaminoJaque = this.getBlockingPositions(coordenadasDesdeJaque, pieza);
+        console.log("Casillas en el camino del jaque: ", casillasCaminoJaque);
+        let movimientosDePosiblesBloqueantes = this.getMovementsByColor(movimientos_disponibles_oponente, pieza.color);
+        console.log("Movimientos de posibles bloqueantes: ", movimientosDePosiblesBloqueantes);
+        
+        // Comprobamos si existe algún movimiento entre todas las piezas que pueda bloquear el jaque
+        let sePuedeBloquear = this.hasCommonTuple(casillasCaminoJaque, movimientosDePosiblesBloqueantes);
+            return sePuedeBloquear;
+        }
+        // Obtener los movimientos que bloquean el jaque
+        getBlockingPositions(coordenadasDesdeJaque, pieza) {
+            const blockingPositions = [];
+            const [jaqueX, jaqueY] = [coordenadasDesdeJaque.fromX, coordenadasDesdeJaque.fromY];
+            const dx = Math.sign(pieza.Posicion.x - jaqueX);
+            const dy = Math.sign(pieza.Posicion.y - jaqueY);
+            
+            for (let x = jaqueX + dx, y = jaqueY + dy; x !== pieza.Posicion.x || y !== pieza.Posicion.y; x += dx, y += dy) {
+                blockingPositions.push({ x, y });
+                if (x === pieza.Posicion.x && y === pieza.Posicion.y) {
+                    break; // Terminate the loop when reaching the king's position
+                }
         }
         
         return blockingPositions;
@@ -250,7 +358,7 @@ class Rey {
         for (const pieceType in movementsJson) {
             let movimientosPieza = movementsJson[pieceType];
             for (const movimiento of movimientosPieza) {
-                if (pieceType !== "reyes") {
+                if (pieceType !== "rey") {
                     if(movimiento[0].fromColor === color) {
                         for (const tuple of movimiento) {
                             movementsByColor.push({x: tuple.x, y: tuple.y});

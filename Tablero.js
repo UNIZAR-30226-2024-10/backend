@@ -147,17 +147,17 @@ class Tablero {
     
     createPiece(tipo_pieza, x, y, color, lado) {
         switch (tipo_pieza) {
-            case 'peones':
+            case 'peon':
                 return new Peon(x, y, color, this);
-            case 'alfiles':
+            case 'alfil':
                 return new Alfil(x, y, color, this);
-            case 'caballos':
+            case 'caballo':
                 return new Caballo(x, y, color, this);
-            case 'torres':
+            case 'torre':
                 return new Torre(x, y, color, this, lado);
-            case 'damas':
+            case 'dama':
                 return new Dama(x, y, color, this);
-            case 'reyes':
+            case 'rey':
                 return new Rey(x, y, color, this);
             default:
                 return null;
