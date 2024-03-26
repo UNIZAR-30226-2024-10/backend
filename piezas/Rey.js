@@ -188,7 +188,7 @@ class Rey {
                         break outerLoop;
                     }
                 }  
-            }  
+            }
         }
         
         // Una vez tenemos desde dónde nos hacen jaque, comprobamos si podemos comer a la pieza que nos hace jaque
