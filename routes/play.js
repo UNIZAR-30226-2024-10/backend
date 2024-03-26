@@ -124,30 +124,29 @@ router.post("/", (req, res) => {
           const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
           
           // Append movements to the new list
+          console.log("Movimmientos del rey:", rey.obtenerMovimientosDisponibles());
           reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
       
-          // Append the new list to the main list
-          movimientos_disponibles_reyes.push(reyMovimientos);
+        
         // Add the king's available movements to the array
-        movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
           ha_movido_torre_blanca_izqda, turno, 'corto')){
             const x = 6;
             const y = rey.Posicion.y;
-            movimientos_disponibles_reyes.push({x, y});
+            reyMovimientos.push({x, y});
         }
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
           ha_movido_torre_blanca_izqda, turno, 'largo')){
             const x = 2;
             const y = rey.Posicion.y;
-            movimientos_disponibles_reyes.push({x, y});
+            reyMovimientos.push({x, y});
           }
+        movimientos_disponibles_reyes.push(reyMovimientos);
         // Check if the king is in check
         estaEnJaque = rey.jaque(rey);
         console.log("Estoy en jaque: ", estaEnJaque, rey.color);
         let jaque_mate = false;
         if(estaEnJaque) {
-        
           console.log("Color de rey en jaque: ", rey.color);
           rey.estoy_en_jaque = true;
           if(turno !== rey.color) {
@@ -202,6 +201,8 @@ router.post("/", (req, res) => {
             bloquear: movimientos_disponibles_bloquear_jaque
           }
           console.log("Movimientos disponibles: ", allMovements);
+          
+
           res.json({jugadaLegal, allMovements});
         }
     });
@@ -349,6 +350,7 @@ router.post("/", (req, res) => {
       // Add the king's position to the array
       torres.forEach(torre => {
           // COMPROBAR SI LAS TORRES SE HAN MOVIDO DE SU POSICION INICIAL
+          console.log("Soy torre", torre.color + " de lado " + torre.lado + " en la posicion " + torre.Posicion.x + " " +  torre.Posicion.y);
           if(torre.color === "blancas" && torre.lado === "izquierda") {
             
             if(torre.Posicion.x !== 0 || torre.Posicion.y !== 0) {
@@ -375,7 +377,7 @@ router.post("/", (req, res) => {
       
       let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
       
-      
+      console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
       torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
       // Llamar a la funcion de enroque
       //let movimientos_enroque = torre.obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izqda, ha_movido_torre_blanca_dcha,
@@ -383,7 +385,7 @@ router.post("/", (req, res) => {
   
       //torreMovimientos.push(movimientos_enroque);
       
-      //movimientos_disponibles_torres.push(torreMovimientos);
+      movimientos_disponibles_torres.push(torreMovimientos);
 
       console.log("TORRE BLANCA IZQDA: ", ha_movido_torre_blanca_izqda);
       console.log("TORRE BLANCA DCHA: ", ha_movido_torre_blanca_dcha);

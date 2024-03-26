@@ -157,21 +157,20 @@ class Rey {
         // Obtener todos los movimientos disponibles del rey
         for (let dx = -1; dx <= 1; dx++) {
             for (let dy = -1; dy <= 1; dy++) {
-                if (dx === 0 && dy === 0) continue; // No considerar el movimiento de estar en el mismo lugar
-    
-                const x = this.Posicion.x + dx;
-                const y = this.Posicion.y + dy;
-    
-                if (this._esMovimientoValido(x, y)) {
-                    const casilla = casillas[x][y];
-                    if (casilla !== undefined && casilla !== null) {
-                        if (casilla.getPieza() === null) {
-                            movimientos_disponibles_rey.push({ x, y });
-                        } else {
-                            if (casilla.getPieza().getColor() !== this.color) {
-                                movimientos_disponibles_rey.push({ x, y});
+                if (dx !== 0 || dy !== 0){// No considerar el movimiento de estar en el mismo lugar
+                    const x = this.Posicion.x + dx;
+                    const y = this.Posicion.y + dy;
+                    if (this._esMovimientoValido(x, y)) {
+                        const casilla = casillas[x][y];
+                        if (casilla !== undefined && casilla !== null) {
+                            //console.log("HOLA", this._esMovimientoValido(x, y));
+                            if (casilla.getPieza() === null) {
+                                movimientos_disponibles_rey.push({ x, y });
+                            } else {
+                                if (casilla.getPieza().getColor() !== this.color) {
+                                    movimientos_disponibles_rey.push({ x, y});
+                                }
                             }
-                            break;
                         }
                     }
                 }
@@ -385,7 +384,7 @@ class Rey {
                 }
 
             } else if ((lado === "largo" && turno === 'blancas' && !ha_movido_torre_blanca_izqda) || (lado === "largo" && turno === "negras" && !ha_movido_torre_negra_izqda))  {
-                if (casillas[3][this.Posicion.y].getPieza() !== null || casillas[2][this.Posicion.y].getPieza() !== null){
+                if (casillas[3][this.Posicion.y].getPieza() !== null || casillas[2][this.Posicion.y].getPieza() !== null || casillas[1][this.Posicion.y].getPieza() !== null){
                     console.log("No se puede realizar el enroque: Hay piezas en el camino");
                     return false;
                 }
@@ -403,23 +402,6 @@ class Rey {
                 console.log("Lado de enroque no válido");
                 return false;
             }
-
-            // Verificar que el rey no pase por casillas bajo ataque durante el enroque
-            /*const movimientosSinJaque = this.obtenerMovimientosDisponibles();
-            if (this.movimientoCoincideConCasilla(movimientosSinJaque, nuevoReyX, this.Posicion.y) ||
-                this.movimientoCoincideConCasilla(movimientosSinJaque, nuevoTorreX, this.Posicion.y)) {
-                console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
-                return;
-            }*/
-            // Realizar el enroque moviendo el rey y la torre a sus nuevas posiciones
-            /*const torre = casillas[torreX][torreY].getPieza();
-            casillas[this.Posicion.x][this.Posicion.y].setPieza(null);
-            casillas[nuevoReyX][this.Posicion.y].setPieza(this);
-            this.Posicion.x = nuevoReyX;
-            torre.Posicion.x = nuevoTorreX;
-            casillas[torreX][torreY].setPieza(null);
-            casillas[nuevoTorreX][torreY].setPieza(torre);
-            console.log("Enroque realizado con éxito");*/
             return true;
         } else {
             console.log("No se puede realizar el enroque: El rey o la torre han sido movidos previamente");
