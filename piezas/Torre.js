@@ -84,53 +84,6 @@ class Torre {
             k++;
         }
     }
-
-/*    obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izquierda, ha_movido_torre_blanca_derecha,
-        ha_movido_torre_negra_izquierda, ha_movido_torre_negra_derecha, color) {
-
-        let movimientos_enroque = [];
-
-
-        // Enroque largo con blancas
-        let casilla1 = this.tablero.getCasillas()[1][0];
-        let casilla2 = this.tablero.getCasillas()[2][0];
-        let casilla3 = this.tablero.getCasillas()[3][0];
-        if (color === "blancasI" && this.color === "blancasI" && !ha_movido_torre_blanca_izquierda && casilla1 !== undefined && casilla1 !== null && casilla2 !== undefined && casilla2 !== null && casilla3 !== undefined && casilla3 !== null) {
-            if (casilla1.getPieza() === null && casilla2.getPieza() === null && casilla3.getPieza() === null) {
-                movimientos_enroque.push({ x: 3, y: 0 });
-            }
-        }
-
-        // Enroque largo con negras
-        casilla1 = this.tablero.getCasillas()[1][7];
-        casilla2 = this.tablero.getCasillas()[2][7];
-        casilla3 = this.tablero.getCasillas()[3][7];
-        if (color === "negrasI" && this.color === "negrasI" && !ha_movido_torre_negra_izquierda && casilla1 !== undefined && casilla1 !== null && casilla2 !== undefined && casilla2 !== null && casilla3 !== undefined && casilla3 !== null) {
-            if (casilla1.getPieza() === null && casilla2.getPieza() === null && casilla3.getPieza() === null) {
-                movimientos_enroque.push({ x: 3, y: 7 });
-            }
-        }
-
-        // Enroque corto con blancas
-        casilla1 = this.tablero.getCasillas()[6][0];
-        casilla2 = this.tablero.getCasillas()[5][0];
-        if (color === "blancasD" && this.color === "blancasD" && !ha_movido_torre_blanca_derecha && casilla1 !== undefined && casilla1 !== null && casilla2 !== undefined && casilla2 !== null) {
-            if (casilla1.getPieza() === null && casilla2.getPieza() === null) {
-                movimientos_enroque.push({ x: 5, y: 0 });
-            }
-        }
-
-        // Enroque corto con negras
-        casilla1 = this.tablero.getCasillas()[6][7];
-        casilla2 = this.tablero.getCasillas()[5][7];
-        if (color === "negrasD" && this.color === "negrasD" && !ha_movido_torre_negra_derecha && casilla1 !== undefined && casilla1 !== null && casilla2 !== undefined && casilla2 !== null) {
-            if (casilla1.getPieza() === null && casilla2.getPieza() === null) {
-                movimientos_enroque.push({ x: 5, y: 7 });
-            }
-        }
-        return movimientos_enroque;
-    }
-    */
     _esMovimientoValido(x, y) {
         return x >= 0 && x < 8 && y >= 0 && y < 8;
     }
