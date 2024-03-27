@@ -6,14 +6,14 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Configuración de la conexión a la base de datos
-const pool = new Pool({
-    user: 'urvycv7gjbcvusmms2yi',
-    host: 'bwuq49rwo3gkbfsvigkw-postgresql.services.clever-cloud.com',
-    database: 'bwuq49rwo3gkbfsvigkw',
-    password: '3HP61jdkR8qSo68zNZbYB6uxjDNp8n',
-    port: 50013 // Puerto por defecto de PostgreSQL
-});
+// // Configuración de la conexión a la base de datos
+// const pool = new Pool({
+//     user: 'urvycv7gjbcvusmms2yi',
+//     host: 'bwuq49rwo3gkbfsvigkw-postgresql.services.clever-cloud.com',
+//     database: 'bwuq49rwo3gkbfsvigkw',
+//     password: '3HP61jdkR8qSo68zNZbYB6uxjDNp8n',
+//     port: 50013 // Puerto por defecto de PostgreSQL
+// });
 
 // Rutas de los usuarios
 const userRouter = require("./routes/users")
@@ -33,16 +33,16 @@ app.post('/', (req, res) => {
     res.send('Registro exitoso'); // Envía una respuesta al cliente
 });
 
-// Verificar conexión a la base de datos
-pool.connect((err, client, done) => {
-    if (err) {
-        console.error('Error al conectarse a la base de datos:', err);
-    } else {
-        console.log('Conexión exitosa a la base de datos');
-        // Cierra la conexión cuando no se necesite más
-        done();
-    }
-});
+// // Verificar conexión a la base de datos
+// pool.connect((err, client, done) => {
+//     if (err) {
+//         console.error('Error al conectarse a la base de datos:', err);
+//     } else {
+//         console.log('Conexión exitosa a la base de datos');
+//         // Cierra la conexión cuando no se necesite más
+//         done();
+//     }
+// });
 
 // Iniciar el servidor y escuchar en el puerto 3001
 app.listen(3001, () => {

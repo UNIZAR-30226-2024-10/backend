@@ -16,6 +16,24 @@ let ha_movido_torre_blanca_izqda = false;
 let ha_movido_torre_negra_dcha = false;
 let ha_movido_torre_negra_izqda = false;
 
+let nuevaDama;
+let nuevaTorre;
+let nuevoCaballo;
+let nuevoAlfil;
+
+function getLastIndex(arrayLike) {
+  let highestIndex = -1;
+  for (const key in arrayLike) {
+      if (arrayLike.hasOwnProperty(key)) {
+          const index = parseInt(key);
+          if (!isNaN(index) && index > highestIndex) {
+              highestIndex = index;
+          }
+      }
+  }
+  return highestIndex;
+}
+
 
 // Ruta /play, para poder iniciar a jugar (como un lobby)
 router.post("/:id", (req, res) => {
@@ -55,6 +73,7 @@ router.post("/", (req, res) => {
     const turno = modifiedChessboardState.turno;
     console.log("Turno: ", turno);
 
+    const piezaCoronada = modifiedChessboardState.piezaCoronada;
 
     const pieceArrays = [
         modifiedChessboardState.peon,
@@ -142,7 +161,8 @@ router.post("/", (req, res) => {
             reyMovimientos.push({x, y});
           }
         movimientos_disponibles_reyes.push(reyMovimientos);
-        // Check if the king is in check
+        
+
         estaEnJaque = rey.jaque(rey);
         console.log("Estoy en jaque: ", estaEnJaque, rey.color);
         let jaque_mate = false;
@@ -218,7 +238,33 @@ router.post("/", (req, res) => {
       
         // If it's not conflicting, create the peon
         if (!isConflicting) {
-          return new Peon(peon.x, peon.y, peon.color, tablero);
+
+          // Coronar
+          if((peon.y === 7 && peon.color ==="blancas") || (peon.y === 0 && peon.color === "negras")) {
+            
+            if(piezaCoronada === "dama") {
+              nuevaDama = new Dama(peon.x, peon.y, peon.color, tablero);
+              return new Peon(peon.x, peon.y, peon.color, tablero);
+            }
+            else if(piezaCoronada === "torre") {
+              nuevaTorre = new Torre(peon.x, peon.y, peon.color, tablero);
+              return new Torre(peon.x, peon.y, peon.color, tablero);
+            }
+            else if(piezaCoronada === "alfil") {
+              nuevoAlfil = new Alfil(peon.x, peon.y, peon.color, tablero);
+              return new Alfil(peon.x, peon.y, peon.color, tablero);
+            }
+            else if(piezaCoronada === "caballo") {
+              nuevoCaballo = new Caballo(peon.x, peon.y, peon.color, tablero);
+              return new Caballo(peon.x, peon.y, peon.color, tablero);
+            }
+          }
+
+          // Crear peon normal
+          else {
+            return new Peon(peon.x, peon.y, peon.color, tablero);
+          }
+          
         }
         else {
           if(peon.color !== turno) {
@@ -233,13 +279,14 @@ router.post("/", (req, res) => {
       }).filter(peon => peon !== null);
       
       let movimientos_disponibles_peones = [];
-      // Add the king's position to the array
+      
+
       peones.forEach(peon => {
         // Create a new list for each caballo
         const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
         
         // Append movements to the new list
-        peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
+        peonMovimientos.push(...peon.obtenerMovimientosDisponibles(piezaCoronada));
     
         // Append the new list to the main list
         movimientos_disponibles_peones.push(peonMovimientos);
@@ -271,6 +318,12 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(caballo => caballo !== null);
+
+      // Añadir el caballo que ha coronado al final de la lista de caballos ya creados
+      if(nuevoCaballo !== undefined) {
+        let highestIndex = getLastIndex(caballos);
+        caballos[highestIndex + 1] = nuevoCaballo;
+      }
       
       let movimientos_disponibles_caballos = [];
 
@@ -309,6 +362,12 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(alfil => alfil !== null);
+
+      // Añadir el alfil que ha coronado al final de la lista de alfiles ya creados
+      if(nuevoAlfil !== undefined) {
+        let highestIndex = getLastIndex(alfiles);
+        alfiles[highestIndex + 1] = nuevoAlfil;
+      }
       
       let movimientos_disponibles_alfiles = [];
       // Add the king's position to the array
@@ -345,6 +404,12 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(torre => torre !== null);
+
+      // Añadir la torre que ha coronado al final de la lista de torres ya creadas
+      if(nuevaTorre !== undefined) {
+        let highestIndex = getLastIndex(torres);
+        torres[highestIndex + 1] = nuevaTorre;
+      }
       
       let movimientos_disponibles_torres = [];
       // Add the king's position to the array
@@ -417,7 +482,13 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(dama => dama !== null);
-      
+
+      // Añadir la dama que ha coronado al final de la lista de damas ya creadas
+      if(nuevaDama !== undefined) {
+        let highestIndex = getLastIndex(damas);
+        damas[highestIndex + 1] = nuevaDama;
+      }
+
       let movimientos_disponibles_damas = [];
         // Add the king's position to the array
         damas.forEach(dama => {

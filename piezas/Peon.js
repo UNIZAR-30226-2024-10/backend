@@ -29,7 +29,7 @@ class Peon {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles() {
+    obtenerMovimientosDisponibles(piezaCoronada) {
         let movimientos_disponibles_peon = [];
         const casillas = this.tablero.getCasillas();
         let casilla;
@@ -49,6 +49,7 @@ class Peon {
                     }
                 }
             }
+            
         }
 
         // PEONES NEGROS
