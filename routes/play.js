@@ -520,6 +520,8 @@ router.post("/", (req, res) => {
           jaque_mate = rey.jaqueMate(rey, allMovements);
           console.log("Es mate: ", jaque_mate);
       }
+
+      // COMPROBACION AWS
   });
   //}
   // else {
