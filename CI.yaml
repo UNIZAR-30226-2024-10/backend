@@ -1,37 +1,66 @@
-name: CI
-
 on:
   push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
-
+    name: Deploy
     runs-on: ubuntu-latest
-
-    if: github.ref == 'refs/heads/master'
-
-    strategy:
-      matrix:
-        node-version: [14.x]
-
     steps:
-      - uses: actions/checkout@v2
+      - name: Get latest code
+        uses: actions/checkout@v2
 
-      - run: npm ci
-      - run: npm run build
-      - run: npm run test
+      - name: Set working directory
+        run: cd backend
+        
+      - name: Install dependencies
+        run: npm install
+        working-directory: backend
 
-      - name: rsync deployments
+      - name: Install Vite globally
+        run: npm install -g vite
+        working-directory: backend
+
+      - name: Build
+        run: npm run build
+        working-directory: backend
+        
+      - name: 📂 rsync deployments
         uses: burnett01/rsync-deployments@5.1
         with:
           switches: -avzr --delete
           path: ./*
-          remote_path: /var/www/my-app/
-          remote_host: <host>.compute.amazonaws.com
-          remote_user: ubuntu
+          remote_path: /var/www/html/backend/
+          remote_host: 13.51.136.199
+          remote_user: ec2-user
           remote_key: "${{ secrets.SSH_PRIVATE_KEY }}"
+
+       - name: Set ownership on remote server
+          run: |
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key.pem
+            chmod 600 private_key.pem
+  
+            # Create known_hosts file if it doesn't exist
+            mkdir -p /home/runner/.ssh
+            touch /home/runner/.ssh/known_hosts
+            
+            # Clear old key from known_hosts
+            ssh-keygen -R 13.51.136.199 >> /home/runner/.ssh/known_hosts
+  
+            # Run the SSH command
+            ssh -i private_key.pem -o StrictHostKeyChecking=no ec2-user@13.51.136.199 \
+            "sudo chown -R ec2-user:apache /var/www/html/backend/ && chmod 777 -R /var/www/html/<your_project_directory>/<your_code_directory>/storage && chmod -R 777 /var/www/html/<your_project_directory>/<your_code_directory>/bootstrap/cache/ && cd /var/www/html/<your_project_directory>/<your_code_directory>/ && sudo npm install -g vite  && npm install && sudo chown -R ec2-user:apache /var/www/html/<your_project_directory>/ && chmod +x /var/www/html/<your_project_directory>/<your_code_directory>/dev_run.sh"          
+          env:
+            SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+        - name: 🎉 Deploy to Remote Server
+          uses: appleboy/ssh-action@master
+          with:
+            host: 13.51.136.199
+            username: ec2-user
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+              cd /var/www/html/<your_project_directory>/<your_code_directory>
+              ./dev_run.sh
+      
