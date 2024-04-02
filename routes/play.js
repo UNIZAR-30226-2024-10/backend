@@ -521,7 +521,7 @@ router.post("/", (req, res) => {
           console.log("Es mate: ", jaque_mate);
       }
 
-      // COMPROBACION AWS 8
+      // COMPROBACION AWS 9
   });
   //}
   // else {
