@@ -15,7 +15,7 @@ jobs:
           path: ./*
           remote_path: /var/www/html/home/
           remote_host: 13.51.136.199
-          remote_user: ec2-user
+          remote_user: ubuntu
           remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set ownership on remote server
@@ -32,7 +32,7 @@ jobs:
           ssh-keygen -R 13.51.136.199 >> ~/.ssh/known_hosts
   
           # Run the SSH command
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ec2-user@13.51.136.199 \
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@13.51.136.199 \
           "sudo chown -R ec2-user:apache /var/www/html/backend/ && chmod 777 -R /var/www/html/home/backend/storage && chmod -R 777 /var/www/html/home/backend/bootstrap/cache/ && cd /var/www/html/home/backend/ && sudo npm install -g vite  && npm install && sudo chown -R ec2-user:apache /var/www/html/home/ && chmod +x /var/www/html/home/backend/dev_run.sh"          
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -41,7 +41,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: 13.51.136.199
-          username: ec2-user
+          username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/html/home/backend
