@@ -16,7 +16,6 @@ jobs:
           remote_path: /var/www/html/home/
           remote_host: 13.51.136.199
           remote_user: ubuntu
-          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set ownership on remote server
         run: |
@@ -42,7 +41,6 @@ jobs:
         with:
           host: 13.51.136.199
           username: ubuntu
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/html/home/backend
             ./dev_run.sh
