@@ -86,9 +86,11 @@ io.on("connection", (socket) => {
       });
       // Con el siguiente timeOut, permitimos a los jugadores cancelar la partida durante un periodo de 5 segundos
       room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
-        io.to(room.playerId[0]).emit('game_ready', { roomId: room.roomId, color: 'black', mode, playerId });
-        io.to(room.playerId[1]).emit('game_ready', { roomId: room.roomId, color: 'white', mode, playerId });
-        console.log("a jugar", room.roomId)
+        room.playersIds.forEach((playerId) => {
+          const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
+          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, playerId });
+          console.log("a jugar", room.roomId)
+        });
       }, 5000); // 5000 milisegundos = 5 segundos
     } else {
       // Si no se encuentra una sala libre, se crea una nueva sala
