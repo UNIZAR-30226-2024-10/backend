@@ -95,12 +95,15 @@ io.on("connection", (socket) => {
   })
   socket.on('chat message', (data) => { // Se recibe un menaje enviado por otro usuario
     console.log(data)
-    socket.to(data.roomId).emit('chat message', {body:data.body,from:data.me} )
+    socket.to(data.roomId).emit('chat message', {body:data.body,from:data.from} )
   });
-  socket.on("disconnect", () => {
-    console.log("disconnect")
-    // Un jugador se desconecta
-    const roomsJoined = Object.keys(socket.rooms);
+  socket.on("cancel_search", ({ mode }) => { // Si se cancela la busqueda, se elimina la sala creada
+    console.log(`cancel search: ${socket.id}`);
+    const room = games.find(room => room.mode === mode  && room.players < 2 );
+    games.splice(games.indexOf(room),1);
+  });
+  socket.on("disconnect", () => { // Un jugador se desconecta
+/*     const roomsJoined = Object.keys(socket.rooms);
     roomsJoined.forEach((roomName) => {
       // Decrementar el contador de jugadores en la sala
       if (games[roomName]) {
@@ -112,7 +115,32 @@ io.on("connection", (socket) => {
           // Aquí puedes notificar a los jugadores que la sala ha sido cerrada
         }
       }
-    });
+    }); */
+
+    for (let i = 0; i < games.length; i++) {
+      const room = games[i];
+      const playerIndex = room.playersIds.indexOf(socket.id);
+      if (playerIndex !== -1) {
+        // Player found in this room
+        console.log(`User ${socket.id} disconnected from room ${room.roomId}`);
+        // Perform any necessary actions, such as removing the player from the room
+        room.playersIds.splice(playerIndex, 1);
+        room.players--;
+
+        // If there are no more players in the room, you might want to clean up the room
+        if (room.players === 0) {
+            games.splice(i, 1); // Remove the room from the games array
+            console.log(`Room ${room.roomId} is now empty and removed`);
+        }
+        else { // Notificar al jugador de que ha ganado la partida (el otro ha abandonado)
+          const remainingPlayerId = room.playersIds[0];
+          console.log("gana el otro jugador", room.roomId);
+          io.to(remainingPlayerId).emit("player_disconnected");
+          games.splice(i, 1); // Remove the room from the games array
+        }
+        break; // No need to continue searching
+      }
+    }
   })
 });
 
