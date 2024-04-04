@@ -72,11 +72,24 @@ io.on("connection", (socket) => {
       room.playersIds.push(socket.id);
       socket.join((room.roomId).toString());
       // Enviamos información adicional a cada jugador que se ha unido a la sala
-      room.playersIds.forEach((playerId) => {
+/*       room.playersIds.forEach((playerId) => {
         const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
-        io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, playerId });
-        console.log("a jugar", room.roomId)
+        room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
+          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, playerId });
+          console.log("a jugar", room.roomId)
+        }, 5000); // 5000 milisegundos = 5 segundos
+        io.to(playerId).emit("match_found");
+      }); */
+      
+      room.playersIds.forEach((playerId) => {
+        io.to(playerId).emit("match_found");
       });
+      // Con el siguiente timeOut, permitimos a los jugadores cancelar la partida durante un periodo de 5 segundos
+      room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
+        io.to(room.playerId[0]).emit('game_ready', { roomId: room.roomId, color: 'black', mode, playerId });
+        io.to(room.playerId[1]).emit('game_ready', { roomId: room.roomId, color: 'white', mode, playerId });
+        console.log("a jugar", room.roomId)
+      }, 5000); // 5000 milisegundos = 5 segundos
     } else {
       // Si no se encuentra una sala libre, se crea una nueva sala
       const roomId = Math.floor(Math.random() * 100000); // Generar un ID de sala aleatorio
@@ -99,8 +112,27 @@ io.on("connection", (socket) => {
   });
   socket.on("cancel_search", ({ mode }) => { // Si se cancela la busqueda, se elimina la sala creada
     console.log(`cancel search: ${socket.id}`);
-    const room = games.find(room => room.mode === mode  && room.players < 2 );
+    const room = games.find(room => room.mode === mode && room.players < 2 );
     games.splice(games.indexOf(room),1);
+    console.log(`Room ${room.roomId} is now empty and removed`);
+  });
+  socket.on("cancel_match", () => { // Si ya se había encontrado partida, se cancela
+    console.log(`Game canceled by: ${socket.id}`);
+
+    for (let i = 0; i < games.length; i++) {
+      const room = games[i];
+      const playerIndex = room.playersIds.indexOf(socket.id);
+      if (playerIndex !== -1) {
+        clearTimeout(room.timeOutId); // Limpia el timeout de comienzo de la partida
+        room.playersIds.splice(playerIndex, 1);
+        room.players--;
+        const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador de la cancelación de la partida
+        io.to(remainingPlayerId).emit("match_canceled");
+        games.splice(i, 1); // Remove the room from the games array
+        console.log(`Room ${room.roomId} is now empty and removed`);
+        break;
+      }
+    }
   });
   socket.on("disconnect", () => { // Un jugador se desconecta
 /*     const roomsJoined = Object.keys(socket.rooms);
@@ -134,7 +166,6 @@ io.on("connection", (socket) => {
         }
         else { // Notificar al jugador de que ha ganado la partida (el otro ha abandonado)
           const remainingPlayerId = room.playersIds[0];
-          console.log("gana el otro jugador", room.roomId);
           io.to(remainingPlayerId).emit("player_disconnected");
           games.splice(i, 1); // Remove the room from the games array
         }
