@@ -123,6 +123,7 @@ router.post("/", (req, res) => {
     const movimientos_disponibles_reyes = [];
     const movimientos_disponibles_comer_pieza_jaque = [];
     const movimientos_disponibles_bloquear_jaque = [];
+    let responseSent = false;
     reyes.forEach(rey => {
       if(rey.color === "blancas") {
         if(rey.Posicion.x !== 4 || rey.Posicion.y !== 0) {
@@ -222,8 +223,10 @@ router.post("/", (req, res) => {
           }
           console.log("Movimientos disponibles: ", allMovements);
           
-
-          res.json({jugadaLegal, allMovements});
+          if (!responseSent){
+            res.json({jugadaLegal, allMovements});
+            responseSent = true;
+          }
         }
     });
 
@@ -511,18 +514,21 @@ router.post("/", (req, res) => {
     };
 
     console.log("Movimientos disponibles: ", allMovements);
-    res.json({jugadaLegal, allMovements});
+    if (!responseSent){
+      res.json({jugadaLegal, allMovements});
+      responseSent = true;
+    }
   }
 
 
-    reyes.forEach(rey => {
+    /*reyes.forEach(rey => {
       if(rey.estoy_en_jaque) {
           jaque_mate = rey.jaqueMate(rey, allMovements);
           console.log("Es mate: ", jaque_mate);
       }
 
       // COMPROBACION AWS 11
-  });
+  });*/
   //}
   // else {
   //   //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
