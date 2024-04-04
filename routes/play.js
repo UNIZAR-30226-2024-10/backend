@@ -150,13 +150,13 @@ router.post("/", (req, res) => {
         
         // Add the king's available movements to the array
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
-          ha_movido_torre_blanca_izqda, turno, 'corto')){
+          ha_movido_torre_negra_izqda, turno, 'corto')){
             const x = 6;
             const y = rey.Posicion.y;
             reyMovimientos.push({x, y});
         }
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
-          ha_movido_torre_blanca_izqda, turno, 'largo')){
+          ha_movido_torre_negra_izqda, turno, 'largo')){
             const x = 2;
             const y = rey.Posicion.y;
             reyMovimientos.push({x, y});
