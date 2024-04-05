@@ -136,6 +136,23 @@ io.on("connection", (socket) => {
       }
     }
   });
+  socket.on("I_surrender", ({ roomId }) => {
+    console.log(`User ${socket.id} surrendered from room ${roomId}`);
+    for (let i = 0; i < games.length; i++) {
+      const room = games[i];
+      const playerIndex = room.playersIds.indexOf(socket.id);
+      if (playerIndex !== -1) {
+        room.playersIds.splice(playerIndex, 1);
+        room.players--;
+
+        const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador
+        io.to(remainingPlayerId).emit("oponent_surrendered");
+        games.splice(i, 1); // Remove the room from the games array
+        console.log(`Room ${room.roomId} is now empty and removed`);
+        break;
+      }
+    }
+  });
   socket.on("disconnect", () => { // Un jugador se desconecta
 /*     const roomsJoined = Object.keys(socket.rooms);
     roomsJoined.forEach((roomName) => {
