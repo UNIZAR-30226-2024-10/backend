@@ -3,20 +3,19 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require("socket.io");
-
 const { Pool } = require('pg'); // Importar el cliente PostgreSQL
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 // // Configuración de la conexión a la base de datos
-// const pool = new Pool({
-//     user: 'urvycv7gjbcvusmms2yi',
-//     host: 'bwuq49rwo3gkbfsvigkw-postgresql.services.clever-cloud.com',
-//     database: 'bwuq49rwo3gkbfsvigkw',
-//     password: '3HP61jdkR8qSo68zNZbYB6uxjDNp8n',
-//     port: 50013 // Puerto por defecto de PostgreSQL
-// });
+const pool = new Pool({
+    user: 'ugfchsan0qbfkvhvyuwl',
+    host: 'bm9v4y7glvvz5acg8lj3-postgresql.services.clever-cloud.com',
+    database: 'bm9v4y7glvvz5acg8lj3',
+    password: 'FL2O9CrTAJ89cBxbHihI',
+    port: 50013 // Puerto por defecto de PostgreSQL
+});
 // Crear un servidor HTTP utilizando Express
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -47,15 +46,15 @@ app.post('/', (req, res) => {
 });
 
 // // Verificar conexión a la base de datos
-// pool.connect((err, client, done) => {
-//     if (err) {
-//         console.error('Error al conectarse a la base de datos:', err);
-//     } else {
-//         console.log('Conexión exitosa a la base de datos');
-//         // Cierra la conexión cuando no se necesite más
-//         done();
-//     }
-// });
+pool.connect((err, client, done) => {
+    if (err) {
+      console.error('Error al conectarse a la base de datos:', err);
+    } else {
+      console.log('Conexión exitosa a la base de datos');
+// Cierra la conexión cuando no se necesite más
+      done();
+    }
+});
 var games = []; // Utilizamos un array para almacenar las salas
 
 io.on("connection", (socket) => {
