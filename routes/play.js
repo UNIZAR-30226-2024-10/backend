@@ -527,7 +527,7 @@ router.post("/", (req, res) => {
           console.log("Es mate: ", jaque_mate);
       }
 
-      // COMPROBACION AWS 11
+      // COMPROBACION AWS 14
   });*/
   //}
   // else {
@@ -548,6 +548,64 @@ router.post("/", (req, res) => {
 // Ruta /play/select_mode, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/select_mode/:id", (req, res) => {
 
+})
+
+// Ruta /play/update_elo, para que se actualicen los ELO de los jugadores
+router.post("/update_elo/:id_ganador/:id_perdedor", (req, res) => {
+  const { id_winner, id_loser } = req.params;
+
+    try {
+        
+      // const sql = 'SELECT Id, Elo FROM Usuario WHERE Id = ${id_winner}';
+
+      // connection.query(sql, (error, results, fields) => {
+      //   if (error) {
+      //     console.error(error);
+      //     // Handle error
+      //     return;
+      //   }
+      
+      //   if (results.length > 0) {
+      //     // Assuming there's only one result (as Id is a primary key)
+      //     const winnerId = results[0].Id;
+      //     const winnerElo = results[0].Elo;
+      //     console.log("Winner ID:", winnerId);
+      //     console.log("Winner Elo:", winnerElo);
+      //   }
+      // });
+
+        const ELOGanador = 990;  // Sacar información con las consultas a la BD con los parametros pasados en la url
+        const ELOPerdedor = 938; // Sacar información con las consultas a la BD con los parámetros pasados en la url
+
+        
+        const K = 20;
+        const puntuacionEsperadaGanador = 1 / (1 + 10 ** ((ELOPerdedor - ELOGanador) / 400));
+        const puntuacionEsperadaPerdedor = 1 - puntuacionEsperadaGanador;
+
+        const nuevoELOGanador = ELOGanador + Math.round(K * (1 - puntuacionEsperadaGanador));
+        const nuevoELOPerdedor = ELOPerdedor + Math.round(K * (0 - puntuacionEsperadaPerdedor));
+
+
+        // Update players' ELO ratings in the database
+        // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOGanador) WHERE Id = ${id_ganador}';
+        // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOPerdedor) WHERE Id = ${id_perdedor}';
+
+        // connection.query(sql, (error, results, fields) => {
+        //   if (error) {
+        //     console.error(error);
+        //     // Handle error
+        //     return;
+        //   }
+        //  });
+
+        console.log("Nuevo ELO ganador:", nuevoELOGanador);
+        console.log("Nuevo ELO perdedor:", nuevoELOPerdedor);
+
+        res.status(200).json({ message: 'ELO ratings updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating ELO ratings' });
+    }
 })
 
 module.exports = router;
