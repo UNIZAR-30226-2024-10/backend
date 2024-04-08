@@ -1,5 +1,6 @@
 const express = require("express")
 const { Pool } = require('pg'); // Importar el cliente PostgreSQL
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 // // Configuración de la conexión a la base de datos
@@ -36,38 +37,35 @@ router.get("/login", (req, res) => {
 })
 
 // Ruta /users/register, para registrar un nuevo usuario
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
     // Obtener los datos del usuario desde el cuerpo de la solicitud
-    const { nombre, contraseña, correoElectronico, eloBlitz, eloRapid, eloBullet, victorias, derrotas, empates, arena } = req.body;
+    const { nombre, contraseña, correoElectronico} = req.body;
 
-    // Consulta SQL para insertar un nuevo usuario en la tabla Usuario
-    const insertUserQuery = `
-        INSERT INTO Miguel.Usuario (nombre, contraseña, correoElectronico)
-        VALUES ($1, $2, $3)
-    `;
+    try {
+        // Generar un hash de la contraseña utilizando bcrypt
+        const hashedPassword = await bcrypt.hash(contraseña, 8); // El segundo argumento es el número de rondas de hashing
 
+        // Consulta SQL para insertar un nuevo usuario en la tabla Usuario
+        const insertUserQuery = `
+            INSERT INTO Miguel.Usuario (nombre, contraseña, correoElectronico)
+            VALUES ($1, $2, $3)
+        `;
 
-    // Parámetros para la consulta SQL
-    const values = [nombre, contraseña, correoElectronico];
+        // Parámetros para la consulta SQL
+        const values = [nombre, hashedPassword, correoElectronico];
 
-    // Ejecutar la consulta para insertar el nuevo usuario
-    pool.query(insertUserQuery, values, (error, result) => {
-        if (error) {
-            console.error('Error al registrar un nuevo usuario:', error);
-            res.status(500).json({ message: "Error al registrar un nuevo usuario" });
-        } else {
-            console.log('Usuario registrado exitosamente');
-            res.status(200).json({ message: "Registro exitoso" });
-        }
-    });
+        // Ejecutar la consulta para insertar el nuevo usuario
+        await pool.query(insertUserQuery, values);
+        
+        console.log('Usuario registrado exitosamente');
+        res.status(200).json({ message: "Registro exitoso" });
+    } catch (error) {
+        console.error('Error al registrar un nuevo usuario:', error);
+        res.status(500).json({ message: "Error al registrar un nuevo usuario" });
+    }
 });
 // Ruta /users/register, para iniciar sesión con un nuevo usuario
 router.get("/register", (req, res) => {
-
-})
-
-// Ruta /users/registered_successfully, para crear nuevos usuarios
-router.get("/registered_successfully", (req, res) => {
 
 })
 

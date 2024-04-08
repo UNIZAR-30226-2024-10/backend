@@ -66,7 +66,7 @@ pool.connect((err, client, done) => {
               Victorias INTEGER DEFAULT 0,
               Derrotas INTEGER DEFAULT 0,
               Empates INTEGER DEFAULT 0,
-              Arena VARCHAR(100)
+              Arena VARCHAR(100) DEFAULT 'Madera'
           )
       `;
 
@@ -128,7 +128,7 @@ pool.connect((err, client, done) => {
                           // Cierra la conexión cuando no se necesite más
                           done();
                       });
-                  }
+                    }
               });
           }
       });
