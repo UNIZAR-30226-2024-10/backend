@@ -167,7 +167,7 @@ io.on("connection", (socket) => {
       room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
         room.playersIds.forEach((playerId) => {
           const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
-          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, playerId });
+          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, me : playerId, opponent: room.playersIds.find(id => id !== playerId)});
           console.log("a jugar", room.roomId)
         });
       }, 5000); // 5000 milisegundos = 5 segundos
