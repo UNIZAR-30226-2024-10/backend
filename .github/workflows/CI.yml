@@ -21,5 +21,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            git clone https://github.com/brizuelayeah/UNIZAR-30226-2024-10/backend.git /tmp/repository
+            git clone https://github.com/UNIZAR-30226-2024-10/backend.git /tmp/repository
             
