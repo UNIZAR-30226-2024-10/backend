@@ -18,7 +18,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "C:/Users/obriz/OneDrive/Escritorio/Material_Carrera/Material_Cuarto_2/Proyecto Software/backend"
           target: "/home/ubuntu/backend"
 
