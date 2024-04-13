@@ -29,7 +29,7 @@ class Peon {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles(piezaCoronada) {
+    obtenerMovimientosDisponibles() {
         let movimientos_disponibles_peon = [];
         const casillas = this.tablero.getCasillas();
         let casilla;

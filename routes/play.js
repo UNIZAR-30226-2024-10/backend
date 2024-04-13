@@ -81,7 +81,6 @@ router.post("/", (req, res) => {
     
     let turno = modifiedChessboardState.turno;
     
-    let piezaCoronada = modifiedChessboardState.piezaCoronada;
 
     let ha_movido_rey_blanco = modifiedChessboardState.ha_movido_rey_blanco;
     let ha_movido_rey_negro = modifiedChessboardState.ha_movido_rey_negro;
@@ -146,7 +145,7 @@ router.post("/", (req, res) => {
           const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
           
           
-          console.log("Movimmientos del rey:", rey.obtenerMovimientosDisponibles());
+          console.log("Movimientos del rey:", rey.obtenerMovimientosDisponibles());
           reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
       
         
@@ -173,7 +172,6 @@ router.post("/", (req, res) => {
           console.log("Color de rey en jaque: ", rey.color);
           rey.estoy_en_jaque = true;
           if(turno !== rey.color) {
-            console.log("Ilegal 1");
             jugadaLegal = false;
           }
           //Si el rey esta en jaque solo devolvemos los movimientos del rey, ponerse en medio o comerse la pieza
@@ -240,12 +238,6 @@ router.post("/", (req, res) => {
   // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
   if (!estaEnJaque){
 
-    // Variables por si se produce una coronación
-    let nuevaDama;
-    let nuevaTorre;
-    let nuevoCaballo;
-    let nuevoAlfil;
-
     // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS PEONES --------------------------
     const peones = modifiedChessboardState.peon.map(peon => {
         
@@ -254,33 +246,7 @@ router.post("/", (req, res) => {
           peon.x === conflictingPiece.piece1.x && peon.y === conflictingPiece.piece1.y
         );
         if (!isConflicting) {
-
-          // Coronación
-          if((peon.y === 7 && peon.color === "blancas") || (peon.y === 0 && peon.color === "negras")) {
-            
-            if(piezaCoronada === "dama") {
-              nuevaDama = new Dama(peon.x, peon.y, peon.color, tablero);
-              return new Peon(peon.x, peon.y, peon.color, tablero);
-            }
-            else if(piezaCoronada === "torre") {
-              nuevaTorre = new Torre(peon.x, peon.y, peon.color, tablero);
-              return new Torre(peon.x, peon.y, peon.color, tablero);
-            }
-            else if(piezaCoronada === "alfil") {
-              nuevoAlfil = new Alfil(peon.x, peon.y, peon.color, tablero);
-              return new Alfil(peon.x, peon.y, peon.color, tablero);
-            }
-            else if(piezaCoronada === "caballo") {
-              nuevoCaballo = new Caballo(peon.x, peon.y, peon.color, tablero);
-              return new Caballo(peon.x, peon.y, peon.color, tablero);
-            }
-          }
-
-          // Crear peon normal
-          else {
-            return new Peon(peon.x, peon.y, peon.color, tablero);
-          }
-          
+          return new Peon(peon.x, peon.y, peon.color, tablero);
         }
         // Ha habido captura con peón involucrado
         else {
@@ -303,7 +269,7 @@ router.post("/", (req, res) => {
         const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
         
         
-        peonMovimientos.push(...peon.obtenerMovimientosDisponibles(piezaCoronada));
+        peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
     
         
         movimientos_disponibles_peones.push(peonMovimientos);
@@ -335,12 +301,6 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(caballo => caballo !== null);
-
-      // Si ha habido coronación y la pieza coronada es un caballo
-      if(nuevoCaballo !== undefined) {
-        let highestIndex = getLastIndex(caballos);
-        caballos[highestIndex + 1] = nuevoCaballo;
-      }
       
       let movimientos_disponibles_caballos = [];
 
@@ -380,12 +340,6 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(alfil => alfil !== null);
-
-      // Si ha habido coronación y la pieza coronada es un alfil
-      if(nuevoAlfil !== undefined) {
-        let highestIndex = getLastIndex(alfiles);
-        alfiles[highestIndex + 1] = nuevoAlfil;
-      }
       
       let movimientos_disponibles_alfiles = [];
       
@@ -423,12 +377,6 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(torre => torre !== null);
-
-      // Si ha habido coronación y la pieza coronada es una torre
-      if(nuevaTorre !== undefined) {
-        let highestIndex = getLastIndex(torres);
-        torres[highestIndex + 1] = nuevaTorre;
-      }
       
       let movimientos_disponibles_torres = [];
 
@@ -472,12 +420,6 @@ router.post("/", (req, res) => {
           }
         }
       }).filter(dama => dama !== null);
-
-      // Si ha habido coronación y la pieza coronada es una torre
-      if(nuevaDama !== undefined) {
-        let highestIndex = getLastIndex(damas);
-        damas[highestIndex + 1] = nuevaDama;
-      }
 
       let movimientos_disponibles_damas = [];
         
