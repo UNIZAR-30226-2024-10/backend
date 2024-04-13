@@ -16,7 +16,7 @@ jobs:
       - name: Copy backend directory to EC2
         uses: appleboy/scp-action@master
         with:
-          host: 13.51.136.199
+          host: "13.51.136.199"
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "C:\\Users\\obriz\\OneDrive\\Escritorio\\Material_Carrera\\Material_Cuarto_2\\Proyecto Software\\backend"
