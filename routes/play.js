@@ -524,7 +524,7 @@ router.post("/", (req, res) => {
 
       }
 
-      // COMPROBACION AWS 14
+      // COMPROBACION AWS 15
   });*/
   //}
   // else {
