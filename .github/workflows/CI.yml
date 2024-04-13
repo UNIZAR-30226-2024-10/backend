@@ -12,6 +12,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
+      - name: Run a multi-line script
+        run: |
+            mkdir ../build
+            cp -TR . ../build
+            tar -cvf backend.tar ../build/dist/
 
       - name: Copy backend directory to EC2
         uses: appleboy/scp-action@master
@@ -19,5 +25,5 @@ jobs:
           host: "13.51.136.199"
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "C:\\Users\\obriz\\OneDrive\\Escritorio\\Material_Carrera\\Material_Cuarto_2\\Proyecto Software\\backend"
+          source: "backend.tar"
           target: "/home/ubuntu/backend"
