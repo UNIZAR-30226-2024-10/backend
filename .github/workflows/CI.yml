@@ -14,10 +14,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Copy backend directory to EC2
-        uses: appleboy/scp-action@master
+        uses: appleboy/ssh-action@master
         with:
           host: "13.51.136.199"
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "C:/Users/obriz/OneDrive/Escritorio/Material_Carrera/Material_Cuarto_2/Proyecto Software/backend"
-          target: "/home/ubuntu/backend"
+          port: 22
+          script: |
+            git clone https://github.com/brizuelayeah/https://github.com/UNIZAR-30226-2024-10/backend.git /tmp/repository
+            
