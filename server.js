@@ -4,9 +4,20 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require("socket.io");
 const { Pool } = require('pg'); // Importar el cliente PostgreSQL
+
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+
+const crypto = require('crypto');
+
+
+
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+
+
 
 // // Configuración de la conexión a la base de datos
 const pool = new Pool({
@@ -16,6 +27,18 @@ const pool = new Pool({
     password: 'FL2O9CrTAJ89cBxbHihI',
     port: 50013 // Puerto por defecto de PostgreSQL
 });
+
+// Generate a random session secret
+const sessionSecret = crypto.randomBytes(64).toString('hex');
+
+// Configure session middleware
+app.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  store: new session.MemoryStore(), // Use memory-store for session storage
+  cookie: { secure: false } // Set secure to true if using HTTPS
+}));
 
 // Crear un servidor HTTP utilizando Express
 const server = http.createServer(app);
