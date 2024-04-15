@@ -367,7 +367,7 @@ class Rey {
         const casillas = this.tablero.getCasillas();
         if (turno === 'blancas' && !ha_movido_rey_blanco || turno === 'negras' && !ha_movido_rey_negro) {
             // Determinar las posiciones para el enroque
-            if ((lado === "corto" && turno === 'blancas' && !ha_movido_torre_blanca_dcha) || (lado === "corto" && turno === 'negras' && !ha_movido_torre_negra_dcha)) {
+            if ((lado === "corto" && turno === 'blancas' && !ha_movido_torre_blanca_dcha && !ha_movido_rey_blanco) || (lado === "corto" && turno === 'negras' && !ha_movido_torre_negra_dcha && !ha_movido_rey_negro)) {
                 if (casillas[5][this.Posicion.y].getPieza() !== null || casillas[6][this.Posicion.y].getPieza() !== null){
                     console.log("No se puede realizar el enroque: Hay piezas en el camino");
                     return false;
@@ -376,14 +376,15 @@ class Rey {
                     console.log("No se puede realizar el enroque: El rey está en jaque");
                     return false;
                 }
-                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente();
+                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno);
+                //console.log("Moviminetos que evitan el jaque", movimientosSinJaque);
                 if (this.movimientoCoincideConCasilla(movimientosSinJaque, 5, this.Posicion.y) ||
                     this.movimientoCoincideConCasilla(movimientosSinJaque, 6, this.Posicion.y)) {
-                    console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
+                    console.log("No se puede realizar el enroque " + lado + " de las " + this.color + ": El rey pasa por una casilla bajo ataque");
                     return false;
                 }
 
-            } else if ((lado === "largo" && turno === 'blancas' && !ha_movido_torre_blanca_izqda) || (lado === "largo" && turno === "negras" && !ha_movido_torre_negra_izqda))  {
+            } else if ((lado === "largo" && turno === 'blancas' && !ha_movido_torre_blanca_izqda && !ha_movido_rey_blanco) || (lado === "largo" && turno === "negras" && !ha_movido_torre_negra_izqda && !ha_movido_rey_negro))  {
                 if (casillas[3][this.Posicion.y].getPieza() !== null || casillas[2][this.Posicion.y].getPieza() !== null || casillas[1][this.Posicion.y].getPieza() !== null){
                     console.log("No se puede realizar el enroque: Hay piezas en el camino");
                     return false;
@@ -395,7 +396,7 @@ class Rey {
                 const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno);
                 if (this.movimientoCoincideConCasilla(movimientosSinJaque, 3, this.Posicion.y) ||
                     this.movimientoCoincideConCasilla(movimientosSinJaque, 2, this.Posicion.y)) {
-                    console.log("No se puede realizar el enroque: El rey pasa por una casilla bajo ataque");
+                    console.log("No se puede realizar el enroque " + lado + " de las " + this.color + ": El rey pasa por una casilla bajo ataque");
                     return false;
                 }
             } else {

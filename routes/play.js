@@ -140,7 +140,7 @@ router.post("/", (req, res) => {
 
   
     reyes.forEach(rey => {
-
+      if (rey.color === turno){
           
           const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
           
@@ -158,6 +158,7 @@ router.post("/", (req, res) => {
         }
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
           ha_movido_torre_negra_izqda, turno, 'largo')){
+            console.log("Me enroco en largo");
             const x = 2;
             const y = rey.Posicion.y;
             reyMovimientos.push({x, y});
@@ -217,8 +218,11 @@ router.post("/", (req, res) => {
           console.log("Movimientos rey: ", movimientos_disponibles_reyes);
 
           
-        
-        
+          if (movimientos_disponibles_reyes.length === 1){
+            res.json({"Jaque mate": true});
+            responseSent = true;
+          }
+          else {
       
           let allMovements = {
             "jaque": true,
@@ -233,6 +237,8 @@ router.post("/", (req, res) => {
             responseSent = true;
           }
         }
+        }
+      }
     });
 
   // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
@@ -265,15 +271,15 @@ router.post("/", (req, res) => {
       
 
       peones.forEach(peon => {
-        
-        const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
-        
-        
-        peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
-    
-        
-        movimientos_disponibles_peones.push(peonMovimientos);
-
+        if (peon.color === "turno"){
+          const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
+          
+          
+          peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
+      
+          
+          movimientos_disponibles_peones.push(peonMovimientos);
+        }
       });
 
 
@@ -305,15 +311,16 @@ router.post("/", (req, res) => {
       let movimientos_disponibles_caballos = [];
 
       caballos.forEach(caballo => {
+        if (caballo.color === turno){
+          const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
+          
+          
+          caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles());
+          console.log("Movimientos caballooooooo", caballoMovimientos);
       
-        const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
-        
-        
-        caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles());
-        console.log("Movimientos caballooooooo", caballoMovimientos);
-    
-        
-        movimientos_disponibles_caballos.push(caballoMovimientos);
+          
+          movimientos_disponibles_caballos.push(caballoMovimientos);
+        }
     });
     
 
@@ -344,14 +351,14 @@ router.post("/", (req, res) => {
       let movimientos_disponibles_alfiles = [];
       
       alfiles.forEach(alfil => {
-      
+      if (alfil.color === turno){
       const alfilMovimientos = [{ fromX: alfil.Posicion.x, fromY: alfil.Posicion.y, fromColor: alfil.color }];
       
       
       alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles());
   
       movimientos_disponibles_alfiles.push(alfilMovimientos);
-
+      }
     });
 
     // -------------------------- MOVIMIENTOS DISPONIBLES DE LAS TORRES --------------------------
@@ -382,18 +389,14 @@ router.post("/", (req, res) => {
 
       
       torres.forEach(torre => {
-      
-      let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
-      
-      console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
-      torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
-      // Llamar a la funcion de enroque
-      //let movimientos_enroque = torre.obtenerMovimientosEnroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_izqda, ha_movido_torre_blanca_dcha,
-      //  ha_movido_torre_negra_izqda, ha_movido_torre_negra_dcha, torre.color);
-  
-      //torreMovimientos.push(movimientos_enroque);
-      
-      movimientos_disponibles_torres.push(torreMovimientos);
+        if (torre.color === turno){
+          let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
+          
+          console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
+          torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
+          
+          movimientos_disponibles_torres.push(torreMovimientos);
+        }
     });
 
     
@@ -423,20 +426,24 @@ router.post("/", (req, res) => {
 
       let movimientos_disponibles_damas = [];
         
-        damas.forEach(dama => {
-        
-        let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
-        
-        damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
-        
-        
-        movimientos_disponibles_damas.push(damaMovimientos);
-
+    damas.forEach(dama => {
+        if (dama.color === turno){
+          let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+          
+          damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
+          
+          
+          movimientos_disponibles_damas.push(damaMovimientos);
+        }
     });
 
     // Comprobar si el tablero pertenece a una configuración de tablas
     if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
-      res.json({"empate": true});
+      res.json({"tablas": true});
+    }
+    else if (movimientos_disponibles_reyes.length === 1  && movimientos_disponibles_peones.length < 2 && movimientos_disponibles_caballos.length < 2
+      && movimientos_disponibles_alfiles.length < 2 && movimientos_disponibles_torres.length < 2 && movimientos_disponibles_damas.length < 2){
+      res.json({"Rey ahogado": true});
     }
     else {
       let allMovements = {
@@ -487,64 +494,6 @@ router.post("/", (req, res) => {
 // Ruta /play/select_mode, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/select_mode/:id", (req, res) => {
 
-})
-
-// Ruta /play/update_elo, para que se actualicen los ELO de los jugadores
-router.post("/update_elo/:id_ganador/:id_perdedor", (req, res) => {
-  const { id_winner, id_loser } = req.params;
-
-    try {
-        
-      // const sql = 'SELECT Id, Elo FROM Usuario WHERE Id = ${id_winner}';
-
-      // connection.query(sql, (error, results, fields) => {
-      //   if (error) {
-      //     console.error(error);
-      //     // Handle error
-      //     return;
-      //   }
-      
-      //   if (results.length > 0) {
-      //     // Assuming there's only one result (as Id is a primary key)
-      //     const winnerId = results[0].Id;
-      //     const winnerElo = results[0].Elo;
-      //     console.log("Winner ID:", winnerId);
-      //     console.log("Winner Elo:", winnerElo);
-      //   }
-      // });
-
-        const ELOGanador = 990;  // Sacar información con las consultas a la BD con los parametros pasados en la url
-        const ELOPerdedor = 938; // Sacar información con las consultas a la BD con los parámetros pasados en la url
-
-        
-        const K = 20;
-        const puntuacionEsperadaGanador = 1 / (1 + 10 ** ((ELOPerdedor - ELOGanador) / 400));
-        const puntuacionEsperadaPerdedor = 1 - puntuacionEsperadaGanador;
-
-        const nuevoELOGanador = ELOGanador + Math.round(K * (1 - puntuacionEsperadaGanador));
-        const nuevoELOPerdedor = ELOPerdedor + Math.round(K * (0 - puntuacionEsperadaPerdedor));
-
-
-        // Update players' ELO ratings in the database
-        // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOGanador) WHERE Id = ${id_ganador}';
-        // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOPerdedor) WHERE Id = ${id_perdedor}';
-
-        // connection.query(sql, (error, results, fields) => {
-        //   if (error) {
-        //     console.error(error);
-        //     // Handle error
-        //     return;
-        //   }
-        //  });
-
-        console.log("Nuevo ELO ganador:", nuevoELOGanador);
-        console.log("Nuevo ELO perdedor:", nuevoELOPerdedor);
-
-        res.status(200).json({ message: 'ELO ratings updated successfully' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error updating ELO ratings' });
-    }
 })
 
 module.exports = router;
