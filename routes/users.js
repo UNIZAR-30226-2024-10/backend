@@ -31,6 +31,25 @@ router.get("/all", (req, res) => {
     });
 });
 
+// Ruta /users/all, con la lista de todos los usuarios
+router.get("/all_rewards", (req, res) => {
+    // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
+    const selectAllUsersQuery = `
+        SELECT * FROM Miguel.Recompensas
+    `;
+
+    // Ejecutar la consulta para seleccionar todos los usuarios
+    pool.query(selectAllUsersQuery, (error, result) => {
+        if (error) {
+            console.error('Error al obtener todas las recompensas:', error);
+            res.status(500).json({ message: "Error al obtener todas las recompensas" });
+        } else {
+            console.log('Recompensas obtenidas exitosamente');
+            res.status(200).json(result.rows); // Enviar la lista de usuarios como respuesta
+        }
+    });
+});
+
 // Route /users/login to log in a user
 router.post("/login", async (req, res) => {
     // Get user credentials from the request body
@@ -104,6 +123,34 @@ router.post("/register", async (req, res) => {
     }
 });
 
+// Ruta /users/register, para registrar un nuevo usuario FALTA REGISTRAR RECOMPENSAS
+router.post("/register_rewards", async (req, res) => {
+    // Obtener los datos del usuario desde el cuerpo de la solicitud
+    
+
+    try {
+        // Generar un hash de la contraseña utilizando bcrypt
+        
+
+        // Consulta SQL para insertar un nuevo usuario en la tabla Usuario
+        const insertUserQuery = `
+            INSERT INTO Miguel.Recompensas(Id, Tipo)
+            VALUES (hola)
+        `;
+
+        
+
+        // Ejecutar la consulta para insertar el nuevo usuario
+        await pool.query(insertUserQuery);
+        
+        console.log('Recompensas registradas exitosamente');
+        res.status(200).json({ message: "Registro exitoso" });
+    } catch (error) {
+        console.error('Error al registrar una nueva recompensa:', error);
+        res.status(500).json({ message: "Error al registrar una nueva recompensa" });
+    }
+});
+
 
 // Route /users/logout to log out a user
 router.post("/logout", (req, res) => {
@@ -121,6 +168,27 @@ router.post("/logout", (req, res) => {
         console.error('Error al cerrar sesión:', error);
         res.status(500).json({ message: "Error al cerrar sesión" });
     }
+});
+
+// Route /users/actualizar_recompensa/:id_usuario/:id_recompensa
+router.put("/actualizar_recompensa/:id_usuario/:id_recompensa", async (req, res) => {
+    const userId = req.params.id_usuario; // Corrected parameter name
+    const rewardId = req.params.id_recompensa; // Corrected parameter name
+
+        try {
+            
+            const insertIntoPoseeQuery = `
+            INSERT INTO Miguel.posee (UsuarioId, RecompensaId)
+            VALUES ($1, $2)
+        `;
+            
+        await pool.query(insertIntoPoseeQuery, [userId, rewardId]);
+
+            res.status(200).json({ message: "Recompensa asignada exitosamente" });
+        } catch (error) {
+            console.error('Error al asignar la recomepnsa:', error);
+            res.status(500).json({ message: "Error al asignar la recompensa" });
+        }
 });
 
 
