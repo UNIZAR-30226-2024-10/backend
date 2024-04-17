@@ -69,94 +69,104 @@ app.post('/', (req, res) => {
   res.send('Registro exitoso'); // Envía una respuesta al cliente
 });
 
-// // Verificar conexión a la base de datos
+// Verificar conexión a la base de datos
 pool.connect((err, client, done) => {
   if (err) {
       console.error('Error al conectarse a la base de datos:', err);
-  } else {
-      console.log('Conexión exitosa a la base de datos');
-
-      // Consulta SQL para crear la tabla Usuario
-      const createTableQuery = `
-          CREATE TABLE IF NOT EXISTS Miguel.Usuario (
-              Id SERIAL PRIMARY KEY,
-              Nombre VARCHAR(100) NOT NULL,
-              Contraseña VARCHAR(100) NOT NULL,
-              CorreoElectronico VARCHAR(100) UNIQUE NOT NULL,
-              EloBlitz INTEGER DEFAULT 1200,
-              EloRapid INTEGER DEFAULT 1200,
-              EloBullet INTEGER DEFAULT 1200,
-              Victorias INTEGER DEFAULT 0,
-              Derrotas INTEGER DEFAULT 0,
-              Empates INTEGER DEFAULT 0,
-              Arena VARCHAR(100) DEFAULT 'Madera'
-          )
-      `;
-
-      // Ejecutar la consulta para crear la tabla Usuario
-      pool.query(createTableQuery, (err, result) => {
-          if (err) {
-              console.error('Error al crear la tabla Usuario:', err);
-          } else {
-              console.log('Tabla Usuario creada exitosamente');
-
-              // Consulta SQL para crear la tabla Recompensas
-              const createTableRecompensasQuery = `
-                  CREATE TABLE IF NOT EXISTS Miguel.Recompensas (
-                      Id SERIAL PRIMARY KEY,
-                      Tipo VARCHAR(100) NOT NULL,
-                      Descripcion TEXT
-                  )
-              `;
-
-              // Ejecutar la consulta para crear la tabla Recompensas
-              pool.query(createTableRecompensasQuery, (err, result) => {
-                  if (err) {
-                      console.error('Error al crear la tabla Recompensas:', err);
-                  } else {
-                      console.log('Tabla Recompensas creada exitosamente');
-
-                      // Consulta SQL para crear la tabla Partidas
-                      const createTablePartidasQuery = `
-                          CREATE TABLE IF NOT EXISTS Miguel.Partidas (
-                              Id SERIAL PRIMARY KEY,
-                              JugadorBlanco INTEGER,
-                              JugadorNegro INTEGER,
-                              FOREIGN KEY (JugadorBlanco) REFERENCES Miguel.Usuario(Id),
-                              FOREIGN KEY (JugadorNegro) REFERENCES Miguel.Usuario(Id),
-                              RitmoDeJuego VARCHAR(100),
-                              Estado VARCHAR(100),
-                              ModoJuego VARCHAR(100),
-                              FechaHoraInicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                              FechaHoraFin TIMESTAMP
-                          )
-                      `;
-
-                      // Ejecutar la consulta para crear la tabla Partidas
-                      pool.query(createTablePartidasQuery, (err, result) => {
-                          if (err) {
-                              console.error('Error al crear la tabla Partidas:', err);
-                          } else {
-                              console.log('Tabla Partidas creada exitosamente');
-                              //Borrar todos los usuarios
-                              /*pool.query('DELETE FROM Miguel.Usuario', (error, results) => {
-                                if (error) {
-                                    console.error('Error al borrar todas las filas:', error);
-                                } else {
-                                    console.log('Todas las filas han sido eliminadas exitosamente');
-                                }
-                              });*/
-                          }
-
-                          // Cierra la conexión cuando no se necesite más
-                          done();
-                      });
-                    }
-              });
-          }
-      });
+      return;
   }
+  
+  console.log('Conexión exitosa a la base de datos');
+
+  // Consulta SQL para crear la tabla Usuario
+  const createTableUsuarioQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.Usuario (
+          Id SERIAL PRIMARY KEY,
+          Nombre VARCHAR(100) NOT NULL,
+          Contraseña VARCHAR(100) NOT NULL,
+          CorreoElectronico VARCHAR(100) UNIQUE NOT NULL,
+          EloBlitz INTEGER DEFAULT 1200,
+          EloRapid INTEGER DEFAULT 1200,
+          EloBullet INTEGER DEFAULT 1200,
+          Victorias INTEGER DEFAULT 0,
+          Derrotas INTEGER DEFAULT 0,
+          Empates INTEGER DEFAULT 0,
+          Arena VARCHAR(100) DEFAULT 'Madera'
+      )
+  `;
+
+  // Consulta SQL para crear la tabla Recompensas
+  const createTableRecompensasQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.Recompensas (
+          Id SERIAL PRIMARY KEY,
+          Tipo VARCHAR(100) NOT NULL,
+          Descripcion TEXT
+      )
+  `;
+
+  // Consulta SQL para crear la tabla Partidas
+  const createTablePartidasQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.Partidas (
+          Id SERIAL PRIMARY KEY,
+          JugadorBlanco INTEGER,
+          JugadorNegro INTEGER,
+          FOREIGN KEY (JugadorBlanco) REFERENCES Miguel.Usuario(Id),
+          FOREIGN KEY (JugadorNegro) REFERENCES Miguel.Usuario(Id),
+          RitmoDeJuego VARCHAR(100),
+          Estado VARCHAR(100),
+          ModoJuego VARCHAR(100),
+          FechaHoraInicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FechaHoraFin TIMESTAMP
+      )
+  `;
+
+  // Consulta SQL para crear la tabla "posee"
+  const createTablePoseeQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.posee (
+          UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
+          RecompensaId INTEGER REFERENCES Miguel.Recompensas(Id),
+          PRIMARY KEY (UsuarioId, RecompensaId)
+      )
+  `;
+
+  // Ejecutar las consultas para crear las tablas
+  pool.query(createTableUsuarioQuery, (err, result) => {
+      if (err) {
+          console.error('Error al crear la tabla Usuario:', err);
+          return;
+      }
+      console.log('Tabla Usuario creada exitosamente');
+  });
+
+  pool.query(createTableRecompensasQuery, (err, result) => {
+      if (err) {
+          console.error('Error al crear la tabla Recompensas:', err);
+          return;
+      }
+      console.log('Tabla Recompensas creada exitosamente');
+  });
+
+  pool.query(createTablePartidasQuery, (err, result) => {
+      if (err) {
+          console.error('Error al crear la tabla Partidas:', err);
+          return;
+      }
+      console.log('Tabla Partidas creada exitosamente');
+  });
+
+  pool.query(createTablePoseeQuery, (err, result) => {
+      if (err) {
+          console.error('Error al crear la tabla "posee":', err);
+          return;
+      }
+      console.log('Tabla "posee" creada exitosamente');
+  });
+
+  // Cierra la conexión cuando no se necesite más
+  done();
 });
+
+
 
 var games = []; // Utilizamos un array para almacenar las salas
 
