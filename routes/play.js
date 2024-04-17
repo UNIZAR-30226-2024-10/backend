@@ -441,10 +441,10 @@ router.post("/", (req, res) => {
     if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
       res.json({"tablas": true});
     }
-    else if (movimientos_disponibles_reyes.length === 1  && movimientos_disponibles_peones.length < 2 && movimientos_disponibles_caballos.length < 2
+    /*else if (movimientos_disponibles_reyes.length === 1 && movimientos_disponibles_peones.length < 2 && movimientos_disponibles_caballos.length < 2
       && movimientos_disponibles_alfiles.length < 2 && movimientos_disponibles_torres.length < 2 && movimientos_disponibles_damas.length < 2){
       res.json({"Rey ahogado": true});
-    }
+    }*/
     else {
       let allMovements = {
 
