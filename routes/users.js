@@ -31,6 +31,25 @@ router.get("/all", (req, res) => {
     });
 });
 
+// Ruta /users/all_asignaciones, con la lista de todos los usuarios
+router.get("/all_asignaciones", (req, res) => {
+    // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
+    const selectAllAsignacionesQuery = `
+        SELECT * FROM Miguel.Posee
+    `;
+
+    // Ejecutar la consulta para seleccionar todos los usuarios
+    pool.query(selectAllAsignacionesQuery, (error, result) => {
+        if (error) {
+            console.error('Error al obtener todas las asignaciones usuarios-recompensas:', error);
+            res.status(500).json({ message: "Error al obtener todas las asignaciones usuarios-recompensas" });
+        } else {
+            console.log('Asignaciones usuarios-recompensas obtenidos exitosamente');
+            res.status(200).json(result.rows); // Enviar la lista de usuarios como respuesta
+        }
+    });
+});
+
 // Ruta /users/all, con la lista de todos los usuarios
 router.get("/all_rewards", (req, res) => {
     // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
@@ -123,33 +142,32 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// Ruta /users/register, para registrar un nuevo usuario FALTA REGISTRAR RECOMPENSAS
+// Ruta /users/register_rewards, para registrar una nueva recompensa
 router.post("/register_rewards", async (req, res) => {
-    // Obtener los datos del usuario desde el cuerpo de la solicitud
-    
+    // Obtener los datos de la recompensa desde el cuerpo de la solicitud
+    const { tipo, descripcion } = req.body;
 
     try {
-        // Generar un hash de la contraseña utilizando bcrypt
-        
-
-        // Consulta SQL para insertar un nuevo usuario en la tabla Usuario
-        const insertUserQuery = `
-            INSERT INTO Miguel.Recompensas(Id, Tipo)
-            VALUES (hola)
+        // Consulta SQL para insertar una nueva recompensa en la tabla Recompensas
+        const insertRewardQuery = `
+            INSERT INTO Miguel.Recompensas (Tipo, Descripcion)
+            VALUES ($1, $2)
         `;
 
-        
+        // Parámetros para la consulta SQL
+        const values = [tipo, descripcion];
 
-        // Ejecutar la consulta para insertar el nuevo usuario
-        await pool.query(insertUserQuery);
+        // Ejecutar la consulta para insertar la nueva recompensa
+        await pool.query(insertRewardQuery, values);
         
-        console.log('Recompensas registradas exitosamente');
+        console.log('Recompensa registrada exitosamente');
         res.status(200).json({ message: "Registro exitoso" });
     } catch (error) {
         console.error('Error al registrar una nueva recompensa:', error);
         res.status(500).json({ message: "Error al registrar una nueva recompensa" });
     }
 });
+
 
 
 // Route /users/logout to log out a user
