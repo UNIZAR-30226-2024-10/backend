@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require("socket.io");
-const { Pool } = require('pg'); // Importar el cliente PostgreSQL
+const pool = require('./db');
 
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
@@ -18,15 +18,6 @@ app.use(cors());
 app.use(bodyParser.json());
 
 
-
-// // Configuración de la conexión a la base de datos
-const pool = new Pool({
-    user: 'ugfchsan0qbfkvhvyuwl',
-    host: 'bm9v4y7glvvz5acg8lj3-postgresql.services.clever-cloud.com',
-    database: 'bm9v4y7glvvz5acg8lj3',
-    password: 'FL2O9CrTAJ89cBxbHihI',
-    port: 50013
-});
 
 // Generate a random session secret
 const sessionSecret = crypto.randomBytes(64).toString('hex');
@@ -95,6 +86,8 @@ pool.connect((err, client, done) => {
       )
   `;
 
+
+
   // Consulta SQL para crear la tabla Recompensas
   const createTableRecompensasQuery = `
       CREATE TABLE IF NOT EXISTS Miguel.Recompensas (
@@ -137,6 +130,7 @@ pool.connect((err, client, done) => {
       }
       console.log('Tabla Usuario creada exitosamente');
   });
+
 
   pool.query(createTableRecompensasQuery, (err, result) => {
       if (err) {

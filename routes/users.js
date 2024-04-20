@@ -1,16 +1,8 @@
 const express = require("express")
-const { Pool } = require('pg'); // Importar el cliente PostgreSQL
+const pool = require('../db');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
-// // Configuración de la conexión a la base de datos
-const pool = new Pool({
-    user: 'ugfchsan0qbfkvhvyuwl',
-    host: 'bm9v4y7glvvz5acg8lj3-postgresql.services.clever-cloud.com',
-    database: 'bm9v4y7glvvz5acg8lj3',
-    password: 'FL2O9CrTAJ89cBxbHihI',
-    port: 50013 // Puerto por defecto de PostgreSQL
-});
 
 // Ruta /users/all, con la lista de todos los usuarios
 router.get("/all", (req, res) => {
@@ -50,7 +42,7 @@ router.get("/all_asignaciones", (req, res) => {
     });
 });
 
-// Ruta /users/all, con la lista de todos los usuarios
+// Ruta /users/all_rewards, con la lista de todos los usuarios
 router.get("/all_rewards", (req, res) => {
     // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
     const selectAllUsersQuery = `
@@ -116,7 +108,7 @@ router.post("/login", async (req, res) => {
 // Ruta /users/register, para registrar un nuevo usuario
 router.post("/register", async (req, res) => {
     // Obtener los datos del usuario desde el cuerpo de la solicitud
-    const { nombre, contraseña, correoElectronico} = req.body;
+    const { nombre, contraseña, correoElectronico, victorias, empates, derrotas} = req.body;
 
     try {
         // Generar un hash de la contraseña utilizando bcrypt
@@ -124,12 +116,12 @@ router.post("/register", async (req, res) => {
 
         // Consulta SQL para insertar un nuevo usuario en la tabla Usuario
         const insertUserQuery = `
-            INSERT INTO Miguel.Usuario (nombre, contraseña, correoElectronico)
-            VALUES ($1, $2, $3)
+            INSERT INTO Miguel.Usuario (nombre, contraseña, correoElectronico, victorias, empates, derrotas)
+            VALUES ($1, $2, $3, $4, $5, $6)
         `;
 
         // Parámetros para la consulta SQL
-        const values = [nombre, hashedPassword, correoElectronico];
+        const values = [nombre, hashedPassword, correoElectronico, victorias, empates, derrotas];
 
         // Ejecutar la consulta para insertar el nuevo usuario
         await pool.query(insertUserQuery, values);
@@ -209,7 +201,7 @@ router.put("/actualizar_recompensa/:id_usuario/:id_recompensa", async (req, res)
         }
 });
 
-
+// Route /users/:id
 router.route("/:id")
     // Obtener info de un usuario en concreto (perfil)
     .get(async (req, res) => {
@@ -218,10 +210,15 @@ router.route("/:id")
         try {
             // Query to fetch user data based on ID
             const getUserQuery = `
-                SELECT id, nombre, correoElectronico
-                FROM Miguel.Usuario
-                WHERE id = $1
+                SELECT u.*,
+                    COALESCE(MAX(p.recompensaid), 0) AS recompensaMasAlta,
+                    COALESCE(u.Victorias, 0) * 4 + COALESCE(u.Empates, 0) * 2 + COALESCE(u.Derrotas, 0) AS puntosExperiencia
+                FROM Miguel.Usuario u
+                LEFT JOIN Miguel.posee p ON u.id = p.usuarioid
+                WHERE u.id = $1
+                GROUP BY u.id;
             `;
+
             
             // Execute the query to fetch user data
             const { rows } = await pool.query(getUserQuery, [userId]);
@@ -286,62 +283,123 @@ router.route("/:id")
 router.get("/notifications", (req, res) => {
 
 })
-// Ruta /play/update_elo, para que se actualicen los ELO de los jugadores
-router.post("/update_elo/:id_ganador/:id_perdedor", (req, res) => {
-    const { id_winner, id_loser } = req.params;
+// Ruta /users/actualizar_puntos/:modo/:idGanador/:idPerdedor, para que se actualicen los ELO de los jugadores
+router.post("/actualizar_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req, res) => {
+    const { idGanador, idPerdedor, esEmpate } = req.params;
+    const modo = req.params.modo;
   
       try {
+
+        let eloColumn;
+        switch (modo) {
+            case 'blitz':
+                eloColumn = 'eloblitz';
+                break;
+            case 'bullet':
+                eloColumn = 'elobullet';
+                break;
+            case 'rapid':
+                eloColumn = 'elorapid';
+                break;
+            default:
+                return res.status(400).json({ message: "Modo de liderazgo no válido" });
+        }
+
+        // Actualización de ELO -------------------------------------------------------------------------
           
-        // const sql = 'SELECT Id, Elo FROM Usuario WHERE Id = ${id_winner}';
-  
-        // connection.query(sql, (error, results, fields) => {
-        //   if (error) {
-        //     console.error(error);
-        //     // Handle error
-        //     return;
-        //   }
-        
-        //   if (results.length > 0) {
-        //     // Assuming there's only one result (as Id is a primary key)
-        //     const winnerId = results[0].Id;
-        //     const winnerElo = results[0].Elo;
-        //     console.log("Winner ID:", winnerId);
-        //     console.log("Winner Elo:", winnerElo);
-        //   }
-        // });
-  
-          const ELOGanador = 990;  // Sacar información con las consultas a la BD con los parametros pasados en la url
-          const ELOPerdedor = 938; // Sacar información con las consultas a la BD con los parámetros pasados en la url
-  
+        const obtenerELOJugadorQuery = `
+            SELECT u.${eloColumn} AS elo
+            FROM Miguel.Usuario u
+            WHERE u.id = $1;
+        `;
+
+        const { rows: puntuacionGanador } = await pool.query(obtenerELOJugadorQuery, [idGanador]);
+        const { rows: puntuacionPerdedor } = await pool.query(obtenerELOJugadorQuery, [idPerdedor]);
+
+        // Check if ganador is undefined or if it has zero length
+        if (!puntuacionGanador || puntuacionGanador.length === 0) {
+            return res.status(404).json({ message: "Usuario ganador no encontrado" });
+        }
+        if (!puntuacionPerdedor || puntuacionPerdedor.length === 0) {
+            return res.status(404).json({ message: "Usuario perdedor no encontrado" });
+        }
+
+        const usuarioGanador = puntuacionGanador[0];
+        const usuarioPerdedor = puntuacionPerdedor[0];
+
+        console.log('ELO Usuario ganador:', usuarioGanador.elo);
+        console.log('XP Usuario ganador:', usuarioGanador.puntosexperiencia);
+
+        console.log('ELO Usuario perdedor:', usuarioPerdedor.elo);
+        console.log('XP Usuario perdedor:', usuarioPerdedor.puntosexperiencia);
           
           const K = 20;
-          const puntuacionEsperadaGanador = 1 / (1 + 10 ** ((ELOPerdedor - ELOGanador) / 400));
+          const puntuacionEsperadaGanador = 1 / (1 + 10 ** ((usuarioPerdedor.elo - usuarioGanador.elo) / 400));
           const puntuacionEsperadaPerdedor = 1 - puntuacionEsperadaGanador;
   
-          const nuevoELOGanador = ELOGanador + Math.round(K * (1 - puntuacionEsperadaGanador));
-          const nuevoELOPerdedor = ELOPerdedor + Math.round(K * (0 - puntuacionEsperadaPerdedor));
+          const nuevoELOGanador = usuarioGanador.elo + Math.round(K * (1 - puntuacionEsperadaGanador));
+          const nuevoELOPerdedor = usuarioPerdedor.elo + Math.round(K * (0 - puntuacionEsperadaPerdedor));
   
   
-          // Update players' ELO ratings in the database
-          // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOGanador) WHERE Id = ${id_ganador}';
-          // const sql = 'INSERT INTO Usuario (Elo) VALUES (nuevoELOPerdedor) WHERE Id = ${id_perdedor}';
+        
+        const updateELOGanador = `UPDATE Miguel.Usuario SET ${eloColumn} = $1 WHERE Id = $2;`;
+        await pool.query(updateELOGanador, [nuevoELOGanador, idGanador]);
+
+        const updateELOPerdedor = `UPDATE Miguel.Usuario SET ${eloColumn} = $1 WHERE Id = $2;`;
+        await pool.query(updateELOPerdedor, [nuevoELOPerdedor, idPerdedor]);
+        
+        console.log("Nuevo ELO ganador:", nuevoELOGanador);
+        console.log("Nuevo ELO perdedor:", nuevoELOPerdedor);
+
+        // Actualización de victorias y derrotas -------------------------------------------------------------------------
+
+        const obtenerPuntosJugadorQuery = `
+            SELECT
+                u.Victorias,
+                u.Empates,
+                u.Derrotas
+            FROM Miguel.Usuario u
+            WHERE u.id = $1;
+        `;
+
+        if(esEmpate === "true"){   // Si es empate
+            const { rows: metricasJugador1 } = await pool.query(obtenerPuntosJugadorQuery, [idGanador]);
+            const metricasUsuarioJugador1 = metricasJugador1[0];
+            const nuevosEmpatesJugador1 = metricasUsuarioJugador1.empates + 1;
+            const updateEmpatesJugador1 = `UPDATE Miguel.Usuario SET empates = $1 WHERE Id = $2;`;
+            await pool.query(updateEmpatesJugador1, [nuevosEmpatesJugador1, idGanador]);
+
+            const { rows: metricasJugador2 } = await pool.query(obtenerPuntosJugadorQuery, [idPerdedor]);
+            const metricasUsuarioJugador2 = metricasJugador2[0];
+            const nuevosEmpatesJugador2 = metricasUsuarioJugador2.empates + 1;
+            const updateEmpatesJugador2 = `UPDATE Miguel.Usuario SET empates = $1 WHERE Id = $2;`;
+            await pool.query(updateEmpatesJugador2, [nuevosEmpatesJugador2, idPerdedor]);
+            
+        }
+        else {  // Si hay un ganador
+            const { rows: metricasGanador } = await pool.query(obtenerPuntosJugadorQuery, [idGanador]);
+            const metricasUsuarioGanador = metricasGanador[0];
+            const nuevasVictorias = metricasUsuarioGanador.victorias + 1;
+            const updateVictoriasGanador = `UPDATE Miguel.Usuario SET victorias = $1 WHERE Id = $2;`;
+            await pool.query(updateVictoriasGanador, [nuevasVictorias, idGanador]);
+            
+
+            const { rows: metricasPerdedor } = await pool.query(obtenerPuntosJugadorQuery, [idPerdedor]);
+            const metricasUsuarioPerdedor = metricasPerdedor[0];
+            const nuevasDerrotas = metricasUsuarioPerdedor.derrotas + 1;
+            const updateDerrotasPerdedor = `UPDATE Miguel.Usuario SET derrotas = $1 WHERE Id = $2;`;
+            await pool.query(updateDerrotasPerdedor, [nuevasDerrotas, idPerdedor]);
+        }
+
+        
+
   
-          // connection.query(sql, (error, results, fields) => {
-          //   if (error) {
-          //     console.error(error);
-          //     // Handle error
-          //     return;
-          //   }
-          //  });
-  
-          console.log("Nuevo ELO ganador:", nuevoELOGanador);
-          console.log("Nuevo ELO perdedor:", nuevoELOPerdedor);
-  
-          res.status(200).json({ message: 'ELO ratings updated successfully' });
-      } catch (error) {
-          console.error(error);
-          res.status(500).json({ message: 'Error updating ELO ratings' });
-      }
+        res.status(200).json({ message: 'ELO ratings updated successfully' });
+        } 
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Error updating ELO ratings' });
+        }
   })
 router.get("/leaderboard/:mode", async (req, res) => {
     const mode = req.params.mode;
