@@ -30,24 +30,24 @@ class Dama {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles() {
+    obtenerMovimientosDisponibles(comprobarEstaPiezaProtegida) {
         let movimientos_disponibles_dama = [];
         // Eje +x
-        this._agregarMovimientosEnEje(1, 0, movimientos_disponibles_dama);
+        this._agregarMovimientosEnEje(1, 0, movimientos_disponibles_dama, comprobarEstaPiezaProtegida);
 
         // Eje +y
-        this._agregarMovimientosEnEje(0, 1, movimientos_disponibles_dama);
+        this._agregarMovimientosEnEje(0, 1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida);
 
         // Eje -x
-        this._agregarMovimientosEnEje(-1, 0, movimientos_disponibles_dama);
+        this._agregarMovimientosEnEje(-1, 0, movimientos_disponibles_dama, comprobarEstaPiezaProtegida);
 
         // Eje -y
-        this._agregarMovimientosEnEje(0, -1, movimientos_disponibles_dama);
+        this._agregarMovimientosEnEje(0, -1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida);
 
-        this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_dama); // Diagonal +
-        this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_dama); // Diagonal -
-        this._agregarMovimientosEnDiagonal(-1, 1, movimientos_disponibles_dama); // Diagonal -
-        this._agregarMovimientosEnDiagonal(-1, -1, movimientos_disponibles_dama); // Diagonal +
+        this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida); // Diagonal +
+        this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida); // Diagonal -
+        this._agregarMovimientosEnDiagonal(-1, 1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida); // Diagonal -
+        this._agregarMovimientosEnDiagonal(-1, -1, movimientos_disponibles_dama, comprobarEstaPiezaProtegida); // Diagonal +
         
         return movimientos_disponibles_dama;
     }
@@ -59,7 +59,7 @@ class Dama {
             console.log(`(${movimiento.x}, ${movimiento.y})`);
         });
     }
-    _agregarMovimientosEnEje(deltaX, deltaY, movimientos) {
+    _agregarMovimientosEnEje(deltaX, deltaY, movimientos, comprobarEstaPiezaProtegida) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
             const x = this.Posicion.x + k * deltaX;
@@ -71,8 +71,13 @@ class Dama {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    if (casilla.getPieza().getColor() !== this.color) {
-                        movimientos.push({ x, y});
+                    if (comprobarEstaPiezaProtegida){
+                        movimientos.push({x, y});
+                    }
+                    else {
+                        if (casilla.getPieza().getColor() !== this.color) {
+                            movimientos.push({ x, y});
+                        }
                     }
                     break;
                 }
@@ -82,7 +87,7 @@ class Dama {
         }
     }
 
-    _agregarMovimientosEnDiagonal(deltaX, deltaY, movimientos) {
+    _agregarMovimientosEnDiagonal(deltaX, deltaY, movimientos, comprobarEstaPiezaProtegida) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
             const x = this.Posicion.x + k * deltaX;
@@ -94,10 +99,14 @@ class Dama {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    if (casilla.getPieza().getColor() !== this.color) {
-                        console.log("puedo zamparte " + casilla.getPieza().getClassName() + " " + casilla.getPieza().getColor());
-                        movimientos.push({ x, y});
-                    }                    // There is a piece in the way, stop checking in this direction
+                    if (comprobarEstaPiezaProtegida){
+                        movimientos.push({x, y});
+                    }
+                    else {
+                        if (casilla.getPieza().getColor() !== this.color) {
+                            movimientos.push({ x, y});
+                        }
+                    }
                     break;
                 }
             }

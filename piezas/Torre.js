@@ -34,20 +34,20 @@ class Torre {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles() {
+    obtenerMovimientosDisponibles(comprobarEstaPiezaProtegida) {
         let movimientos_disponibles_torre = [];
 
         // Eje +x
-        this._agregarMovimientosEnEje(1, 0, movimientos_disponibles_torre);
+        this._agregarMovimientosEnEje(1, 0, movimientos_disponibles_torre, comprobarEstaPiezaProtegida);
 
         // Eje +y
-        this._agregarMovimientosEnEje(0, 1, movimientos_disponibles_torre);
+        this._agregarMovimientosEnEje(0, 1, movimientos_disponibles_torre, comprobarEstaPiezaProtegida);
 
         // Eje -x
-        this._agregarMovimientosEnEje(-1, 0, movimientos_disponibles_torre);
+        this._agregarMovimientosEnEje(-1, 0, movimientos_disponibles_torre, comprobarEstaPiezaProtegida);
 
         // Eje -y
-        this._agregarMovimientosEnEje(0, -1, movimientos_disponibles_torre);
+        this._agregarMovimientosEnEje(0, -1, movimientos_disponibles_torre, comprobarEstaPiezaProtegida);
 
         
 
@@ -62,7 +62,7 @@ class Torre {
         });
     }
 
-    _agregarMovimientosEnEje(deltaX, deltaY, movimientos) {
+    _agregarMovimientosEnEje(deltaX, deltaY, movimientos, comprobarEstaPiezaProtegida) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
             const x = this.Posicion.x + k * deltaX;
@@ -74,8 +74,13 @@ class Torre {
                 if (casilla.getPieza() === null) {
                     movimientos.push({ x, y });
                 } else {
-                    if (casilla.getPieza().getColor() !== this.color) {
-                        movimientos.push({ x, y});
+                    if (comprobarEstaPiezaProtegida){
+                        movimientos.push({x, y});
+                    }
+                    else {
+                        if (casilla.getPieza().getColor() !== this.color) {
+                            movimientos.push({ x, y});
+                        }
                     }
                     break;
                 }

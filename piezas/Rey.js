@@ -55,14 +55,14 @@ class Rey {
         return piezas;
     }
 
-    obtenerPosicionesAtacadasPorOponente(colorRey) {
+    obtenerPosicionesAtacadasPorOponente(colorRey, comprobarEstaPiezaProtegida) {
         let posicionesAtacadasPorOponente = [];
         const colorOponente = colorRey === 'blancas' ? 'negras' : 'blancas';
         const piezasOponente = this.obtenerPiezas(colorOponente);
         piezasOponente.forEach(pieza => {
             if (pieza instanceof Caballo || pieza instanceof Alfil || pieza instanceof Torre || pieza instanceof Dama) {
                 
-                const movimientosDisponibles = pieza.obtenerMovimientosDisponibles();
+                const movimientosDisponibles = pieza.obtenerMovimientosDisponibles(comprobarEstaPiezaProtegida);
                 posicionesAtacadasPorOponente.push(...movimientosDisponibles);
             }
             else if (pieza instanceof Peon){
@@ -180,7 +180,7 @@ class Rey {
     
         // Filtrar los movimientos que resulten en jaque
         console.log("color ", this.color);
-        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(this.color);
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(this.color, true);
         const casillasAtacadas = posicionesAtacadasPorOponente.map(movimiento => ({ x: movimiento.x, y: movimiento.y }));
         const movimientosSinJaque = movimientos_disponibles_rey.filter(movimiento => {
             const x = movimiento.x;
@@ -191,7 +191,7 @@ class Rey {
     }
     
     jaque(pieza) {
-        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color);
+        const posicionesAtacadasPorOponente = this.obtenerPosicionesAtacadasPorOponente(pieza.color, false);
         return this.movimientoCoincideConCasilla(posicionesAtacadasPorOponente, pieza.Posicion.x, pieza.Posicion.y);
     }
 
@@ -376,7 +376,7 @@ class Rey {
                     console.log("No se puede realizar el enroque: El rey está en jaque");
                     return false;
                 }
-                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno);
+                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno, false);
                 //console.log("Moviminetos que evitan el jaque", movimientosSinJaque);
                 if (this.movimientoCoincideConCasilla(movimientosSinJaque, 5, this.Posicion.y) ||
                     this.movimientoCoincideConCasilla(movimientosSinJaque, 6, this.Posicion.y)) {
@@ -393,7 +393,7 @@ class Rey {
                     console.log("No se puede realizar el enroque: El rey está en jaque");
                     return false;
                 }
-                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno);
+                const movimientosSinJaque = this.obtenerPosicionesAtacadasPorOponente(turno, false);
                 if (this.movimientoCoincideConCasilla(movimientosSinJaque, 3, this.Posicion.y) ||
                     this.movimientoCoincideConCasilla(movimientosSinJaque, 2, this.Posicion.y)) {
                     console.log("No se puede realizar el enroque " + lado + " de las " + this.color + ": El rey pasa por una casilla bajo ataque");

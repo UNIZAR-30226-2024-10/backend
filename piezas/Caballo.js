@@ -28,7 +28,7 @@ class Caballo {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles() {
+    obtenerMovimientosDisponibles(comprobarEstaPiezaProtegida) {
         let movimientos_disponibles_caballo = [];
 
         const casillas = this.tablero.getCasillas();
@@ -40,8 +40,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -54,8 +59,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -68,8 +78,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y + 2, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -82,8 +97,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y + 1, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -96,8 +116,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x - 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -110,8 +135,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x - 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -124,8 +154,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x + 1, this.Posicion.y - 2, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }
@@ -137,8 +172,13 @@ class Caballo {
                     this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
                 }
                 else {
-                    if(casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
+                    }
+                    else {
+                        if(casilla.getPieza().getColor() !== this.color) {
+                            this._agregarMovimiento(this.Posicion.x + 2, this.Posicion.y - 1, movimientos_disponibles_caballo);
+                        }
                     }
                 }
             }

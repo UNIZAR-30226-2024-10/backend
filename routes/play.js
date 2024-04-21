@@ -315,7 +315,7 @@ router.post("/", (req, res) => {
           const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
           
           
-          caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles());
+          caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles(false));
           console.log("Movimientos caballooooooo", caballoMovimientos);
       
           
@@ -355,7 +355,7 @@ router.post("/", (req, res) => {
       const alfilMovimientos = [{ fromX: alfil.Posicion.x, fromY: alfil.Posicion.y, fromColor: alfil.color }];
       
       
-      alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles());
+      alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles(false));
   
       movimientos_disponibles_alfiles.push(alfilMovimientos);
       }
@@ -392,8 +392,8 @@ router.post("/", (req, res) => {
         if (torre.color === turno){
           let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
           
-          console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
-          torreMovimientos.push(...torre.obtenerMovimientosDisponibles());
+          //console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
+          torreMovimientos.push(...torre.obtenerMovimientosDisponibles(false));
           
           movimientos_disponibles_torres.push(torreMovimientos);
         }
@@ -430,7 +430,7 @@ router.post("/", (req, res) => {
         if (dama.color === turno){
           let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
           
-          damaMovimientos.push(...dama.obtenerMovimientosDisponibles());
+          damaMovimientos.push(...dama.obtenerMovimientosDisponibles(false));
           
           
           movimientos_disponibles_damas.push(damaMovimientos);

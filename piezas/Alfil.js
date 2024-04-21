@@ -30,13 +30,13 @@ class Alfil {
         return this.constructor.name;
     }
 
-    obtenerMovimientosDisponibles() {
+    obtenerMovimientosDisponibles(comprobarEstaPiezaProtegida) {
         let movimientos_disponibles_alfil = [];
 
-        this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_alfil); // Diagonal +
-        this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_alfil); // Diagonal -
-        this._agregarMovimientosEnDiagonal(-1, 1, movimientos_disponibles_alfil); // Diagonal -
-        this._agregarMovimientosEnDiagonal(-1, -1, movimientos_disponibles_alfil); // Diagonal +
+        this._agregarMovimientosEnDiagonal(1, 1, movimientos_disponibles_alfil, comprobarEstaPiezaProtegida); // Diagonal +
+        this._agregarMovimientosEnDiagonal(1, -1, movimientos_disponibles_alfil, comprobarEstaPiezaProtegida); // Diagonal -
+        this._agregarMovimientosEnDiagonal(-1, 1, movimientos_disponibles_alfil, comprobarEstaPiezaProtegida); // Diagonal -
+        this._agregarMovimientosEnDiagonal(-1, -1, movimientos_disponibles_alfil, comprobarEstaPiezaProtegida); // Diagonal +
 
         return movimientos_disponibles_alfil;
     }
@@ -49,7 +49,7 @@ class Alfil {
         });
     }
 
-    _agregarMovimientosEnDiagonal(deltaX, deltaY, movimientos) {
+    _agregarMovimientosEnDiagonal(deltaX, deltaY, movimientos, comprobarEstaPiezaProtegida) {
         let k = 1;
         while (this._esMovimientoValido(this.Posicion.x + k * deltaX, this.Posicion.y + k * deltaY)) {
             const x = this.Posicion.x + k * deltaX;
@@ -64,8 +64,13 @@ class Alfil {
                 } 
                 else {
                     // Si hay pieza y es del color contrario se puede comer
-                    if (casilla.getPieza().getColor() !== this.color) {
+                    if (comprobarEstaPiezaProtegida){
                         movimientos.push({x, y});
+                    }
+                    else {
+                        if (casilla.getPieza().getColor() !== this.color) {
+                            movimientos.push({x, y});
+                        }
                     }
                     break;
                 }
