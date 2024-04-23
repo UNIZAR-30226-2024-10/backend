@@ -122,6 +122,24 @@ pool.connect((err, client, done) => {
       )
   `;
 
+  const createTablePartidaAsincronaQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.PartidaAsincrona (
+          Id SERIAL PRIMARY KEY,
+          UsuarioBlancasId INTEGER REFERENCES Miguel.Usuario(Id),
+          UsuarioNegrasId INTEGER REFERENCES Miguel.Usuario(Id),
+          Turno VARCHAR(7),
+          TableroActual VARCHAR(65000)
+      )
+  `;
+
+  const createTableUsuarioTienePartidaAsincronaQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.UsuarioTienePartidaAsincrona (
+          UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
+          PartidaAsincronaId INTEGER REFERENCES Miguel.PartidaAsincrona(Id),
+          PRIMARY KEY (UsuarioId, PartidaAsincronaId)
+      )
+  `;
+
   // Ejecutar las consultas para crear las tablas
   pool.query(createTableUsuarioQuery, (err, result) => {
       if (err) {
@@ -155,6 +173,25 @@ pool.connect((err, client, done) => {
       }
       console.log('Tabla "posee" creada exitosamente');
   });
+
+  /*
+
+  pool.query(createTablePartidaAsincronaQuery, (err, result) => {
+    if (err) {
+        console.error('Error al crear la tabla PartidaAsincrona:', err);
+        return;
+    }
+    console.log('Tabla "posee" creada exitosamente');
+  });
+
+  pool.query(createTableUsuarioTienePartidaAsincronaQuery, (err, result) => {
+    if (err) {
+        console.error('Error al crear la tabla "UsuarioTienePartidaAsincrona":', err);
+        return;
+    }
+    console.log('Tabla "posee" creada exitosamente');
+});
+*/
 
   // Cierra la conexión cuando no se necesite más
   done();
