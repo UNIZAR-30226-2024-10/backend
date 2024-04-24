@@ -40,6 +40,107 @@ const io = new Server(server, {
   },
 });
 
+// Consulta SQL para crear la tabla Usuario
+  const createTableUsuarioQuery = `
+      CREATE TABLE IF NOT EXISTS Miguel.Usuario (
+          Id SERIAL PRIMARY KEY,
+          Nombre VARCHAR(100) NOT NULL,
+          Contraseña VARCHAR(100) NOT NULL,
+          CorreoElectronico VARCHAR(100) UNIQUE NOT NULL,
+          EloBlitz INTEGER DEFAULT 1200,
+          EloRapid INTEGER DEFAULT 1200,
+          EloBullet INTEGER DEFAULT 1200,
+          Victorias INTEGER DEFAULT 0,
+          Derrotas INTEGER DEFAULT 0,
+          Empates INTEGER DEFAULT 0,
+          Arena VARCHAR(100) DEFAULT 'Madera'
+      )
+  `;
+// Consulta SQL para crear la tabla Recompensas
+const createTableRecompensasQuery = `
+CREATE TABLE IF NOT EXISTS Miguel.Recompensas (
+Id SERIAL PRIMARY KEY,
+Tipo VARCHAR(100) NOT NULL,
+Descripcion TEXT
+)
+`;
+
+// Consulta SQL para crear la tabla Partidas
+const createTablePartidasQuery = `
+CREATE TABLE IF NOT EXISTS Miguel.Partidas (
+Id SERIAL PRIMARY KEY,
+JugadorBlanco INTEGER,
+JugadorNegro INTEGER,
+FOREIGN KEY (JugadorBlanco) REFERENCES Miguel.Usuario(Id),
+FOREIGN KEY (JugadorNegro) REFERENCES Miguel.Usuario(Id),
+RitmoDeJuego VARCHAR(100),
+Estado VARCHAR(100),
+ModoJuego VARCHAR(100),
+FechaHoraInicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FechaHoraFin TIMESTAMP
+)
+`;
+
+// Consulta SQL para crear la tabla "posee"
+const createTablePoseeQuery = `
+CREATE TABLE IF NOT EXISTS Miguel.posee (
+UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
+RecompensaId INTEGER REFERENCES Miguel.Recompensas(Id),
+PRIMARY KEY (UsuarioId, RecompensaId)
+)
+`;
+
+const createTablePartidaAsincronaQuery = `
+CREATE TABLE IF NOT EXISTS Miguel.PartidaAsincronaTableroDefi (
+Id SERIAL PRIMARY KEY,
+UsuarioBlancasId INTEGER REFERENCES Miguel.Usuario(Id),
+UsuarioNegrasId INTEGER REFERENCES Miguel.Usuario(Id),
+Tablero VARCHAR(65000)
+)
+`;
+
+
+const createTableUsuarioTienePartidaAsincronaQuery = `
+CREATE TABLE IF NOT EXISTS Miguel.UsuarioTienePartidaAsincrona (
+UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
+PartidaAsincronaId INTEGER REFERENCES Miguel.PartidaAsincrona(Id),
+PRIMARY KEY (UsuarioId, PartidaAsincronaId)
+)
+`;
+
+
+async function myDatabaseQuery1() {
+  const client = await pool.connect();
+    console.log('Connected to the database');
+    
+    // Log the query being executed
+    console.log('Executing query:', createTableUsuarioQuery);
+    
+    await client.query(createTableUsuarioQuery);
+    console.log('Query 1 executed successfully');
+    await client.query(createTableRecompensasQuery);
+    console.log('Query 2 executed successfully');
+
+    await client.query(createTablePartidasQuery);
+    console.log('Query 3 executed successfully');
+    await client.query(createTablePoseeQuery);
+    console.log('Query 4 executed successfully');
+    await client.query(createTablePartidaAsincronaQuery);
+    console.log('Query 5 executed successfully');
+    await client.query(createTableUsuarioTienePartidaAsincronaQuery);
+    console.log('Query 6 executed successfully');
+
+
+
+    client.release();
+    console.log('Connection released');
+    //await client.end();
+    console.log('Connection closed');
+
+}
+
+
+
 
 // Rutas de los usuarios
 const userRouter = require("./routes/users")
@@ -60,142 +161,12 @@ app.post('/', (req, res) => {
   res.send('Registro exitoso'); // Envía una respuesta al cliente
 });
 
-// Verificar conexión a la base de datos
-pool.connect((err, client, done) => {
-  if (err) {
-      console.error('Error al conectarse a la base de datos:', err);
-      return;
-  }
-  
-  console.log('Conexión exitosa a la base de datos');
-
-  // Consulta SQL para crear la tabla Usuario
-  const createTableUsuarioQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.Usuario (
-          Id SERIAL PRIMARY KEY,
-          Nombre VARCHAR(100) NOT NULL,
-          Contraseña VARCHAR(100) NOT NULL,
-          CorreoElectronico VARCHAR(100) UNIQUE NOT NULL,
-          EloBlitz INTEGER DEFAULT 1200,
-          EloRapid INTEGER DEFAULT 1200,
-          EloBullet INTEGER DEFAULT 1200,
-          Victorias INTEGER DEFAULT 0,
-          Derrotas INTEGER DEFAULT 0,
-          Empates INTEGER DEFAULT 0,
-          Arena VARCHAR(100) DEFAULT 'Madera'
-      )
-  `;
 
 
-
-  // Consulta SQL para crear la tabla Recompensas
-  const createTableRecompensasQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.Recompensas (
-          Id SERIAL PRIMARY KEY,
-          Tipo VARCHAR(100) NOT NULL,
-          Descripcion TEXT
-      )
-  `;
-
-  // Consulta SQL para crear la tabla Partidas
-  const createTablePartidasQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.Partidas (
-          Id SERIAL PRIMARY KEY,
-          JugadorBlanco INTEGER,
-          JugadorNegro INTEGER,
-          FOREIGN KEY (JugadorBlanco) REFERENCES Miguel.Usuario(Id),
-          FOREIGN KEY (JugadorNegro) REFERENCES Miguel.Usuario(Id),
-          RitmoDeJuego VARCHAR(100),
-          Estado VARCHAR(100),
-          ModoJuego VARCHAR(100),
-          FechaHoraInicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FechaHoraFin TIMESTAMP
-      )
-  `;
-
-  // Consulta SQL para crear la tabla "posee"
-  const createTablePoseeQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.posee (
-          UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
-          RecompensaId INTEGER REFERENCES Miguel.Recompensas(Id),
-          PRIMARY KEY (UsuarioId, RecompensaId)
-      )
-  `;
-
-  const createTablePartidaAsincronaQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.PartidaAsincrona (
-          Id SERIAL PRIMARY KEY,
-          UsuarioBlancasId INTEGER REFERENCES Miguel.Usuario(Id),
-          UsuarioNegrasId INTEGER REFERENCES Miguel.Usuario(Id),
-          Turno VARCHAR(7),
-          TableroActual VARCHAR(65000)
-      )
-  `;
-
-  const createTableUsuarioTienePartidaAsincronaQuery = `
-      CREATE TABLE IF NOT EXISTS Miguel.UsuarioTienePartidaAsincrona (
-          UsuarioId INTEGER REFERENCES Miguel.Usuario(Id),
-          PartidaAsincronaId INTEGER REFERENCES Miguel.PartidaAsincrona(Id),
-          PRIMARY KEY (UsuarioId, PartidaAsincronaId)
-      )
-  `;
-
-  // Ejecutar las consultas para crear las tablas
-  pool.query(createTableUsuarioQuery, (err, result) => {
-      if (err) {
-          console.error('Error al crear la tabla Usuario:', err);
-          return;
-      }
-      console.log('Tabla Usuario creada exitosamente');
-  });
+myDatabaseQuery1();
+// myDatabaseQuery2();
 
 
-  pool.query(createTableRecompensasQuery, (err, result) => {
-      if (err) {
-          console.error('Error al crear la tabla Recompensas:', err);
-          return;
-      }
-      console.log('Tabla Recompensas creada exitosamente');
-  });
-
-  pool.query(createTablePartidasQuery, (err, result) => {
-      if (err) {
-          console.error('Error al crear la tabla Partidas:', err);
-          return;
-      }
-      console.log('Tabla Partidas creada exitosamente');
-  });
-
-  pool.query(createTablePoseeQuery, (err, result) => {
-      if (err) {
-          console.error('Error al crear la tabla "posee":', err);
-          return;
-      }
-      console.log('Tabla "posee" creada exitosamente');
-  });
-
-  /*
-
-  pool.query(createTablePartidaAsincronaQuery, (err, result) => {
-    if (err) {
-        console.error('Error al crear la tabla PartidaAsincrona:', err);
-        return;
-    }
-    console.log('Tabla "posee" creada exitosamente');
-  });
-
-  pool.query(createTableUsuarioTienePartidaAsincronaQuery, (err, result) => {
-    if (err) {
-        console.error('Error al crear la tabla "UsuarioTienePartidaAsincrona":', err);
-        return;
-    }
-    console.log('Tabla "posee" creada exitosamente');
-});
-*/
-
-  // Cierra la conexión cuando no se necesite más
-  done();
-});
 
 
 
@@ -337,12 +308,30 @@ io.on("connection", (socket) => {
   })
 });
 
-// Iniciar el servidor y escuchar en el puerto 3001
-// app.listen(3001, () => {
-//     console.log('Servidor escuchando en el puerto 3001');
-// });
+async function initializeDatabase() {
+  try {
+      const client = await pool.connect();
+      console.log('Database connection pool initialized');
+      client.release();
+  } catch (error) {
+      console.error('Error initializing database connection pool:', error);
+      // Handle error appropriately, such as exiting the application
+      //process.exit(1);
+  }
+}
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+async function startServer() {
+  // Initialize the database connection pool
+  await initializeDatabase();
+
+  // Define routes and middleware
+  // ...
+
+  // Start the server
+  const port = process.env.PORT || 3001;
+  app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+  });
+}
+
+startServer();

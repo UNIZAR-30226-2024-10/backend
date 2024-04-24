@@ -6,6 +6,7 @@ const Caballo = require('../piezas/Caballo');
 const Alfil = require('../piezas/Alfil');
 const Torre = require('../piezas/Torre');
 const Dama = require('../piezas/Dama');
+const pool = require('../db');
 
 const router = express.Router();
 
@@ -490,10 +491,5 @@ router.post("/", (req, res) => {
   
 });
 
-
-// Ruta /play/select_mode, para que el usuario pueda elegir si jugar bullet, blitz o rapid
-router.post("/select_mode/:id", (req, res) => {
-
-})
 
 module.exports = router;

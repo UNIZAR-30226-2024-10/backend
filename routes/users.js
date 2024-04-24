@@ -5,61 +5,86 @@ const router = express.Router();
 
 
 // Ruta /users/all, con la lista de todos los usuarios
-router.get("/all", (req, res) => {
-    // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
-    const selectAllUsersQuery = `
-        SELECT * FROM Miguel.Usuario
-    `;
-
-    // Ejecutar la consulta para seleccionar todos los usuarios
-    pool.query(selectAllUsersQuery, (error, result) => {
-        if (error) {
-            console.error('Error al obtener todos los usuarios:', error);
-            res.status(500).json({ message: "Error al obtener todos los usuarios" });
-        } else {
-            console.log('Usuarios obtenidos exitosamente');
-            res.status(200).json(result.rows); // Enviar la lista de usuarios como respuesta
+router.get("/all", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect();  // Importante conectarse a la pool para peticiones GET
+        console.log('Connected to the database');
+        const selectAllUsersQuery = `
+            SELECT * FROM Miguel.Usuario
+        `;
+        const result = await client.query(selectAllUsersQuery);
+        res.status(200).json(result.rows); // Send the rows fetched from the database as JSON response
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error);
+        res.status(500).json({ message: "Error al obtener usuarios" });
+    } finally {
+        if (client) {
+            client.release();
+            console.log('Connection released');
         }
-    });
+    }
 });
+
+
 
 // Ruta /users/all_asignaciones, con la lista de todos los usuarios
-router.get("/all_asignaciones", (req, res) => {
-    // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
-    const selectAllAsignacionesQuery = `
-        SELECT * FROM Miguel.Posee
-    `;
-
-    // Ejecutar la consulta para seleccionar todos los usuarios
-    pool.query(selectAllAsignacionesQuery, (error, result) => {
-        if (error) {
-            console.error('Error al obtener todas las asignaciones usuarios-recompensas:', error);
-            res.status(500).json({ message: "Error al obtener todas las asignaciones usuarios-recompensas" });
-        } else {
-            console.log('Asignaciones usuarios-recompensas obtenidos exitosamente');
-            res.status(200).json(result.rows); // Enviar la lista de usuarios como respuesta
+router.get("/all_asignaciones", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect(); // Important to connect to the pool for GET requests
+        console.log('Connected to the database');
+        
+        // SQL query to select all assignments from the Posee table
+        const selectAllAsignacionesQuery = `
+            SELECT * FROM Miguel.Posee
+        `;
+        
+        // Execute the query to select all assignments
+        const result = await client.query(selectAllAsignacionesQuery);
+        
+        // Send the rows fetched from the database as JSON response
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener todas las asignaciones usuarios-recompensas:', error);
+        res.status(500).json({ message: "Error al obtener todas las asignaciones usuarios-recompensas" });
+    } finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
         }
-    });
+    }
 });
 
-// Ruta /users/all_rewards, con la lista de todos los usuarios
-router.get("/all_rewards", (req, res) => {
-    // Consulta SQL para seleccionar todos los usuarios de la tabla Usuario
-    const selectAllUsersQuery = `
-        SELECT * FROM Miguel.Recompensas
-    `;
 
-    // Ejecutar la consulta para seleccionar todos los usuarios
-    pool.query(selectAllUsersQuery, (error, result) => {
-        if (error) {
-            console.error('Error al obtener todas las recompensas:', error);
-            res.status(500).json({ message: "Error al obtener todas las recompensas" });
-        } else {
-            console.log('Recompensas obtenidas exitosamente');
-            res.status(200).json(result.rows); // Enviar la lista de usuarios como respuesta
+// Ruta /users/all_recompensas, con la lista de todos los usuarios
+router.get("/all_recompensas", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect(); // Important to connect to the pool for GET requests
+        console.log('Connected to the database');
+        
+        // SQL query to select all rewards from the Recompensas table
+        const selectAllRewardsQuery = `
+            SELECT * FROM Miguel.Recompensas
+        `;
+        
+        // Execute the query to select all rewards
+        const result = await client.query(selectAllRewardsQuery);
+        
+        // Send the rows fetched from the database as JSON response
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener todas las recompensas:', error);
+        res.status(500).json({ message: "Error al obtener todas las recompensas" });
+    } finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
         }
-    });
+    }
 });
+
 
 // Route /users/login to log in a user
 router.post("/login", async (req, res) => {
@@ -134,8 +159,131 @@ router.post("/register", async (req, res) => {
     }
 });
 
-// Ruta /users/register_rewards, para registrar una nueva recompensa
-router.post("/register_rewards", async (req, res) => {
+// Ruta /play/register_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.post("/register_partida_asincrona", async (req, res) => {
+    // crear nueva fila en la tabla PartidaAsincrona (sin tablero actual ni turno)
+
+    let idUsuarioBlancas = req.body.usuarioBlancas;
+    let idUsuarioNegras = req.body.usuarioNegras;
+
+    console.log('Usuario blancas:', idUsuarioBlancas);
+    console.log('Usuario negras:', idUsuarioNegras);
+
+    try {
+            const registrarPartida = `
+        INSERT INTO Miguel.PartidaAsincronaTableroDefi (UsuarioBlancasId, UsuarioNegrasId)
+        VALUES ($1, $2)
+    `;
+        await pool.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
+        console.log('Partida asíncrona registrada exitosamente');
+        res.status(200).json({ message: "Partida asíncrona registrada exitosamente" });
+    }
+    catch (error) {
+        console.error('Error al registrar una nueva partida asincrona:', error);
+        res.status(500).json({ message: "Error al registrar una nueva partida asincrona" });
+    }
+});
+
+// Ruta /users/remove_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
+
+    const idPartida = req.params.id_partida;
+
+    console.log('Id de la partida a borrar:', idPartida);
+
+    try {
+        const deletePartidaQuery = `
+        DELETE FROM Miguel.PartidaAsincronaTableroDefi
+        WHERE Id = $1
+    `;
+
+        const client = await pool.connect();
+
+        await client.query("BEGIN");
+
+        await client.query(deletePartidaQuery, [idPartida]);
+
+        await client.query("COMMIT");
+
+        client.release();
+
+
+        console.log('Partida asíncrona borrada exitosamente');
+        res.status(200).json({ message: "Partida asíncrona borrada exitosamente" });
+    }
+    catch (error) {
+        console.error('Error al eliminar la nueva partida asincrona:', error);
+        res.status(500).json({ message: "Error al eliminar lapartida asincrona" });
+    }
+});
+
+// Ruta /users/register_cambio_partida_asincrona/:id_partida, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => {
+    // Seleccionar la partida en la que actualizar el tablero
+    const idPartida = req.params.id_partida;
+
+    try {
+        const getUserQuery = `
+            UPDATE Miguel.PartidaAsincronaTableroDefi
+            SET Tablero = $1
+            WHERE Id = $2
+        `;
+
+        // Acquire a new client from the pool
+        const client = await pool.connect();
+
+        await client.query("BEGIN");
+
+        // Execute the query to update the board
+        await client.query(getUserQuery, [tableroActual, idPartida]);
+
+        await client.query("COMMIT");
+
+        // Release the client
+        client.release();
+        console.log('Connection released');
+
+        // Send response
+        res.status(200).json({ message: "Tablero actualizado exitosamente" });
+    } catch (error) {
+        console.error('Error al actualizar el tablero:', error);
+        res.status(500).json({ message: "Error al actualizar el tablero" });
+    }
+});
+
+
+// Ruta /users/all_partidas_asincronas, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.get("/all_partidas_asincronas", async (req, res) => {
+    let client;
+    try {
+        client = await pool.connect(); // Important to connect to the pool for GET requests
+        console.log('Connected to the database');
+        
+        // SQL query to select all asynchronous matches from the PartidaAsincronaTablero table
+        const selectAllPartidasAsincronasQuery = `
+            SELECT * FROM Miguel.PartidaAsincronaTableroDefi
+        `;
+        
+        // Execute the query to select all asynchronous matches
+        const result = await client.query(selectAllPartidasAsincronasQuery);
+        
+        // Send the rows fetched from the database as JSON response
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener todas las partidas asincronas:', error);
+        res.status(500).json({ message: "Error al obtener todas las partidas asincronas" });
+    } finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
+    }
+});
+
+  
+
+// Ruta /users/register_recompensa, para registrar una nueva recompensa
+router.post("/register_recompensa", async (req, res) => {
     // Obtener los datos de la recompensa desde el cuerpo de la solicitud
     const { tipo, descripcion } = req.body;
 
@@ -153,7 +301,7 @@ router.post("/register_rewards", async (req, res) => {
         await pool.query(insertRewardQuery, values);
         
         console.log('Recompensa registrada exitosamente');
-        res.status(200).json({ message: "Registro exitoso" });
+        res.status(200).json({ message: "Recompensa registrada exitosamente" });
     } catch (error) {
         console.error('Error al registrar una nueva recompensa:', error);
         res.status(500).json({ message: "Error al registrar una nueva recompensa" });
@@ -180,8 +328,8 @@ router.post("/logout", (req, res) => {
     }
 });
 
-// Route /users/actualizar_recompensa/:id_usuario/:id_recompensa
-router.put("/actualizar_recompensa/:id_usuario/:id_recompensa", async (req, res) => {
+// Route /users/update_recompensa/:id_usuario/:id_recompensa
+router.put("/update_recompensa/:id_usuario/:id_recompensa", async (req, res) => {
     const userId = req.params.id_usuario; // Corrected parameter name
     const rewardId = req.params.id_recompensa; // Corrected parameter name
 
@@ -279,12 +427,14 @@ router.route("/:id")
     });
 
 
-// Ruta /users/notifications, para las notificaciones de los usuarios (modo asíncrono)
-router.get("/notifications", (req, res) => {
+// Ruta /users/notificaciones/:id, para las notificaciones de los usuarios (modo asíncrono)
+router.post("/notificaciones/:id", (req, res) => {
+
+
 
 })
-// Ruta /users/actualizar_puntos/:modo/:idGanador/:idPerdedor, para que se actualicen los ELO de los jugadores
-router.post("/actualizar_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req, res) => {
+// Ruta /users/update_puntos/:modo/:idGanador/:idPerdedor, para que se actualicen los ELO de los jugadores
+router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req, res) => {
     const { idGanador, idPerdedor, esEmpate } = req.params;
     const modo = req.params.modo;
   
@@ -401,7 +551,7 @@ router.post("/actualizar_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (
             res.status(500).json({ message: 'Error updating ELO ratings' });
         }
   })
-router.get("/leaderboard/:mode", async (req, res) => {
+router.get("/ranking/:mode", async (req, res) => {
     const mode = req.params.mode;
 
     try {
