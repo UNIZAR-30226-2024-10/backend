@@ -91,10 +91,8 @@ router.post("/login", async (req, res) => {
     // Get user credentials from the request body
     const { nombre, contraseña } = req.body;
 
-    
-
     try {
-        // Query to fetch user data based on email
+        // Query to fetch user data based on username
         const getUserQuery = `
             SELECT id, nombre, contraseña
             FROM Miguel.Usuario
@@ -121,12 +119,14 @@ router.post("/login", async (req, res) => {
         // If password matches, create a session for the user
         req.session.userId = user.id;
 
-        res.status(200).json({ message: "Inicio de sesión exitoso" });
+        // Return success message along with user ID
+        res.status(200).json({ message: "Inicio de sesión exitoso", userId: user.id });
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
         res.status(500).json({ message: "Error al iniciar sesión" });
     }
 });
+
 
 
 
