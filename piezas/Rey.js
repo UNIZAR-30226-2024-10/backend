@@ -241,7 +241,10 @@ class Rey {
         // Si no se encuentra ninguna pieza que amenaza al rey, devolver null
         return null;
     }
-    
+    getPiezaEnCasilla(x, y){
+        const casilla = this.tablero.getCasillas()[x][y];
+        return casilla.getPieza();
+    }
     
 
     puedeComerPieza(coordenadasDesdeJaque, movimientos_disponibles) {
@@ -256,10 +259,10 @@ class Rey {
                     if (movimiento.x === coordenadasDesdeJaque.fromX && movimiento.y === coordenadasDesdeJaque.fromY) {
                         const pieza = {
                             tipo: piezaType,
-                            fromX: movimiento.fromX,
-                            fromY: movimiento.fromY,
                             x: movimiento.x,
-                            y: movimiento.y
+                            y: movimiento.y,
+                            fromX: movimiento.fromX,
+                            fromY: movimiento.fromY
                         };
                         console.log("Encontrada pieza que puede comer:", pieza);
                         piezasQueComen.push(pieza);

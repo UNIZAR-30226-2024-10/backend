@@ -183,8 +183,9 @@ router.post("/", (req, res) => {
             const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
             
             const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
-            console.log("coordenadasDesdeJaque: ", coordenadasDesdeJaque);
-
+            const {fromX, fromY} = coordenadasDesdeJaque;
+            const piezaQueDaJaque = rey.getPiezaEnCasilla(fromX, fromY);
+            const namePiezaQueDaJaque= piezaQueDaJaque.getClassName();
             // Obtener las piezas que pueden comerse la pieza que está dando jaque
             let colorOponente;
             if (rey.color == 'blancas'){
