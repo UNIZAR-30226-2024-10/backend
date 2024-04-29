@@ -666,11 +666,39 @@ router.get("/puntos_pase_batalla/:id", async (req, res) => {
         }
 
         // Enviar los puntos del pase de batalla como respuesta JSON
-        const battlePassPoints = rows[0].puntospasebatalla;
-        res.status(200).json({ battlePassPoints });
+        const puntosPaseBatalla = rows[0].puntospase;
+        res.status(200).json({ puntosPaseBatalla });
     } catch (error) {
         console.error('Error al obtener los puntos del pase de batalla:', error);
         res.status(500).json({ message: "Error al obtener los puntos del pase de batalla" });
+    }
+});
+// Ruta para actualizar los puntos del pase de batalla dado un ID de usuario
+router.post("/update_puntos_pase_batalla/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { puntosPaseBatalla } = req.body;
+
+    try {
+        // Verificar si se proporcionaron los puntos del pase de batalla en la solicitud
+        if (!puntosPaseBatalla) {
+            return res.status(400).json({ message: "Se deben proporcionar los puntos del pase de batalla" });
+        }
+
+        // Consulta para actualizar los puntos del pase de batalla del usuario
+        const updateBattlePassPointsQuery = `
+            UPDATE Miguel.Usuario
+            SET PuntosPase = $1
+            WHERE Id = $2;
+        `;
+
+        // Ejecutar la consulta para actualizar los puntos del pase de batalla
+        await pool.query(updateBattlePassPointsQuery, [puntosPaseBatalla, userId]);
+
+        // Enviar una respuesta de éxito
+        res.status(200).json({ message: "Puntos del pase de batalla actualizados correctamente" });
+    } catch (error) {
+        console.error('Error al actualizar los puntos del pase de batalla:', error);
+        res.status(500).json({ message: "Error al actualizar los puntos del pase de batalla" });
     }
 });
 
