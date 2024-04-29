@@ -349,38 +349,39 @@ router.put("/update_recompensa/:id_usuario/:id_recompensa", async (req, res) => 
         }
 });
 
-// Route /users/:correo
-router.route("/:correo")
+// Route /users/:id
+router.route("/:id")
     // Obtener info de un usuario en concreto (perfil)
     .get(async (req, res) => {
-        const correoUsuario = req.params.correo; // Extract the email from request parameters
+        const userId = req.params.id;
 
-    try {
-        // Query to fetch user data based on email
-        const getUserQuery = `
-            SELECT u.*,
-                COALESCE(MAX(p.recompensaid), 0) AS recompensaMasAlta,
-                COALESCE(u.Victorias, 0) * 4 + COALESCE(u.Empates, 0) * 2 + COALESCE(u.Derrotas, 0) AS puntosExperiencia
-            FROM Miguel.Usuario u
-            LEFT JOIN Miguel.posee p ON u.id = p.usuarioid
-            WHERE u.CorreoElectronico = $1
-            GROUP BY u.id;  -- Grouping by the user ID instead of email
-        `;
+        try {
+            // Query to fetch user data based on ID
+            const getUserQuery = `
+                SELECT u.*,
+                    COALESCE(MAX(p.recompensaid), 0) AS recompensaMasAlta,
+                    COALESCE(u.Victorias, 0) * 4 + COALESCE(u.Empates, 0) * 2 + COALESCE(u.Derrotas, 0) AS puntosExperiencia
+                FROM Miguel.Usuario u
+                LEFT JOIN Miguel.posee p ON u.id = p.usuarioid
+                WHERE u.id = $1
+                GROUP BY u.id;
+            `;
 
-        // Execute the query to fetch user data
-        const { rows } = await pool.query(getUserQuery, [correoUsuario]);
+            
+            // Execute the query to fetch user data
+            const { rows } = await pool.query(getUserQuery, [userId]);
 
-        // If no user found with the provided email
-        if (rows.length === 0) {
-            return res.status(404).json({ message: "Usuario no encontrado" });
+            // If no user found with the provided ID
+            if (rows.length === 0) {
+                return res.status(404).json({ message: "Usuario no encontrado" });
+            }
+
+            const user = rows[0];
+            res.status(200).json(user);
+        } catch (error) {
+            console.error('Error al obtener información del usuario:', error);
+            res.status(500).json({ message: "Error al obtener información del usuario" });
         }
-
-        const user = rows[0];
-        res.status(200).json(user);
-    } catch (error) {
-        console.error('Error al obtener información del usuario:', error);
-        res.status(500).json({ message: "Error al obtener información del usuario" });
-    }
     })
     // Actualizar un usuario en concreto
     .put(async (req, res) => {
