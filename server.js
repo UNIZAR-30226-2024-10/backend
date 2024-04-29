@@ -170,7 +170,7 @@ app.post('/', (req, res) => {
 
 
 
-myDatabaseQuery1();
+// myDatabaseQuery1();
 // myDatabaseQuery2();
 
 
@@ -181,7 +181,6 @@ var games = []; // Utilizamos un array para almacenar las salas
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
-
   socket.on('join_room', function ({ mode }) {
     console.log("buscando sala");
     // Buscar una sala libre con el modo de juego especificado
@@ -336,7 +335,7 @@ async function startServer() {
 
   // Start the server
   const port = process.env.PORT || 3001;
-  app.listen(port, () => {
+  server.listen(port, () => {
       console.log(`Server is running on port ${port}`);
   });
 }
