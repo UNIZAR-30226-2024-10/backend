@@ -587,6 +587,92 @@ router.get("/ranking/:mode", async (req, res) => {
         res.status(500).json({ message: "Error al obtener el leaderboard" });
     }
 });
+// Ruta para obtener el número de avatar y número de color dado un ID de usuario
+router.get("/avatar_color/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Consulta para obtener el número de avatar y el número de color del usuario
+        const getAvatarColorQuery = `
+            SELECT Avatar, Color
+            FROM Miguel.Usuario
+            WHERE Id = $1;
+        `;
+
+        // Ejecutar la consulta para obtener el número de avatar y el número de color
+        const { rows } = await pool.query(getAvatarColorQuery, [userId]);
+
+        // Verificar si se encontró el usuario
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Enviar el número de avatar y el número de color como respuesta JSON
+        const { avatar, color } = rows[0];
+        res.status(200).json({ avatar, color });
+    } catch (error) {
+        console.error('Error al obtener el número de avatar y color:', error);
+        res.status(500).json({ message: "Error al obtener el número de avatar y color" });
+    }
+});
+// Ruta para actualizar el número de avatar y el número de color dado un ID de usuario
+router.post("/update_avatar_color/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { avatar, color } = req.body;
+
+    try {
+        // Verificar si se proporcionaron el avatar y el color en la solicitud
+        if (!avatar || !color) {
+            return res.status(400).json({ message: "Se deben proporcionar el número de avatar y el número de color" });
+        }
+
+        // Consulta para actualizar el número de avatar y el número de color del usuario
+        const updateAvatarColorQuery = `
+            UPDATE Miguel.Usuario
+            SET Avatar = $1, Color = $2
+            WHERE Id = $3;
+        `;
+
+        // Ejecutar la consulta para actualizar el número de avatar y el número de color
+        await pool.query(updateAvatarColorQuery, [avatar, color, userId]);
+
+        // Enviar una respuesta de éxito
+        res.status(200).json({ message: "Número de avatar y número de color actualizados correctamente" });
+    } catch (error) {
+        console.error('Error al actualizar el número de avatar y color:', error);
+        res.status(500).json({ message: "Error al actualizar el número de avatar y color" });
+    }
+});
+
+router.post("")
+// Ruta para obtener los puntos del pase de batalla dado un ID de usuario
+router.get("/puntos_pase_batalla/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Consulta para obtener los puntos del pase de batalla del usuario
+        const getBattlePassPointsQuery = `
+            SELECT PuntosPase
+            FROM Miguel.Usuario
+            WHERE Id = $1;
+        `;
+
+        // Ejecutar la consulta para obtener los puntos del pase de batalla
+        const { rows } = await pool.query(getBattlePassPointsQuery, [userId]);
+
+        // Verificar si se encontró el usuario
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Enviar los puntos del pase de batalla como respuesta JSON
+        const battlePassPoints = rows[0].puntospasebatalla;
+        res.status(200).json({ battlePassPoints });
+    } catch (error) {
+        console.error('Error al obtener los puntos del pase de batalla:', error);
+        res.status(500).json({ message: "Error al obtener los puntos del pase de batalla" });
+    }
+});
 
 
 module.exports = router;

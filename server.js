@@ -39,7 +39,10 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-
+// Consulta SQL para borrar la tabla Usuario
+/*const dropTableUsuarioQuery = `
+      DROP TABLE Miguel.Usuario CASCADE;
+`;*/
 // Consulta SQL para crear la tabla Usuario
   const createTableUsuarioQuery = `
       CREATE TABLE IF NOT EXISTS Miguel.Usuario (
@@ -53,7 +56,10 @@ const io = new Server(server, {
           Victorias INTEGER DEFAULT 0,
           Derrotas INTEGER DEFAULT 0,
           Empates INTEGER DEFAULT 0,
-          Arena VARCHAR(100) DEFAULT 'Madera'
+          Arena VARCHAR(100) DEFAULT 'Madera',
+          Avatar INTEGER DEFAULT 0,
+          Color INTEGER DEFAULT 0,
+          PuntosPase INTEGER DEFAULT 0
       )
   `;
 // Consulta SQL para crear la tabla Recompensas
@@ -115,7 +121,8 @@ async function myDatabaseQuery1() {
     
     // Log the query being executed
     console.log('Executing query:', createTableUsuarioQuery);
-    
+    //await client.query(dropTableUsuarioQuery);
+    //console.log('Query 0 executed successfully');
     await client.query(createTableUsuarioQuery);
     console.log('Query 1 executed successfully');
     await client.query(createTableRecompensasQuery);
