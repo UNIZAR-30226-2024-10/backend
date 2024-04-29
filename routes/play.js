@@ -165,7 +165,8 @@ router.post("/", (req, res) => {
             reyMovimientos.push({x, y});
           }
         movimientos_disponibles_reyes.push(reyMovimientos);
-        
+        console.log(movimientos_disponibles_reyes);
+
 
         estaEnJaque = rey.jaque(rey);
         console.log("Estoy en jaque: ", estaEnJaque, rey.color);
@@ -212,21 +213,20 @@ router.post("/", (req, res) => {
             // Obtener las piezas que pueden ponerse en medio
             piezasBloqueantes = rey.sePuedePonerEnMedio(coordenadasDesdeJaque, rey, movimientosDisponibles);
             console.log("Piezas bloqueantes", piezasBloqueantes);
-            movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
+            //movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
             movimientos_disponibles_comer_pieza_jaque.push(comerMovimientos);
             movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
           }
           console.log("Movimientos rey: ", movimientos_disponibles_reyes);
 
           
-          if (movimientos_disponibles_reyes.length === 1){
+          if (movimientos_disponibles_reyes.length === 0){
             res.json({"Jaque mate": true});
             responseSent = true;
           }
           else {
-      
+          let jaque = true;
           let allMovements = {
-            "jaque": true,
             rey: movimientos_disponibles_reyes,
             comer: movimientos_disponibles_comer_pieza_jaque,
             bloquear: movimientos_disponibles_bloquear_jaque
@@ -234,7 +234,7 @@ router.post("/", (req, res) => {
           console.log("Movimientos disponibles: ", allMovements);
           
           if (!responseSent){
-            res.json({jugadaLegal, allMovements});
+            res.json({jugadaLegal, jaque, allMovements});
             responseSent = true;
           }
         }
