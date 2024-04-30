@@ -633,14 +633,40 @@ router.post("/update_avatar_color/:id", async (req, res) => {
             WHERE Id = $3;
         `;
 
+await pool.query(updateAvatarColorQuery, [avatar, color, userId]);
         // Ejecutar la consulta para actualizar el número de avatar y el número de color
-        await pool.query(updateAvatarColorQuery, [avatar, color, userId]);
-
+        
         // Enviar una respuesta de éxito
         res.status(200).json({ message: "Número de avatar y número de color actualizados correctamente" });
     } catch (error) {
         console.error('Error al actualizar el número de avatar y color:', error);
         res.status(500).json({ message: "Error al actualizar el número de avatar y color" });
+    }
+});
+// Ruta para obtener toda la información de un usuario dado su ID
+router.get("/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        // Consulta para obtener toda la información del usuario
+        const getUserInfoQuery = `
+            SELECT * FROM Miguel.Usuario
+            WHERE Id = $1;
+        `;
+
+        // Ejecutar la consulta para obtener la información del usuario
+        const { rows } = await pool.query(getUserInfoQuery, [userId]);
+
+        // Verificar si se encontró un usuario con el ID proporcionado
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Enviar la información del usuario como respuesta
+        res.status(200).json({ user: rows[0] });
+    } catch (error) {
+        console.error('Error al obtener la información del usuario:', error);
+        res.status(500).json({ message: "Error al obtener la información del usuario" });
     }
 });
 

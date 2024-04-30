@@ -40,9 +40,9 @@ const io = new Server(server, {
   },
 });
 // Consulta SQL para borrar la tabla Usuario
-/*const dropTableUsuarioQuery = `
+const dropTableUsuarioQuery = `
       DROP TABLE Miguel.Usuario CASCADE;
-`;*/
+`;
 // Consulta SQL para crear la tabla Usuario
   const createTableUsuarioQuery = `
       CREATE TABLE IF NOT EXISTS Miguel.Usuario (
@@ -57,9 +57,10 @@ const io = new Server(server, {
           Derrotas INTEGER DEFAULT 0,
           Empates INTEGER DEFAULT 0,
           Arena VARCHAR(100) DEFAULT 'Madera',
-          Avatar INTEGER DEFAULT 0,
-          Color INTEGER DEFAULT 0,
-          PuntosPase INTEGER DEFAULT 0
+          Avatar VARCHAR(100) DEFAULT '/static/media/wK.ae4879833ee0111ba3b20402a2a3fe81.svg',
+          Color VARCHAR(100) DEFAULT 'orange',
+          PuntosPase INTEGER DEFAULT 0,
+          setPiezas VARCHAR(100) DEFAULT 'default'
       )
   `;
 // Consulta SQL para crear la tabla Recompensas
