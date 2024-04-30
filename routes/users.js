@@ -784,5 +784,33 @@ router.post("/update_emoticonos/:id", async (req, res) => {
         res.status(500).json({ message: "Error al actualizar los emoticonos" });
     }
 });
+// Ruta para actualizar los puntosPase de un usuario dado su ID
+router.post("/update_nivel_pase/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { nivelPase } = req.body;
+
+    try {
+        // Verificar si se proporcionaron los puntosPase en la solicitud
+        if (!nivelPase) {
+            return res.status(400).json({ message: "Se debe proporcionar los puntosPase" });
+        }
+
+        // Consulta para actualizar los puntosPase del usuario
+        const updatenivelPaseQuery = `
+            UPDATE Miguel.Usuario
+            SET nivelPase = $1
+            WHERE Id = $2;
+        `;
+
+        // Ejecutar la consulta para actualizar los puntosPase
+        await pool.query(updatenivelPaseQuery, [nivelPase, userId]);
+
+        // Enviar una respuesta de éxito
+        res.status(200).json({ message: "PuntosPase actualizados correctamente" });
+    } catch (error) {
+        console.error('Error al actualizar los puntosPase:', error);
+        res.status(500).json({ message: "Error al actualizar los puntosPase" });
+    }
+});
 
 module.exports = router;

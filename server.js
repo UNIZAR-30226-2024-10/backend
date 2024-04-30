@@ -61,7 +61,8 @@ const dropTableUsuarioQuery = `
           Color VARCHAR(100) DEFAULT 'orange',
           PuntosPase INTEGER DEFAULT 0,
           setPiezas VARCHAR(100) DEFAULT 'default',
-          emoticonos VARCHAR(4) DEFAULT 'nnnn'
+          emoticonos VARCHAR(4) DEFAULT 'nnnn',
+          nivelPase INTEGER DEFAULT 0
       )
   `;
 // Consulta SQL para crear la tabla Recompensas
@@ -123,8 +124,8 @@ async function myDatabaseQuery1() {
     
     // Log the query being executed
     console.log('Executing query:', createTableUsuarioQuery);
-    await client.query(dropTableUsuarioQuery);
-    console.log('Query 0 executed successfully');
+    //await client.query(dropTableUsuarioQuery);
+    //console.log('Query 0 executed successfully');
     await client.query(createTableUsuarioQuery);
     console.log('Query 1 executed successfully');
     await client.query(createTableRecompensasQuery);
@@ -169,7 +170,6 @@ app.post('/', (req, res) => {
   // Aquí puedes escribir la lógica para procesar la solicitud de registro de usuario
   res.send('Registro exitoso'); // Envía una respuesta al cliente
 });
-
 
 
 // myDatabaseQuery1();
