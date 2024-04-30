@@ -728,5 +728,61 @@ router.post("/update_puntos_pase_batalla/:id", async (req, res) => {
     }
 });
 
+// Ruta para actualizar el set de piezas de un usuario dado su ID
+router.post("/update_set_piezas/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { setPiezas } = req.body;
+
+    try {
+        // Verificar si se proporcionó el set de piezas en la solicitud
+        if (!setPiezas) {
+            return res.status(400).json({ message: "Se debe proporcionar el set de piezas" });
+        }
+
+        // Consulta para actualizar el set de piezas del usuario
+        const updateSetPiezasQuery = `
+            UPDATE Miguel.Usuario
+            SET setPiezas = $1
+            WHERE Id = $2;
+        `;
+
+        // Ejecutar la consulta para actualizar el set de piezas
+        await pool.query(updateSetPiezasQuery, [setPiezas, userId]);
+
+        // Enviar una respuesta de éxito
+        res.status(200).json({ message: "Set de piezas actualizado correctamente" });
+    } catch (error) {
+        console.error('Error al actualizar el set de piezas:', error);
+        res.status(500).json({ message: "Error al actualizar el set de piezas" });
+    }
+});
+// Ruta para actualizar el campo emoticonos de un usuario dado su ID
+router.post("/update_emoticonos/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { emoticonos } = req.body;
+
+    try {
+        // Verificar si se proporcionó el emoticono en la solicitud
+        if (!emoticonos || emoticonos.length !== 4) {
+            return res.status(400).json({ message: "El emoticono debe ser una cadena de 4 caracteres" });
+        }
+
+        // Consulta para actualizar el emoticono del usuario
+        const updateEmoticonosQuery = `
+            UPDATE Miguel.Usuario
+            SET emoticonos = $1
+            WHERE Id = $2;
+        `;
+
+        // Ejecutar la consulta para actualizar el emoticono
+        await pool.query(updateEmoticonosQuery, [emoticonos, userId]);
+
+        // Enviar una respuesta de éxito
+        res.status(200).json({ message: "Emoticonos actualizados correctamente" });
+    } catch (error) {
+        console.error('Error al actualizar los emoticonos:', error);
+        res.status(500).json({ message: "Error al actualizar los emoticonos" });
+    }
+});
 
 module.exports = router;
