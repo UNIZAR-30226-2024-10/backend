@@ -173,10 +173,12 @@ router.post("/register_partida_asincrona", async (req, res) => {
             const registrarPartida = `
         INSERT INTO Miguel.PartidaAsincronaTableroDefi (UsuarioBlancasId, UsuarioNegrasId)
         VALUES ($1, $2)
+        RETURNING id;
     `;
         await pool.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
         console.log('Partida asíncrona registrada exitosamente');
-        res.status(200).json({ message: "Partida asíncrona registrada exitosamente" });
+        const nuevaPartidaId = rows[0].id;
+        res.status(200).json({ id: nuevaPartidaId, message: "Partida asíncrona registrada exitosamente" });
     }
     catch (error) {
         console.error('Error al registrar una nueva partida asincrona:', error);
