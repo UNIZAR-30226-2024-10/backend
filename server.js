@@ -61,7 +61,7 @@ const dropTableUsuarioQuery = `
           Color VARCHAR(100) DEFAULT 'orange',
           PuntosPase INTEGER DEFAULT 0,
           setPiezas VARCHAR(100) DEFAULT 'default',
-          emoticonos VARCHAR(4) DEFAULT 'nnnn',
+          emoticonos VARCHAR(100) DEFAULT 'nnnn',
           nivelPase INTEGER DEFAULT 0
       )
   `;

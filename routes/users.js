@@ -763,8 +763,8 @@ router.post("/update_emoticonos/:id", async (req, res) => {
 
     try {
         // Verificar si se proporcionó el emoticono en la solicitud
-        if (!emoticonos || emoticonos.length !== 4) {
-            return res.status(400).json({ message: "El emoticono debe ser una cadena de 4 caracteres" });
+        if (!emoticonos) {
+            return res.status(400).json({ message: "Se debe proporcionar la lista de emoticonos" });
         }
 
         // Consulta para actualizar el emoticono del usuario
