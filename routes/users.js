@@ -284,6 +284,33 @@ router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => 
     }
 });
 
+// Ruta /users/get_partidas_asincronas/:id_user, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.get("/get_partidas_asincronas/:id_user", async (req, res) => {
+    let client;
+    const idUsuario = req.params.id_user;
+    try {
+        client = await pool.connect(); // Important to connect to the pool for GET requests
+        
+        // SQL query to select all asynchronous matches from the PartidaAsincronaTablero table
+        const selectAllPartidasAsincronasQuery = `
+            SELECT * FROM Miguel.PartidaAsincronaTableroDefi WHERE UsuarioBlancasId = $1 OR UsuarioNegrasId = $1
+        `;
+        
+        // Execute the query to select all asynchronous matches
+        const result = await client.query(selectAllPartidasAsincronasQuery, [idUsuario]);
+        
+        // Send the rows fetched from the database as JSON response
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener las partidas asíncronas del usuario:', error);
+        res.status(500).json({ message: "Error al obtener las partidas asíncronas del usuario" });
+    } finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
+    }
+});
 
 // Ruta /users/all_partidas_asincronas, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.get("/all_partidas_asincronas", async (req, res) => {
