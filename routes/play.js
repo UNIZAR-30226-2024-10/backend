@@ -52,6 +52,50 @@ function drawOnlyKingsAndKnight(jsonData) {
   
 }
 
+// Hay que retocarla
+function convertirJSONaFEN(jsonData) {
+  let fen = '';
+
+    // Piece placement
+    for (let y = 7; y >= 0; y--) {
+        let emptyCount = 0;
+        for (let x = 0; x < 8; x++) {
+            let piece = '';
+            for (let key in jsonData) {
+                if (jsonData.hasOwnProperty(key) && Array.isArray(jsonData[key])) {
+                    for (let square of jsonData[key]) {
+                        if (square.x === x && square.y === y) {
+                            piece = key.charAt(0).toUpperCase(); // Get the piece symbol
+                        }
+                    }
+                }
+            }
+            if (piece === '') {
+                emptyCount++;
+            } else {
+                if (emptyCount > 0) {
+                    fen += emptyCount;
+                    emptyCount = 0;
+                }
+                fen += piece;
+            }
+        }
+        if (emptyCount > 0) {
+            fen += emptyCount;
+        }
+        if (y > 0) {
+            fen += '/';
+        }
+    }
+
+    // Other FEN fields (turn, castling availability, etc.)
+    fen += ' ' + jsonData.turno.charAt(0); // Active color
+    fen += ' -'; // No castling availability information provided
+    fen += ' 0 1'; // Halfmove clock and fullmove number (default values)
+
+    return fen;
+}
+
 
 // Ruta /play, para poder iniciar a jugar (como un lobby)
 router.post("/:id", (req, res) => {
@@ -77,6 +121,8 @@ router.post("/", (req, res) => {
 
     // LEER INFORMACIÓN DEL MENSAJE JSON
     let modifiedChessboardState = req.body;
+
+    console.log("Estado del tablero: ", convertirJSONaFEN(modifiedChessboardState));
 
     tablero.actualizarTablero(modifiedChessboardState);
     

@@ -217,6 +217,39 @@ router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
     }
 });
 
+// Ruta /users/remove_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
+router.get("/get_partida_asincrona/:id_partida", async (req, res) => {
+
+    const idPartida = req.params.id_partida;
+
+
+    try {
+        const selectPartidaQuery = `
+        SELECT * FROM Miguel.PartidaAsincronaTableroDefi
+        WHERE Id = $1
+    `;
+
+        const client = await pool.connect();
+
+        await client.query("BEGIN");
+
+        const result = await client.query(selectPartidaQuery, [idPartida]);
+
+
+        await client.query("COMMIT");
+
+        client.release();
+
+
+        console.log('Partida asíncrona obtenida exitosamente');
+        res.status(200).json(result.rows);
+    }
+    catch (error) {
+        console.error('Error al obtener la nueva partida asincrona:', error);
+        res.status(500).json({ message: "Error al obtener la partida asincrona" });
+    }
+});
+
 // Ruta /users/register_cambio_partida_asincrona/:id_partida, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => {
     // Seleccionar la partida en la que actualizar el tablero

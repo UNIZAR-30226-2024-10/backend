@@ -183,8 +183,9 @@ var games = []; // Utilizamos un array para almacenar las salas
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
-  socket.on('join_room', function ({ mode }) {
+  socket.on('join_room', function ({ mode, elo, userId }) {
     console.log("buscando sala");
+    console.log(userId)
     // Buscar una sala libre con el modo de juego especificado
     const room = games.find(room => room.mode === mode && room.players < 2);
 
@@ -192,6 +193,7 @@ io.on("connection", (socket) => {
       // Si se encuentra una sala libre, el jugador se une a ella
       room.players++;
       room.playersIds.push(socket.id);
+      room.usersIds.push(userId);
       socket.join((room.roomId).toString());
       // Enviamos información adicional a cada jugador que se ha unido a la sala
 /*       room.playersIds.forEach((playerId) => {
@@ -209,15 +211,15 @@ io.on("connection", (socket) => {
       // Con el siguiente timeOut, permitimos a los jugadores cancelar la partida durante un periodo de 5 segundos
       room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
         room.playersIds.forEach((playerId) => {
-          const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
-          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, me : playerId, opponent: room.playersIds.find(id => id !== playerId)});
+          const playerColor = playerId[0] === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
+          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, opponent: room.usersIds.find(id => id !== userId)});
           console.log("a jugar", room.roomId)
         });
       }, 5000); // 5000 milisegundos = 5 segundos
     } else {
       // Si no se encuentra una sala libre, se crea una nueva sala
       const roomId = Math.floor(Math.random() * 100000); // Generar un ID de sala aleatorio
-      games.push({ roomId, mode, players: 1, playersIds: [socket.id] });
+      games.push({ roomId, mode, players: 1, playersIds: [socket.id], usersIds:[userId], elo});
       socket.join(roomId.toString()); // Convertir el ID de la sala a cadena antes de unirse
       socket.emit('room_created', { roomId, mode, color: 'white' });
     }
