@@ -60,7 +60,7 @@ const dropTableUsuarioQuery = `
           Avatar VARCHAR(100) DEFAULT '/static/media/wK.ae4879833ee0111ba3b20402a2a3fe81.svg',
           Color VARCHAR(100) DEFAULT 'orange',
           PuntosPase INTEGER DEFAULT 0,
-          setPiezas VARCHAR(100) DEFAULT 'DEFECTO',
+          setPiezas VARCHAR(100) DEFAULT 'default',
           emoticonos VARCHAR(4) DEFAULT 'nnnn',
           nivelPase INTEGER DEFAULT 0
       )
