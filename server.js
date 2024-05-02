@@ -185,7 +185,6 @@ io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
   socket.on('join_room', function ({ mode, elo, userId }) {
     console.log("buscando sala");
-    console.log(userId)
     // Buscar una sala libre con el modo de juego especificado
     const room = games.find(room => room.mode === mode && room.players < 2);
 
@@ -204,8 +203,8 @@ io.on("connection", (socket) => {
         console.log("room: ",room)
         room.playersIds.forEach((playerId) => {
           const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
-          console.log("color del jugador",playerColor)
-          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, opponent: room.usersIds.find(id => id !== userId)});
+          const id = playerId === socket.id ? room.usersIds[0] : room.usersIds[1];
+          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, opponent: id});
           console.log("a jugar", room.roomId)
         });
       }, 5000); // 5000 milisegundos = 5 segundos
