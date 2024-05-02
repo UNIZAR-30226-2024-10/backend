@@ -10,6 +10,8 @@ const pgSession = require('connect-pg-simple')(session);
 
 const crypto = require('crypto');
 
+const { spawn } = require('child_process'); // Agregar esta línea para importar spawn
+const path = require('path');
 
 
 
@@ -39,6 +41,44 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
+
+
+const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
+
+console.log('Ruta a Stockfish:', stockfishPath);
+
+const stockfishProcess = spawn(stockfishPath);
+stockfishProcess.stdin.setEncoding('utf-8');
+stockfishProcess.stdout.setEncoding('utf-8');
+stockfishProcess.stdin.write('uci\n');
+stockfishProcess.stdin.write('isready\n');
+stockfishProcess.stdin.write('ucinewgame\n');
+stockfishProcess.stdin.write('position startpos\n');
+stockfishProcess.stdin.write('go depth 5\n');
+
+
+// Escuchar los eventos de salida estándar de Stockfish
+stockfishProcess.stdout.on('data', (data) => {
+  console.log(`Stockfish output: ${data}`);
+  // Aquí puedes procesar la salida de Stockfish y extraer el mejor movimiento
+  // Ejemplo: analizar la salida en busca del mejor movimiento y realizar acciones en consecuencia
+});
+
+// Escuchar los eventos de salida de errores de Stockfish
+stockfishProcess.stderr.on('data', (data) => {
+  console.error(`Stockfish error: ${data}`);
+  // Aquí puedes manejar cualquier error que ocurra durante la comunicación con Stockfish
+});
+
+// Esperar a que Stockfish esté listo antes de enviar más comandos
+stockfishProcess.stdout.on('data', (data) => {
+  if (data.includes('readyok')) {
+    console.log('Stockfish is ready');
+    // Aquí puedes enviar más comandos a Stockfish, como "go depth 5" u otros comandos UCI
+    stockfishProcess.stdin.write('go depth 5\n');
+  }
+});
+
 // Consulta SQL para borrar la tabla Usuario
 const dropTableUsuarioQuery = `
       DROP TABLE Miguel.Usuario CASCADE;
