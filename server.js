@@ -192,26 +192,19 @@ io.on("connection", (socket) => {
     if (room) {
       // Si se encuentra una sala libre, el jugador se une a ella
       room.players++;
-      room.playersIds.push(socket.id);
-      room.usersIds.push(userId);
+      room.playersIds.push(socket.id); // sockets de los usuarios
+      room.usersIds.push(userId); // ids de los usuarios
       socket.join((room.roomId).toString());
-      // Enviamos información adicional a cada jugador que se ha unido a la sala
-/*       room.playersIds.forEach((playerId) => {
-        const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
-        room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
-          io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, playerId });
-          console.log("a jugar", room.roomId)
-        }, 5000); // 5000 milisegundos = 5 segundos
-        io.to(playerId).emit("match_found");
-      }); */
       
       room.playersIds.forEach((playerId) => {
         io.to(playerId).emit("match_found");
       });
       // Con el siguiente timeOut, permitimos a los jugadores cancelar la partida durante un periodo de 5 segundos
       room.timeOutId = setTimeout(() => { // Da cierto tiempo para poder cancelar la partida
+        console.log("room: ",room)
         room.playersIds.forEach((playerId) => {
-          const playerColor = playerId[0] === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
+          const playerColor = playerId === socket.id ? 'white' : 'black'; // Asignar colores de manera diferente
+          console.log("color del jugador",playerColor)
           io.to(playerId).emit('game_ready', { roomId: room.roomId, color: playerColor, mode, opponent: room.usersIds.find(id => id !== userId)});
           console.log("a jugar", room.roomId)
         });
