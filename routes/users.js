@@ -161,7 +161,7 @@ router.post("/register", async (req, res) => {
 
 // Ruta /play/register_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/register_partida_asincrona", async (req, res) => {
-    // crear nueva fila en la tabla PartidaAsincrona (sin tablero actual ni turno)
+    // Crear nueva fila en la tabla PartidaAsincrona (sin tablero actual ni turno)
 
     let idUsuarioBlancas = req.body.usuarioBlancas;
     let idUsuarioNegras = req.body.usuarioNegras;
@@ -170,14 +170,15 @@ router.post("/register_partida_asincrona", async (req, res) => {
     console.log('Usuario negras:', idUsuarioNegras);
 
     try {
-            const registrarPartida = `
-        INSERT INTO Miguel.PartidaAsincronaTableroDefi (UsuarioBlancasId, UsuarioNegrasId)
-        VALUES ($1, $2)
-        RETURNING id;
-    `;
-        await pool.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
+        const registrarPartida = `
+            INSERT INTO Miguel.PartidaAsincronaTableroDefi (UsuarioBlancasId, UsuarioNegrasId)
+            VALUES ($1, $2)
+            RETURNING id;
+        `;
+
+        const { rows } = await pool.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
         console.log('Partida asíncrona registrada exitosamente');
-        const nuevaPartidaId = rows[0].id;
+        const nuevaPartidaId = rows[0].id; // Obtener el ID de la nueva partida desde el resultado de la consulta
         res.status(200).json({ id: nuevaPartidaId, message: "Partida asíncrona registrada exitosamente" });
     }
     catch (error) {
@@ -185,6 +186,7 @@ router.post("/register_partida_asincrona", async (req, res) => {
         res.status(500).json({ message: "Error al registrar una nueva partida asincrona" });
     }
 });
+
 
 // Ruta /users/remove_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
@@ -252,39 +254,29 @@ router.get("/get_partida_asincrona/:id_partida", async (req, res) => {
     }
 });
 
-// Ruta /users/register_cambio_partida_asincrona/:id_partida, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => {
     // Seleccionar la partida en la que actualizar el tablero
     const idPartida = req.params.id_partida;
+    const { tablero_actual } = req.body; // Obtener el tablero actual del cuerpo de la solicitud
 
     try {
-        const getUserQuery = `
+        const updatePartidaQuery = `
             UPDATE Miguel.PartidaAsincronaTableroDefi
             SET Tablero = $1
             WHERE Id = $2
         `;
 
-        // Acquire a new client from the pool
-        const client = await pool.connect();
+        // Ejecutar la consulta para actualizar el tablero con el nuevo tablero_actual
+        await pool.query(updatePartidaQuery, [tablero_actual, idPartida]);
 
-        await client.query("BEGIN");
-
-        // Execute the query to update the board
-        await client.query(getUserQuery, [tableroActual, idPartida]);
-
-        await client.query("COMMIT");
-
-        // Release the client
-        client.release();
-        console.log('Connection released');
-
-        // Send response
+        // Enviar una respuesta exitosa
         res.status(200).json({ message: "Tablero actualizado exitosamente" });
     } catch (error) {
         console.error('Error al actualizar el tablero:', error);
         res.status(500).json({ message: "Error al actualizar el tablero" });
     }
 });
+
 
 // Ruta /users/get_partidas_asincronas/:id_user, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.get("/get_partidas_asincronas/:id_user", async (req, res) => {
