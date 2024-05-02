@@ -65,7 +65,24 @@ function convertirJSONaFEN(jsonData) {
                 if (jsonData.hasOwnProperty(key) && Array.isArray(jsonData[key])) {
                     for (let square of jsonData[key]) {
                         if (square.x === x && square.y === y) {
-                            piece = key.charAt(0).toUpperCase(); // Get the piece symbol
+                            if(key === 'peon') {
+                                piece = square.color === 'blancas' ? 'P' : 'p';
+                            }
+                            else if(key === 'alfil') {
+                                piece = square.color === 'blancas' ? 'B' : 'b';
+                            }
+                            else if(key === 'torre') {
+                                piece = square.color === 'blancas' ? 'R' : 'r';
+                            }
+                            else if(key === 'caballo') {
+                                piece = square.color === 'blancas' ? 'N' : 'n';
+                            }
+                            else if(key === 'dama') {
+                                piece = square.color === 'blancas' ? 'Q' : 'q';
+                            }
+                            else if(key === 'rey') {
+                                piece = square.color === 'blancas' ? 'K' : 'k';
+                            }
                         }
                     }
                 }
@@ -89,9 +106,32 @@ function convertirJSONaFEN(jsonData) {
     }
 
     // Other FEN fields (turn, castling availability, etc.)
-    fen += ' ' + jsonData.turno.charAt(0); // Active color
-    fen += ' -'; // No castling availability information provided
-    fen += ' 0 1'; // Halfmove clock and fullmove number (default values)
+    //fen += ' ' + jsonData.turno.charAt(0); // Active color
+    let turno = jsonData.turno === 'blancas' ? 'w' : 'b';
+    fen += ' ' + turno;
+
+    let puedeEnroqueBlanco = '';
+    let puedeEnroqueNegro = '';
+    if(!jsonData.ha_movido_rey_blanco && !jsonData.ha_movido_torre_blanca_dcha) {
+        puedeEnroqueBlanco += 'K';
+    }
+    if(!jsonData.ha_movido_rey_blanco && !jsonData.ha_movido_torre_blanca_izqda) {
+        puedeEnroqueBlanco += 'Q';
+    }
+
+    if(!jsonData.ha_movido_rey_negro && !jsonData.ha_movido_torre_negra_dcha) {
+      puedeEnroqueNegro += 'k';
+    }
+
+    if(!jsonData.ha_movido_rey_negro && !jsonData.ha_movido_torre_negra_izqda) {
+      puedeEnroqueNegro += 'q';
+    }
+
+    fen += ' ' + puedeEnroqueBlanco;
+    fen += puedeEnroqueNegro;
+
+    fen += ' -'; // Valores por defecto, no los tocamos
+    fen += ' 0 1'; // Valores por defecto, no los tocamos
 
     return fen;
 }
