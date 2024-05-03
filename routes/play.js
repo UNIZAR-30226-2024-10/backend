@@ -307,7 +307,7 @@ router.post("/", (req, res) => {
           console.log("Movimientos rey: ", movimientos_disponibles_reyes);
 
           
-          if (movimientos_disponibles_reyes.length === 0){
+          if (movimientos_disponibles_reyes.length === 1){
             res.json({"Jaque mate": true});
             responseSent = true;
           }
