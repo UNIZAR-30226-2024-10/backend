@@ -490,6 +490,7 @@ router.post("/notificaciones/:id", (req, res) => {
 // Ruta /users/update_puntos/:modo/:idGanador/:idPerdedor, para que se actualicen los ELO de los jugadores
 router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req, res) => {
     const { idGanador, idPerdedor, esEmpate } = req.params;
+    console.log(req.params)
     const modo = req.params.modo;
   
       try {
