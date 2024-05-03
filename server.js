@@ -10,8 +10,8 @@ const pgSession = require('connect-pg-simple')(session);
 
 const crypto = require('crypto');
 
-const { spawn } = require('child_process'); // Agregar esta línea para importar spawn
-const path = require('path');
+//const { spawn } = require('child_process');
+//const path = require('path');
 
 
 
@@ -43,7 +43,7 @@ const io = new Server(server, {
 });
 
 
-const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
+/*const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
 
 console.log('Ruta a Stockfish:', stockfishPath);
 
@@ -78,7 +78,7 @@ stockfishProcess.stdout.on('data', (data) => {
     stockfishProcess.stdin.write('go depth 5\n');
   }
 });
-
+*/
 // Consulta SQL para borrar la tabla Usuario
 const dropTableUsuarioQuery = `
       DROP TABLE Miguel.Usuario CASCADE;
