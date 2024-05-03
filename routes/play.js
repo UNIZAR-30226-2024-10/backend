@@ -136,23 +136,90 @@ function convertirJSONaFEN(jsonData) {
     return fen;
 }
 
+function convertirFENaJSON(fen) {
+  const fenObject = {
+      "turno": "",
+      "ha_movido_rey_blanco": true,
+      "ha_movido_rey_negro": true,
+      "ha_movido_torre_blanca_dcha": true,
+      "ha_movido_torre_blanca_izqda": true,
+      "ha_movido_torre_negra_dcha": true,
+      "ha_movido_torre_negra_izqda": true,
+      "peon": [],
+      "alfil": [],
+      "caballo": [],
+      "torre": [],
+      "dama": [],
+      "rey": []
+  };
 
-// Ruta /play, para poder iniciar a jugar (como un lobby)
-router.post("/:id", (req, res) => {
+  const [piecesPlacement, activeColor, castlingAvailability] = fen.split(' ');
 
-})
+  // Parse piece placement
+  let rank = 7;
+  let file = 0;
+  for (const char of piecesPlacement) {
+      if (char === '/') {
+          rank--;
+          file = 0;
+      } else if (isNaN(parseInt(char))) {
+          let color = char === char.toUpperCase() ? 'blancas' : 'negras';
 
-// Ruta /playing, para poder iniciar a jugar (como un lobby)
-router.post("/playing/:id", (req, res) => {
-    //const tablero = new Tablero('./ChessHub.db');
-    
-    //res.json(tablero.inicializarPiezas());
-})
 
-router.get("/start_game", (req, res) => {
-    
-    res.json(tablero.inicializarPiezas());
-})
+          let pieceType = char.toLowerCase();
+          if(pieceType === 'p') {
+            pieceType = 'peon';
+          }
+          else if(pieceType === 'b') {
+            pieceType = 'alfil';
+          }
+          else if(pieceType === 'r') {
+            pieceType = 'torre';
+          }
+          else if(pieceType === 'n') {
+            pieceType = 'caballo';
+          }
+          else if(pieceType === 'q') {
+            pieceType = 'dama';
+          }
+          else if(pieceType === 'k') {
+            pieceType = 'rey';
+          }
+
+
+          if (!fenObject[pieceType]) fenObject[pieceType] = []; // Initialize array if not exists
+          fenObject[pieceType].push({"x": file, "y": rank, "color": color});
+          file++;
+      } else {
+          file += parseInt(char);
+      }
+  }
+
+  // Parse active color
+  fenObject.turno = activeColor === 'w' ? 'blancas' : 'negras';
+
+  // Parse castling availability
+  if (castlingAvailability.includes('K')) {
+      fenObject.ha_movido_rey_blanco = false;
+      fenObject.ha_movido_torre_blanca_dcha = false;
+  }
+  if (castlingAvailability.includes('Q')) {
+    fenObject.ha_movido_rey_blanco = false;
+    fenObject.ha_movido_torre_blanca_izqda = false;
+  }
+  if (castlingAvailability.includes('k')) {
+    fenObject.ha_movido_rey_negro = false;
+    fenObject.ha_movido_torre_negra_dcha = false;
+  }
+  if (castlingAvailability.includes('q')) {
+    fenObject.ha_movido_rey_negro = false;
+    fenObject.ha_movido_torre_negra_izqda = false;
+  }
+  return fenObject;
+}
+
+
+
 
 
 router.post("/", (req, res) => {
@@ -162,7 +229,13 @@ router.post("/", (req, res) => {
     // LEER INFORMACIÓN DEL MENSAJE JSON
     let modifiedChessboardState = req.body;
 
-    console.log("Estado del tablero: ", convertirJSONaFEN(modifiedChessboardState));
+    let tableroFen = convertirJSONaFEN(modifiedChessboardState);
+
+    console.log("Estado del tablero 1: ", tableroFen);
+
+    let tableroJSOn = convertirFENaJSON(tableroFen);
+
+    console.log("Estado del tablero 2: ", tableroJSOn);
 
     tablero.actualizarTablero(modifiedChessboardState);
     
