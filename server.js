@@ -226,7 +226,23 @@ io.on("connection", (socket) => {
   socket.on('join_room', function ({ mode, elo, userId }) {
     console.log("buscando sala");
     // Buscar una sala libre con el modo de juego especificado
-    const room = games.find(room => room.mode === mode && room.players < 2);
+    let arena;
+    if (elo < 1500) {
+      arena='MADERA';
+    }
+    else if (elo < 1800) {
+      arena='MARMOL';
+    } 
+    else if (elo < 2100) {
+      arena='ORO';
+    } 
+    else if (elo < 2400) {
+      arena='ESMERALDA';
+    } 
+    else if (elo > 2400) {
+      arena='DIAMANTE';
+    } 
+    const room = games.find(room => room.mode === mode && room.players < 2 && arena === room.jugadorArena);
 
     if (room) {
       // Si se encuentra una sala libre, el jugador se une a ella
@@ -251,7 +267,7 @@ io.on("connection", (socket) => {
     } else {
       // Si no se encuentra una sala libre, se crea una nueva sala
       const roomId = Math.floor(Math.random() * 100000); // Generar un ID de sala aleatorio
-      games.push({ roomId, mode, players: 1, playersIds: [socket.id], usersIds:[userId], elo});
+      games.push({ roomId, mode, players: 1, playersIds: [socket.id], usersIds:[userId], elo, jugadorArena:arena});
       socket.join(roomId.toString()); // Convertir el ID de la sala a cadena antes de unirse
       socket.emit('room_created', { roomId, mode, color: 'white' });
     }
