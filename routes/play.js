@@ -378,9 +378,13 @@ router.post("/", (req, res) => {
             movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
           }
           console.log("Movimientos rey: ", movimientos_disponibles_reyes);
-
-          
-          if (movimientos_disponibles_reyes.length === 1){
+          console.log("Longitud movs: ", movimientos_disponibles_reyes[0].length);
+          console.log("Longitud movs bloquear:", Object.keys(movimientos_disponibles_bloquear_jaque[0]).length);
+          console.log("Longitud movs comer: ", movimientos_disponibles_comer_pieza_jaque + " " + movimientos_disponibles_comer_pieza_jaque[0].caballo.length);
+          if (movimientos_disponibles_reyes[0].length === 1 && movimientos_disponibles_comer_pieza_jaque[0].caballo.length === 0 &&
+            movimientos_disponibles_comer_pieza_jaque[0].peon.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].alfil.length === 0
+           && movimientos_disponibles_comer_pieza_jaque[0].torre.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].dama.length === 0
+          && Object.keys(movimientos_disponibles_bloquear_jaque[0]).length === 0){
             res.json({"Jaque mate": true});
             responseSent = true;
           }
