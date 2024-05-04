@@ -359,21 +359,33 @@ io.on("connection", (socket) => {
       }
     }
   });
-  socket.on("disconnect", () => { // Un jugador se desconecta
-/*     const roomsJoined = Object.keys(socket.rooms);
-    roomsJoined.forEach((roomName) => {
-      // Decrementar el contador de jugadores en la sala
-      if (games[roomName]) {
-        games[roomName].players--;
-        // Si no hay más jugadores en la sala, cerrar la sala
-        if (games[roomName].players === 0) {
-          delete games[roomName];
-          console.log("elimino room")
-          // Aquí puedes notificar a los jugadores que la sala ha sido cerrada
-        }
+  socket.on("time_expired", () => {
+    for (let i = 0; i < games.length; i++) {
+      const room = games[i];
+      const playerIndex = room.playersIds.indexOf(socket.id);
+      if (playerIndex !== -1) {
+        room.playersIds.splice(playerIndex, 1);
+        room.players--;
+        games.splice(i, 1); // Remove the room from the games array
+        console.log(`Room ${room.roomId} is now empty and removed`);
+        break;
       }
-    }); */
+    }
+  })
+  // Sincronización de temporizadores con el otro jugador
+  socket.on("sync_timers", ({minutes2, seconds2}) => {
+    for (let i = 0; i < games.length; i++) {
+      const room = games[i];
+      const playerIndex = room.playersIds.indexOf(socket.id);
 
+      if (playerIndex !== -1) {
+        const remainingPlayerId = (playerIndex+1)%2;
+        io.to(room.playersIds[remainingPlayerId]).emit("value_timers",({minutos : minutes2,segundos : seconds2}));
+        break;
+      }
+    }
+  })
+  socket.on("disconnect", () => { // Un jugador se desconecta
     for (let i = 0; i < games.length; i++) {
       const room = games[i];
       const playerIndex = room.playersIds.indexOf(socket.id);
