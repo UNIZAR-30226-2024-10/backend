@@ -300,22 +300,19 @@ router.post("/", (req, res) => {
 
   
     reyes.forEach(rey => {
-      if (rey.color === turno){
           
-          const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
+        const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
           
-          
-          console.log("Movimientos del rey:", rey.obtenerMovimientosDisponibles());
-          reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
-      
+        reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
         
-        
+        // Añadir los movimientos de enroque si se puede
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
           ha_movido_torre_negra_izqda, turno, 'corto')){
             const x = 6;
             const y = rey.Posicion.y;
             reyMovimientos.push({x, y});
         }
+
         if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
           ha_movido_torre_negra_izqda, turno, 'largo')){
             console.log("Me enroco en largo");
@@ -323,64 +320,57 @@ router.post("/", (req, res) => {
             const y = rey.Posicion.y;
             reyMovimientos.push({x, y});
           }
+
         movimientos_disponibles_reyes.push(reyMovimientos);
-        console.log(movimientos_disponibles_reyes);
 
-
+        // Comprobar si el rey está en jaque
         estaEnJaque = rey.jaque(rey);
-        console.log("Estoy en jaque: ", estaEnJaque, rey.color);
-        let jaque_mate = false;
+        
+        // Si el rey está en jaque
         if(estaEnJaque) {
           console.log("Color de rey en jaque: ", rey.color);
           rey.estoy_en_jaque = true;
-          if(turno !== rey.color) {
-            jugadaLegal = false;
+          
+          // Solo devolvemos los movimientos del rey, ponerse en medio o comerse la pieza
+          
+          const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
+          
+          const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
+          
+          // Obtener las piezas que pueden comerse la pieza que está dando jaque
+          let colorOponente;
+          if (rey.color == 'blancas'){
+            colorOponente = 'negras';
           }
-          //Si el rey esta en jaque solo devolvemos los movimientos del rey, ponerse en medio o comerse la pieza
           else {
-            
-            const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
-            
-            const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
-            const {fromX, fromY} = coordenadasDesdeJaque;
-            const piezaQueDaJaque = rey.getPiezaEnCasilla(fromX, fromY);
-            const namePiezaQueDaJaque= piezaQueDaJaque.getClassName();
-            // Obtener las piezas que pueden comerse la pieza que está dando jaque
-            let colorOponente;
-            if (rey.color == 'blancas'){
-              colorOponente = 'negras';
-            }
-            else {
-              colorOponente = 'blancas';
-            }
-            const movimientosDisponibles = rey.obtenerPosicionesAtacadasPorOponenteFormato(colorOponente);
-            //console.log("Movimiento disponibles ", movimientosDisponibles);
-            piezasComedoras = rey.puedeComerPieza(coordenadasDesdeJaque, movimientosDisponibles);
-            console.log("Pieza que puede comer ", piezasComedoras);
-            let comerMovimientos = {
-              peon: [],
-              alfil: [],
-              caballo: [],
-              torre: [],
-              dama: []
-            };
-            if (piezasComedoras !== null){
-              piezasComedoras.forEach(pieza => {
-                const { tipo, ...resto } = pieza;
-                comerMovimientos[tipo].push(resto);
-              });
-            }
-            // Obtener las piezas que pueden ponerse en medio
-            piezasBloqueantes = rey.sePuedePonerEnMedio(coordenadasDesdeJaque, rey, movimientosDisponibles);
-            console.log("Piezas bloqueantes", piezasBloqueantes);
-            //movimientos_disponibles_reyes.push(...rey.obtenerMovimientosDisponibles());
-            movimientos_disponibles_comer_pieza_jaque.push(comerMovimientos);
-            movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
+            colorOponente = 'blancas';
           }
-          console.log("Movimientos rey: ", movimientos_disponibles_reyes);
-          console.log("Longitud movs: ", movimientos_disponibles_reyes[0].length);
-          console.log("Longitud movs bloquear:", Object.keys(movimientos_disponibles_bloquear_jaque[0]).length);
-          console.log("Longitud movs comer: ", movimientos_disponibles_comer_pieza_jaque + " " + movimientos_disponibles_comer_pieza_jaque[0].caballo.length);
+
+          const movimientosDisponibles = rey.obtenerPosicionesAtacadasPorOponenteFormato(colorOponente);
+          
+          piezasComedoras = rey.puedeComerPieza(coordenadasDesdeJaque, movimientosDisponibles);
+          
+          let comerMovimientos = {
+            peon: [],
+            alfil: [],
+            caballo: [],
+            torre: [],
+            dama: []
+          };
+          if (piezasComedoras !== null){
+            piezasComedoras.forEach(pieza => {
+              const { tipo, ...resto } = pieza;
+              comerMovimientos[tipo].push(resto);
+            });
+          }
+
+          // Obtener las piezas que pueden ponerse en medio del rey y la pieza que está dando jaque
+          piezasBloqueantes = rey.sePuedePonerEnMedio(coordenadasDesdeJaque, rey, movimientosDisponibles);
+          console.log("Piezas bloqueantes", piezasBloqueantes);
+          movimientos_disponibles_comer_pieza_jaque.push(comerMovimientos);
+          movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
+        
+          // JAQUE MATE
           if (movimientos_disponibles_reyes[0].length === 1 && movimientos_disponibles_comer_pieza_jaque[0].caballo.length === 0 &&
             movimientos_disponibles_comer_pieza_jaque[0].peon.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].alfil.length === 0
            && movimientos_disponibles_comer_pieza_jaque[0].torre.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].dama.length === 0
@@ -388,22 +378,28 @@ router.post("/", (req, res) => {
             res.json({"Jaque mate": true});
             responseSent = true;
           }
+
+          // SI HAY JAQUE PERO NO JAQUE MATE
           else {
-          let jaque = true;
-          let allMovements = {
-            rey: movimientos_disponibles_reyes,
-            comer: movimientos_disponibles_comer_pieza_jaque,
-            bloquear: movimientos_disponibles_bloquear_jaque
+
+            // Si el rey del color que no le toca mover se queda en jaque, la jugada no es legal
+            if(rey.color !== turno){
+              jugadaLegal = false;
+            }
+            let jaque = true;
+            let allMovements = {
+              rey: movimientos_disponibles_reyes,
+              comer: movimientos_disponibles_comer_pieza_jaque,
+              bloquear: movimientos_disponibles_bloquear_jaque
+            }
+            
+            if (!responseSent){
+              res.json({jugadaLegal, jaque, allMovements});
+              responseSent = true;
+            }
           }
-          console.log("Movimientos disponibles: ", allMovements);
-          
-          if (!responseSent){
-            res.json({jugadaLegal, jaque, allMovements});
-            responseSent = true;
-          }
-        }
-        }
       }
+      
     });
 
   // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
