@@ -602,25 +602,60 @@ router.post("/", (req, res) => {
         }
     });
 
+    let allMovements = {
+
+      rey: movimientos_disponibles_reyes,
+      peon: movimientos_disponibles_peones,
+      caballo: movimientos_disponibles_caballos,
+      alfil: movimientos_disponibles_alfiles,
+      torre: movimientos_disponibles_torres,
+      dama: movimientos_disponibles_damas
+    };
+
+    let reyMovementsCount = 0;
+    let peonMovementsCount = 0;
+    let caballoMovementsCount = 0;
+    let alfilMovementsCount = 0;
+    let torreMovementsCount = 0;
+    let damaMovementsCount = 0;
+
+    Object.keys(allMovements).forEach(pieceType => {
+      allMovements[pieceType].forEach(piece => {
+          // Increment respective movements count for each piece type
+          switch (pieceType) {
+              case 'rey':
+                  reyMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              case 'peon':
+                  peonMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              case 'caballo':
+                  caballoMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              case 'alfil':
+                  alfilMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              case 'torre':
+                  torreMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              case 'dama':
+                  damaMovementsCount += piece.length - 1; // Exclude the initial position from count
+                  break;
+              default:
+                  break;
+          }
+      });
+  });
+
     // Comprobar si el tablero pertenece a una configuración de tablas
     if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
       res.json({"tablas": true});
     }
-    else if (movimientos_disponibles_reyes.length === 1 && movimientos_disponibles_peones.length < 2 && movimientos_disponibles_caballos.length < 2
-      && movimientos_disponibles_alfiles.length < 2 && movimientos_disponibles_torres.length < 2 && movimientos_disponibles_damas.length < 2){
-      res.json({"Rey ahogado": true});
+    else if (reyMovementsCount === 1 && peonMovementsCount < 2 && caballoMovementsCount < 2
+      && alfilMovementsCount < 2 && torreMovementsCount < 2 && damaMovementsCount < 2) {
+      res.json({ "Rey ahogado": true });
     }
     else {
-      let allMovements = {
-
-        rey: movimientos_disponibles_reyes,
-        peon: movimientos_disponibles_peones,
-        caballo: movimientos_disponibles_caballos,
-        alfil: movimientos_disponibles_alfiles,
-        torre: movimientos_disponibles_torres,
-        dama: movimientos_disponibles_damas
-      };
-
       let jaque = false;
       
       if (!responseSent){
@@ -629,29 +664,6 @@ router.post("/", (req, res) => {
       }
     }
   }
-
-    /*reyes.forEach(rey => {
-      if(rey.estoy_en_jaque) {
-          jaque_mate = rey.jaqueMate(rey, allMovements);
-          console.log("Es mate: ", jaque_mate);
-          res.json({"jaqueMate": true});
-
-      }
-
-      // COMPROBACION AWS 24
-  });*/
-  //}
-  // else {
-  //   //LOGICA COMER PIEZA QUE DA JAQUE O PONER PIEZA EN MEDIO
-  //   const allMovements = {
-  //     reyes: movimientos_disponibles_reyes
-  //   };
-  //   console.log("Estoy en jaque");
-  //   reyes.forEach(rey => {
-  //     rey.jaqueMate(rey, allMovements);
-  // });
-  //   res.json({allMovements});
-  // }
   
 });
 
