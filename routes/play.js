@@ -226,441 +226,468 @@ router.post("/", (req, res) => {
 
     const tablero = new Tablero('./ChessHub.db');
 
+    let responseSent = false;
+
     // LEER INFORMACIÓN DEL MENSAJE JSON
     let modifiedChessboardState = req.body;
 
-    let tableroFen = convertirJSONaFEN(modifiedChessboardState);
+    if(modifiedChessboardState.hasOwnProperty("IA") && modifiedChessboardState.IA === modifiedChessboardState.turno) {
+      let tableroFen = convertirJSONaFEN(modifiedChessboardState);
 
-    console.log("Estado del tablero 1: ", tableroFen);
+      // ACCEDER A STOCKFISH
+      // CONFIGURAR STOCKFISH
+      // PASAR EL TABLERO EN FORMA FEN A STOCKFISH
+      // ESCUCHAR LO QUE DEVUELVE STOCKFISH
+      // TRADUCIR LO QUE DEVUELVE STOCKFISH
 
-    let tableroJSOn = convertirFENaJSON(tableroFen);
-
-    console.log("Estado del tablero 2: ", tableroJSOn);
-
-    tablero.actualizarTablero(modifiedChessboardState);
-    
-    let turno = modifiedChessboardState.turno;
-    
-
-    let ha_movido_rey_blanco = modifiedChessboardState.ha_movido_rey_blanco;
-    let ha_movido_rey_negro = modifiedChessboardState.ha_movido_rey_negro;
-    let ha_movido_torre_blanca_dcha = modifiedChessboardState.ha_movido_torre_blanca_dcha;
-    let ha_movido_torre_blanca_izqda = modifiedChessboardState.ha_movido_torre_blanca_izqda;
-    let ha_movido_torre_negra_dcha = modifiedChessboardState.ha_movido_torre_negra_dcha;
-    let ha_movido_torre_negra_izqda = modifiedChessboardState.ha_movido_torre_negra_izqda; 
-
-    const pieceArrays = [
-        modifiedChessboardState.peon,
-        modifiedChessboardState.alfil,
-        modifiedChessboardState.torre,
-        modifiedChessboardState.caballo,
-        modifiedChessboardState.dama,
-        modifiedChessboardState.rey
-    ];
-
-    // El estado del tablero proviene de una jugada legal hasta que se demuestre lo contrario
-    let jugadaLegal = true;
-    
-    // Si existen dos piezas en la misma casilla, significa que una ha comido a la otra
-    let conflictingPieces = [];
-    for (const pieces of pieceArrays) {
-      for (let i = 0; i < pieces.length - 1; i++) {
-          for (let j = i + 1; j < pieces.length; j++) {
-              const piece1 = pieces[i];
-              const piece2 = pieces[j];
-              if (piece1.x === piece2.x && piece1.y === piece2.y) {
-                  conflictingPieces.push({ piece1, piece2 });
-              }
-          }
+      // ENVIAR EL MOVIMIENTO DE STOCKFISH AL FRONTEND
+      if (!responseSent){
+        res.json({
+          "fromX": 6, 
+          "fromY": 7,
+          "fromColor": modifiedChessboardState.IA, 
+          "x": 3,
+          "y": 4
+        });
+        responseSent = true;
       }
+
+
+      console.log("Estado del tablero 1: ", tableroFen);
+      
+      console.log("SISISISI");
     }
-
-    for (let i = 0; i < pieceArrays.length - 1; i++) {
-      for (let j = i + 1; j < pieceArrays.length; j++) {
-          const pieces1 = pieceArrays[i];
-          const pieces2 = pieceArrays[j];
-
-          for (const piece1 of pieces1) {
-              for (const piece2 of pieces2) {
-                  if (piece1.x === piece2.x && piece1.y === piece2.y) {
-                      conflictingPieces.push({ piece1, piece2 });
-                  }
-              }
-          }
-      }
-    }
+    else {
+      
 
 
-    // Comprobar movimientos disponibles del rey
-    const reyes = modifiedChessboardState.rey.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
-    const movimientos_disponibles_reyes = [];
-    const movimientos_disponibles_comer_pieza_jaque = [];
-    const movimientos_disponibles_bloquear_jaque = [];
-    let responseSent = false;
+      tablero.actualizarTablero(modifiedChessboardState);
+      
+      let turno = modifiedChessboardState.turno;
+      
 
-  
-    reyes.forEach(rey => {
-          
-        const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
-          
-        reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
-        
-        // Añadir los movimientos de enroque si se puede
-        if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
-          ha_movido_torre_negra_izqda, turno, 'corto')){
-            const x = 6;
-            const y = rey.Posicion.y;
-            reyMovimientos.push({x, y});
+      let ha_movido_rey_blanco = modifiedChessboardState.ha_movido_rey_blanco;
+      let ha_movido_rey_negro = modifiedChessboardState.ha_movido_rey_negro;
+      let ha_movido_torre_blanca_dcha = modifiedChessboardState.ha_movido_torre_blanca_dcha;
+      let ha_movido_torre_blanca_izqda = modifiedChessboardState.ha_movido_torre_blanca_izqda;
+      let ha_movido_torre_negra_dcha = modifiedChessboardState.ha_movido_torre_negra_dcha;
+      let ha_movido_torre_negra_izqda = modifiedChessboardState.ha_movido_torre_negra_izqda; 
+
+      const pieceArrays = [
+          modifiedChessboardState.peon,
+          modifiedChessboardState.alfil,
+          modifiedChessboardState.torre,
+          modifiedChessboardState.caballo,
+          modifiedChessboardState.dama,
+          modifiedChessboardState.rey
+      ];
+
+      // El estado del tablero proviene de una jugada legal hasta que se demuestre lo contrario
+      let jugadaLegal = true;
+      
+      // Si existen dos piezas en la misma casilla, significa que una ha comido a la otra
+      let conflictingPieces = [];
+      for (const pieces of pieceArrays) {
+        for (let i = 0; i < pieces.length - 1; i++) {
+            for (let j = i + 1; j < pieces.length; j++) {
+                const piece1 = pieces[i];
+                const piece2 = pieces[j];
+                if (piece1.x === piece2.x && piece1.y === piece2.y) {
+                    conflictingPieces.push({ piece1, piece2 });
+                }
+            }
         }
+      }
 
-        if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
-          ha_movido_torre_negra_izqda, turno, 'largo')){
-            console.log("Me enroco en largo");
-            const x = 2;
-            const y = rey.Posicion.y;
-            reyMovimientos.push({x, y});
-          }
+      for (let i = 0; i < pieceArrays.length - 1; i++) {
+        for (let j = i + 1; j < pieceArrays.length; j++) {
+            const pieces1 = pieceArrays[i];
+            const pieces2 = pieceArrays[j];
 
-        movimientos_disponibles_reyes.push(reyMovimientos);
-
-        // Comprobar si el rey está en jaque
-        estaEnJaque = rey.jaque(rey);
-        
-        // Si el rey está en jaque
-        if(estaEnJaque) {
-          console.log("Color de rey en jaque: ", rey.color);
-          rey.estoy_en_jaque = true;
-          
-          // Solo devolvemos los movimientos del rey, ponerse en medio o comerse la pieza
-          
-          const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
-          
-          const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
-          
-          // Obtener las piezas que pueden comerse la pieza que está dando jaque
-          let colorOponente;
-          if (rey.color == 'blancas'){
-            colorOponente = 'negras';
-          }
-          else {
-            colorOponente = 'blancas';
-          }
-
-          const movimientosDisponibles = rey.obtenerPosicionesAtacadasPorOponenteFormato(colorOponente);
-          
-          piezasComedoras = rey.puedeComerPieza(coordenadasDesdeJaque, movimientosDisponibles);
-          
-          let comerMovimientos = {
-            peon: [],
-            alfil: [],
-            caballo: [],
-            torre: [],
-            dama: []
-          };
-          if (piezasComedoras !== null){
-            piezasComedoras.forEach(pieza => {
-              const { tipo, ...resto } = pieza;
-              comerMovimientos[tipo].push(resto);
-            });
-          }
-
-          // Obtener las piezas que pueden ponerse en medio del rey y la pieza que está dando jaque
-          piezasBloqueantes = rey.sePuedePonerEnMedio(coordenadasDesdeJaque, rey, movimientosDisponibles);
-          console.log("Piezas bloqueantes", piezasBloqueantes);
-          movimientos_disponibles_comer_pieza_jaque.push(comerMovimientos);
-          movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
-        
-          // JAQUE MATE
-          if (movimientos_disponibles_reyes[0].length === 1 && movimientos_disponibles_comer_pieza_jaque[0].caballo.length === 0 &&
-            movimientos_disponibles_comer_pieza_jaque[0].peon.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].alfil.length === 0
-           && movimientos_disponibles_comer_pieza_jaque[0].torre.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].dama.length === 0
-          && Object.keys(movimientos_disponibles_bloquear_jaque[0]).length === 0){
-            res.json({"Jaque mate": true});
-            responseSent = true;
-          }
-
-          // SI HAY JAQUE PERO NO JAQUE MATE
-          else {
-
-            // Si el rey del color que no le toca mover se queda en jaque, la jugada no es legal
-            if(rey.color !== turno){
-              jugadaLegal = false;
+            for (const piece1 of pieces1) {
+                for (const piece2 of pieces2) {
+                    if (piece1.x === piece2.x && piece1.y === piece2.y) {
+                        conflictingPieces.push({ piece1, piece2 });
+                    }
+                }
             }
-            let jaque = true;
-            let allMovements = {
-              rey: movimientos_disponibles_reyes,
-              comer: movimientos_disponibles_comer_pieza_jaque,
-              bloquear: movimientos_disponibles_bloquear_jaque
-            }
+        }
+      }
+
+
+      // Comprobar movimientos disponibles del rey
+      const reyes = modifiedChessboardState.rey.map(rey => new Rey(rey.x, rey.y, rey.color, tablero));
+      const movimientos_disponibles_reyes = [];
+      const movimientos_disponibles_comer_pieza_jaque = [];
+      const movimientos_disponibles_bloquear_jaque = [];
+      
+
+    
+      reyes.forEach(rey => {
             
-            if (!responseSent){
-              res.json({jugadaLegal, jaque, allMovements});
+          const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
+            
+          reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
+          
+          // Añadir los movimientos de enroque si se puede
+          if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
+            ha_movido_torre_negra_izqda, turno, 'corto')){
+              const x = 6;
+              const y = rey.Posicion.y;
+              reyMovimientos.push({x, y});
+          }
+
+          if (rey.enroque(ha_movido_rey_blanco, ha_movido_rey_negro, ha_movido_torre_blanca_dcha, ha_movido_torre_blanca_izqda, ha_movido_torre_negra_dcha,
+            ha_movido_torre_negra_izqda, turno, 'largo')){
+              console.log("Me enroco en largo");
+              const x = 2;
+              const y = rey.Posicion.y;
+              reyMovimientos.push({x, y});
+            }
+
+          movimientos_disponibles_reyes.push(reyMovimientos);
+
+          // Comprobar si el rey está en jaque
+          estaEnJaque = rey.jaque(rey);
+          
+          // Si el rey está en jaque
+          if(estaEnJaque) {
+            console.log("Color de rey en jaque: ", rey.color);
+            rey.estoy_en_jaque = true;
+            
+            // Solo devolvemos los movimientos del rey, ponerse en medio o comerse la pieza
+            
+            const posicionesAtacadas = rey.obtenerPosicionesAtacadasPorOponenteFormato(rey.color);
+            
+            const coordenadasDesdeJaque = rey.getCasillaDesdeJaque(rey, posicionesAtacadas);
+            
+            // Obtener las piezas que pueden comerse la pieza que está dando jaque
+            let colorOponente;
+            if (rey.color == 'blancas'){
+              colorOponente = 'negras';
+            }
+            else {
+              colorOponente = 'blancas';
+            }
+
+            const movimientosDisponibles = rey.obtenerPosicionesAtacadasPorOponenteFormato(colorOponente);
+            
+            piezasComedoras = rey.puedeComerPieza(coordenadasDesdeJaque, movimientosDisponibles);
+            
+            let comerMovimientos = {
+              peon: [],
+              alfil: [],
+              caballo: [],
+              torre: [],
+              dama: []
+            };
+            if (piezasComedoras !== null){
+              piezasComedoras.forEach(pieza => {
+                const { tipo, ...resto } = pieza;
+                comerMovimientos[tipo].push(resto);
+              });
+            }
+
+            // Obtener las piezas que pueden ponerse en medio del rey y la pieza que está dando jaque
+            piezasBloqueantes = rey.sePuedePonerEnMedio(coordenadasDesdeJaque, rey, movimientosDisponibles);
+            console.log("Piezas bloqueantes", piezasBloqueantes);
+            movimientos_disponibles_comer_pieza_jaque.push(comerMovimientos);
+            movimientos_disponibles_bloquear_jaque.push(piezasBloqueantes);
+          
+            // JAQUE MATE
+            if (movimientos_disponibles_reyes[0].length === 1 && movimientos_disponibles_comer_pieza_jaque[0].caballo.length === 0 &&
+              movimientos_disponibles_comer_pieza_jaque[0].peon.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].alfil.length === 0
+            && movimientos_disponibles_comer_pieza_jaque[0].torre.length === 0 && movimientos_disponibles_comer_pieza_jaque[0].dama.length === 0
+            && Object.keys(movimientos_disponibles_bloquear_jaque[0]).length === 0){
+              res.json({"Jaque mate": true});
               responseSent = true;
             }
-          }
-      }
-      
-    });
 
-  // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
-  if (!estaEnJaque){
+            // SI HAY JAQUE PERO NO JAQUE MATE
+            else {
 
-    // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS PEONES --------------------------
-    const peones = modifiedChessboardState.peon.map(peon => {
+              // Si el rey del color que no le toca mover se queda en jaque, la jugada no es legal
+              if(rey.color !== turno){
+                jugadaLegal = false;
+              }
+              let jaque = true;
+              let allMovements = {
+                rey: movimientos_disponibles_reyes,
+                comer: movimientos_disponibles_comer_pieza_jaque,
+                bloquear: movimientos_disponibles_bloquear_jaque
+              }
+              
+              if (!responseSent){
+                res.json({jugadaLegal, jaque, allMovements});
+                responseSent = true;
+              }
+            }
+        }
         
-        // Comprobar si ha habido peón involucrado en una captura
-        const isConflicting = conflictingPieces.some(conflictingPiece => 
-          peon.x === conflictingPiece.piece1.x && peon.y === conflictingPiece.piece1.y
-        );
-        if (!isConflicting) {
-          return new Peon(peon.x, peon.y, peon.color, tablero);
-        }
-        // Ha habido captura con peón involucrado
-        else {
-          if(peon.color !== turno) {
-            // PEON ES EL QUE COME
-            return new Peon(peon.x, peon.y, peon.color, tablero);
-          }
-          else {
-            // PEON ES EL COMIDO
-            return null;
-          }
-        }
-      }).filter(peon => peon !== null);
-      
-      let movimientos_disponibles_peones = [];
-      
-
-      peones.forEach(peon => {
-        //if (peon.color === "turno"){
-          const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
-          
-          
-          peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
-      
-          
-          movimientos_disponibles_peones.push(peonMovimientos);
-        //}
       });
 
+    // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
+    if (!estaEnJaque){
 
-    // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS CABALLOS --------------------------
-    const caballos = modifiedChessboardState.caballo.map(caballo => {
-
-        // Comprobar si ha habido caballo involucrado en una captura
-        const isConflicting = conflictingPieces.some(conflictingPiece => 
-            caballo.x === conflictingPiece.piece1.x && caballo.y === conflictingPiece.piece1.y
-        );
-      
+      // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS PEONES --------------------------
+      const peones = modifiedChessboardState.peon.map(peon => {
+          
+          // Comprobar si ha habido peón involucrado en una captura
+          const isConflicting = conflictingPieces.some(conflictingPiece => 
+            peon.x === conflictingPiece.piece1.x && peon.y === conflictingPiece.piece1.y
+          );
+          if (!isConflicting) {
+            return new Peon(peon.x, peon.y, peon.color, tablero);
+          }
+          // Ha habido captura con peón involucrado
+          else {
+            if(peon.color !== turno) {
+              // PEON ES EL QUE COME
+              return new Peon(peon.x, peon.y, peon.color, tablero);
+            }
+            else {
+              // PEON ES EL COMIDO
+              return null;
+            }
+          }
+        }).filter(peon => peon !== null);
         
-        if (!isConflicting) {
-          return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
-        }
-        // Ha habido captura con caballo involucrado
-        else {
-          if(caballo.color !== turno) {
-            // CABALLO ES EL QUE COME
+        let movimientos_disponibles_peones = [];
+        
+
+        peones.forEach(peon => {
+          //if (peon.color === "turno"){
+            const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
+            
+            
+            peonMovimientos.push(...peon.obtenerMovimientosDisponibles());
+        
+            
+            movimientos_disponibles_peones.push(peonMovimientos);
+          //}
+        });
+
+
+      // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS CABALLOS --------------------------
+      const caballos = modifiedChessboardState.caballo.map(caballo => {
+
+          // Comprobar si ha habido caballo involucrado en una captura
+          const isConflicting = conflictingPieces.some(conflictingPiece => 
+              caballo.x === conflictingPiece.piece1.x && caballo.y === conflictingPiece.piece1.y
+          );
+        
+          
+          if (!isConflicting) {
             return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
           }
+          // Ha habido captura con caballo involucrado
           else {
-            // CABALLO ES EL COMIDO
-            return null;
+            if(caballo.color !== turno) {
+              // CABALLO ES EL QUE COME
+              return new Caballo(caballo.x, caballo.y, caballo.color, tablero);
+            }
+            else {
+              // CABALLO ES EL COMIDO
+              return null;
+            }
           }
-        }
-      }).filter(caballo => caballo !== null);
-      
-      let movimientos_disponibles_caballos = [];
-
-      caballos.forEach(caballo => {
-        if (caballo.color === turno){
-          const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
-          
-          
-          caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles(false));
-          console.log("Movimientos caballooooooo", caballoMovimientos);
-      
-          
-          movimientos_disponibles_caballos.push(caballoMovimientos);
-        }
-    });
-    
-
-    // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS ALFILES --------------------------
-    const alfiles = modifiedChessboardState.alfil.map(alfil => {
+        }).filter(caballo => caballo !== null);
         
-        // Comprobar si ha habido alfil involucrado en una captura
-        const isConflicting = conflictingPieces.some(conflictingPiece => 
-            alfil.x === conflictingPiece.piece1.x && alfil.y === conflictingPiece.piece1.y
-        );
+        let movimientos_disponibles_caballos = [];
+
+        caballos.forEach(caballo => {
+          if (caballo.color === turno){
+            const caballoMovimientos = [{ fromX: caballo.Posicion.x, fromY: caballo.Posicion.y, fromColor: caballo.color }];
+            
+            
+            caballoMovimientos.push(...caballo.obtenerMovimientosDisponibles(false));
+            console.log("Movimientos caballooooooo", caballoMovimientos);
+        
+            
+            movimientos_disponibles_caballos.push(caballoMovimientos);
+          }
+      });
       
-        if (!isConflicting) {
-          return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
-        }
-        // Ha habido captura con alfil involucrado
-        else {
-          if(alfil.color !== turno) {
-            // ALFIL ES EL QUE COME
+
+      // -------------------------- MOVIMIENTOS DISPONIBLES DE LOS ALFILES --------------------------
+      const alfiles = modifiedChessboardState.alfil.map(alfil => {
+          
+          // Comprobar si ha habido alfil involucrado en una captura
+          const isConflicting = conflictingPieces.some(conflictingPiece => 
+              alfil.x === conflictingPiece.piece1.x && alfil.y === conflictingPiece.piece1.y
+          );
+        
+          if (!isConflicting) {
             return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
           }
+          // Ha habido captura con alfil involucrado
           else {
-            // ALFIL ES EL COMIDO
-            return null;
+            if(alfil.color !== turno) {
+              // ALFIL ES EL QUE COME
+              return new Alfil(alfil.x, alfil.y, alfil.color, tablero);
+            }
+            else {
+              // ALFIL ES EL COMIDO
+              return null;
+            }
           }
-        }
-      }).filter(alfil => alfil !== null);
-      
-      let movimientos_disponibles_alfiles = [];
-      
-      alfiles.forEach(alfil => {
-      if (alfil.color === turno){
-      const alfilMovimientos = [{ fromX: alfil.Posicion.x, fromY: alfil.Posicion.y, fromColor: alfil.color }];
-      
-      
-      alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles(false));
-  
-      movimientos_disponibles_alfiles.push(alfilMovimientos);
-      }
-    });
-
-    // -------------------------- MOVIMIENTOS DISPONIBLES DE LAS TORRES --------------------------
-    const torres = modifiedChessboardState.torre.map(torre => {
+        }).filter(alfil => alfil !== null);
         
-        // Comprobar si ha habido torre involucrada en una captura
-        const isConflicting = conflictingPieces.some(conflictingPiece =>
-            torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
-        );
-      
-        if (!isConflicting) {
-          return new Torre(torre.x, torre.y, torre.color, tablero);
+        let movimientos_disponibles_alfiles = [];
+        
+        alfiles.forEach(alfil => {
+        if (alfil.color === turno){
+        const alfilMovimientos = [{ fromX: alfil.Posicion.x, fromY: alfil.Posicion.y, fromColor: alfil.color }];
+        
+        
+        alfilMovimientos.push(...alfil.obtenerMovimientosDisponibles(false));
+    
+        movimientos_disponibles_alfiles.push(alfilMovimientos);
         }
-        // Ha habido captura con torre involucrada
-        else {
-          if(torre.color !== turno) {
-            // TORRE ES EL QUE COME
+      });
+
+      // -------------------------- MOVIMIENTOS DISPONIBLES DE LAS TORRES --------------------------
+      const torres = modifiedChessboardState.torre.map(torre => {
+          
+          // Comprobar si ha habido torre involucrada en una captura
+          const isConflicting = conflictingPieces.some(conflictingPiece =>
+              torre.x === conflictingPiece.piece1.x && torre.y === conflictingPiece.piece1.y
+          );
+        
+          if (!isConflicting) {
             return new Torre(torre.x, torre.y, torre.color, tablero);
           }
+          // Ha habido captura con torre involucrada
           else {
-            // TORRE ES EL COMIDO
-            return null;
+            if(torre.color !== turno) {
+              // TORRE ES EL QUE COME
+              return new Torre(torre.x, torre.y, torre.color, tablero);
+            }
+            else {
+              // TORRE ES EL COMIDO
+              return null;
+            }
           }
-        }
-      }).filter(torre => torre !== null);
-      
-      let movimientos_disponibles_torres = [];
+        }).filter(torre => torre !== null);
+        
+        let movimientos_disponibles_torres = [];
+
+        
+        torres.forEach(torre => {
+          if (torre.color === turno){
+            let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
+            
+            //console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
+            torreMovimientos.push(...torre.obtenerMovimientosDisponibles(false));
+            
+            movimientos_disponibles_torres.push(torreMovimientos);
+          }
+      });
 
       
-      torres.forEach(torre => {
-        if (torre.color === turno){
-          let torreMovimientos = [{ fromX: torre.Posicion.x, fromY: torre.Posicion.y, fromColor: torre.color }];
+      // -------------------------- MOVIMIENTOS DISPONIBLES DE LAS DAMAS --------------------------
+      const damas = modifiedChessboardState.dama.map(dama => {
           
-          //console.log("Movimientos de la torre", torre.obtenerMovimientosDisponibles());
-          torreMovimientos.push(...torre.obtenerMovimientosDisponibles(false));
+          // Comprobar si ha habido dama involucrada en una captura
+          const isConflicting = conflictingPieces.some(conflictingPiece => 
+              dama.x === conflictingPiece.piece1.x && dama.y === conflictingPiece.piece1.y
+          );
           
-          movimientos_disponibles_torres.push(torreMovimientos);
-        }
-    });
-
-    
-    // -------------------------- MOVIMIENTOS DISPONIBLES DE LAS DAMAS --------------------------
-    const damas = modifiedChessboardState.dama.map(dama => {
-        
-        // Comprobar si ha habido dama involucrada en una captura
-        const isConflicting = conflictingPieces.some(conflictingPiece => 
-            dama.x === conflictingPiece.piece1.x && dama.y === conflictingPiece.piece1.y
-        );
-        
-        if (!isConflicting) {
-          return new Dama(dama.x, dama.y, dama.color, tablero);
-        }
-        else {
-          // Ha habido captura con dama involucrada
-          if(dama.color !== turno) {
-            // DAMA ES EL QUE COME
+          if (!isConflicting) {
             return new Dama(dama.x, dama.y, dama.color, tablero);
           }
           else {
-            // DAMA ES EL COMIDO
-            return null;
+            // Ha habido captura con dama involucrada
+            if(dama.color !== turno) {
+              // DAMA ES EL QUE COME
+              return new Dama(dama.x, dama.y, dama.color, tablero);
+            }
+            else {
+              // DAMA ES EL COMIDO
+              return null;
+            }
           }
-        }
-      }).filter(dama => dama !== null);
+        }).filter(dama => dama !== null);
 
-      let movimientos_disponibles_damas = [];
-        
-    damas.forEach(dama => {
-        if (dama.color === turno){
-          let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+        let movimientos_disponibles_damas = [];
           
-          damaMovimientos.push(...dama.obtenerMovimientosDisponibles(false));
-          
-          
-          movimientos_disponibles_damas.push(damaMovimientos);
-        }
-    });
-
-    let allMovements = {
-
-      rey: movimientos_disponibles_reyes,
-      peon: movimientos_disponibles_peones,
-      caballo: movimientos_disponibles_caballos,
-      alfil: movimientos_disponibles_alfiles,
-      torre: movimientos_disponibles_torres,
-      dama: movimientos_disponibles_damas
-    };
-
-    let reyMovementsCount = 0;
-    let peonMovementsCount = 0;
-    let caballoMovementsCount = 0;
-    let alfilMovementsCount = 0;
-    let torreMovementsCount = 0;
-    let damaMovementsCount = 0;
-
-    Object.keys(allMovements).forEach(pieceType => {
-      allMovements[pieceType].forEach(piece => {
-          // Increment respective movements count for each piece type
-          switch (pieceType) {
-              case 'rey':
-                  reyMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              case 'peon':
-                  peonMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              case 'caballo':
-                  caballoMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              case 'alfil':
-                  alfilMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              case 'torre':
-                  torreMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              case 'dama':
-                  damaMovementsCount += piece.length - 1; // Exclude the initial position from count
-                  break;
-              default:
-                  break;
+      damas.forEach(dama => {
+          if (dama.color === turno){
+            let damaMovimientos = [{ fromX: dama.Posicion.x, fromY: dama.Posicion.y, fromColor: dama.color }];
+            
+            damaMovimientos.push(...dama.obtenerMovimientosDisponibles(false));
+            
+            
+            movimientos_disponibles_damas.push(damaMovimientos);
           }
       });
-  });
 
-    // Comprobar si el tablero pertenece a una configuración de tablas
-    if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
-      res.json({"tablas": true});
-    }
-    else if (reyMovementsCount === 1 && peonMovementsCount < 2 && caballoMovementsCount < 2
-      && alfilMovementsCount < 2 && torreMovementsCount < 2 && damaMovementsCount < 2) {
-      res.json({ "Rey ahogado": true });
-    }
-    else {
-      let jaque = false;
-      
-      if (!responseSent){
-        res.json({jugadaLegal, jaque, allMovements});
-        responseSent = true;
+      let allMovements = {
+
+        rey: movimientos_disponibles_reyes,
+        peon: movimientos_disponibles_peones,
+        caballo: movimientos_disponibles_caballos,
+        alfil: movimientos_disponibles_alfiles,
+        torre: movimientos_disponibles_torres,
+        dama: movimientos_disponibles_damas
+      };
+
+      let reyMovementsCount = 0;
+      let peonMovementsCount = 0;
+      let caballoMovementsCount = 0;
+      let alfilMovementsCount = 0;
+      let torreMovementsCount = 0;
+      let damaMovementsCount = 0;
+
+      Object.keys(allMovements).forEach(pieceType => {
+        allMovements[pieceType].forEach(piece => {
+            // Increment respective movements count for each piece type
+            switch (pieceType) {
+                case 'rey':
+                    reyMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                case 'peon':
+                    peonMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                case 'caballo':
+                    caballoMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                case 'alfil':
+                    alfilMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                case 'torre':
+                    torreMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                case 'dama':
+                    damaMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    break;
+                default:
+                    break;
+            }
+        });
+    });
+
+      // Comprobar si el tablero pertenece a una configuración de tablas
+      if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
+        res.json({"tablas": true});
+      }
+      else if (reyMovementsCount === 1 && peonMovementsCount < 2 && caballoMovementsCount < 2
+        && alfilMovementsCount < 2 && torreMovementsCount < 2 && damaMovementsCount < 2) {
+        res.json({ "Rey ahogado": true });
+      }
+      else {
+        let jaque = false;
+        
+        if (!responseSent){
+          res.json({jugadaLegal, jaque, allMovements});
+          responseSent = true;
+        }
       }
     }
+    
   }
-  
+
+    
 });
 
 
