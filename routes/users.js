@@ -92,6 +92,7 @@ router.post("/login", async (req, res) => {
     const { nombre, contraseña } = req.body;
 
     try {
+        client = await pool.connect();
         // Query to fetch user data based on username
         const getUserQuery = `
             SELECT id, nombre, contraseña
@@ -100,7 +101,7 @@ router.post("/login", async (req, res) => {
         `;
 
         // Execute the query to fetch user data
-        const { rows } = await pool.query(getUserQuery, [nombre]);
+        const { rows } = await client.query(getUserQuery, [nombre]);
 
         // If no user found with the provided username
         if (rows.length === 0) {
@@ -125,6 +126,12 @@ router.post("/login", async (req, res) => {
         console.error('Error al iniciar sesión:', error);
         res.status(500).json({ message: "Error al iniciar sesión" });
     }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
+    }
 });
 
 
@@ -136,6 +143,8 @@ router.post("/register", async (req, res) => {
     const { nombre, contraseña, correoElectronico, victorias, empates, derrotas} = req.body;
 
     try {
+
+        client = await pool.connect();
         // Generar un hash de la contraseña utilizando bcrypt
         const hashedPassword = await bcrypt.hash(contraseña, 8);
 
@@ -149,13 +158,19 @@ router.post("/register", async (req, res) => {
         const values = [nombre, hashedPassword, correoElectronico, victorias, empates, derrotas];
 
         // Ejecutar la consulta para insertar el nuevo usuario
-        await pool.query(insertUserQuery, values);
+        await client.query(insertUserQuery, values);
         
         console.log('Usuario registrado exitosamente');
         res.status(200).json({ message: "Registro exitoso" });
     } catch (error) {
         console.error('Error al registrar un nuevo usuario:', error);
         res.status(500).json({ message: "Error al registrar un nuevo usuario" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 
@@ -170,13 +185,14 @@ router.post("/register_partida_asincrona", async (req, res) => {
     console.log('Usuario negras:', idUsuarioNegras);
 
     try {
+        client = await pool.connect();
         const registrarPartida = `
             INSERT INTO Miguel.PartidaAsincronaTableroDefi (UsuarioBlancasId, UsuarioNegrasId)
             VALUES ($1, $2)
             RETURNING id;
         `;
 
-        const { rows } = await pool.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
+        const { rows } = await client.query(registrarPartida, [idUsuarioBlancas, idUsuarioNegras]);
         console.log('Partida asíncrona registrada exitosamente');
         const nuevaPartidaId = rows[0].id; // Obtener el ID de la nueva partida desde el resultado de la consulta
         res.status(200).json({ id: nuevaPartidaId, message: "Partida asíncrona registrada exitosamente" });
@@ -184,6 +200,12 @@ router.post("/register_partida_asincrona", async (req, res) => {
     catch (error) {
         console.error('Error al registrar una nueva partida asincrona:', error);
         res.status(500).json({ message: "Error al registrar una nueva partida asincrona" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 
@@ -194,14 +216,14 @@ router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
     const idPartida = req.params.id_partida;
 
     console.log('Id de la partida a borrar:', idPartida);
-
+    const client = await pool.connect();
     try {
         const deletePartidaQuery = `
         DELETE FROM Miguel.PartidaAsincronaTableroDefi
         WHERE Id = $1
     `;
 
-        const client = await pool.connect();
+        
 
         await client.query("BEGIN");
 
@@ -209,7 +231,6 @@ router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
 
         await client.query("COMMIT");
 
-        client.release();
 
 
         console.log('Partida asíncrona borrada exitosamente');
@@ -218,6 +239,12 @@ router.post("/remove_partida_asincrona/:id_partida", async (req, res) => {
     catch (error) {
         console.error('Error al eliminar la nueva partida asincrona:', error);
         res.status(500).json({ message: "Error al eliminar lapartida asincrona" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 
@@ -258,8 +285,9 @@ router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => 
     // Seleccionar la partida en la que actualizar el tablero
     const idPartida = req.params.id_partida;
     const { tablero_actual } = req.body; // Obtener el tablero actual del cuerpo de la solicitud
-
+    const client = await pool.connect();
     try {
+        
         const updatePartidaQuery = `
             UPDATE Miguel.PartidaAsincronaTableroDefi
             SET Tablero = $1
@@ -267,13 +295,19 @@ router.post("/update_cambio_partida_asincrona/:id_partida", async (req, res) => 
         `;
 
         // Ejecutar la consulta para actualizar el tablero con el nuevo tablero_actual
-        await pool.query(updatePartidaQuery, [tablero_actual, idPartida]);
+        await client.query(updatePartidaQuery, [tablero_actual, idPartida]);
 
         // Enviar una respuesta exitosa
         res.status(200).json({ message: "Tablero actualizado exitosamente" });
     } catch (error) {
         console.error('Error al actualizar el tablero:', error);
         res.status(500).json({ message: "Error al actualizar el tablero" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 
@@ -340,7 +374,7 @@ router.get("/all_partidas_asincronas", async (req, res) => {
 router.post("/register_recompensa", async (req, res) => {
     // Obtener los datos de la recompensa desde el cuerpo de la solicitud
     const { tipo, descripcion } = req.body;
-
+    const client = await pool.connect();
     try {
         // Consulta SQL para insertar una nueva recompensa en la tabla Recompensas
         const insertRewardQuery = `
@@ -352,7 +386,7 @@ router.post("/register_recompensa", async (req, res) => {
         const values = [tipo, descripcion];
 
         // Ejecutar la consulta para insertar la nueva recompensa
-        await pool.query(insertRewardQuery, values);
+        await client.query(insertRewardQuery, values);
         
         console.log('Recompensa registrada exitosamente');
         res.status(200).json({ message: "Recompensa registrada exitosamente" });
@@ -360,12 +394,19 @@ router.post("/register_recompensa", async (req, res) => {
         console.error('Error al registrar una nueva recompensa:', error);
         res.status(500).json({ message: "Error al registrar una nueva recompensa" });
     }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
+    }
 });
 
 
 
 // Route /users/logout to log out a user
 router.post("/logout", (req, res) => {
+    
     try {
         // Destroy the user's session
         req.session.destroy((err) => {
@@ -380,13 +421,14 @@ router.post("/logout", (req, res) => {
         console.error('Error al cerrar sesión:', error);
         res.status(500).json({ message: "Error al cerrar sesión" });
     }
+    
 });
 
 // Route /users/update_recompensa/:id_usuario/:id_recompensa
 router.put("/update_recompensa/:id_usuario/:id_recompensa", async (req, res) => {
     const userId = req.params.id_usuario; // Corrected parameter name
     const rewardId = req.params.id_recompensa; // Corrected parameter name
-
+    const client = await pool.connect();
         try {
             
             const insertIntoPoseeQuery = `
@@ -394,12 +436,18 @@ router.put("/update_recompensa/:id_usuario/:id_recompensa", async (req, res) => 
             VALUES ($1, $2)
         `;
             
-        await pool.query(insertIntoPoseeQuery, [userId, rewardId]);
+        await client.query(insertIntoPoseeQuery, [userId, rewardId]);
 
             res.status(200).json({ message: "Recompensa asignada exitosamente" });
         } catch (error) {
             console.error('Error al asignar la recomepnsa:', error);
             res.status(500).json({ message: "Error al asignar la recompensa" });
+        }
+        finally {
+            if (client) {
+                client.release(); // Release the client back to the pool
+                console.log('Connection released');
+            }
         }
 });
 
@@ -441,7 +489,7 @@ router.route("/:id")
     .put(async (req, res) => {
         const userId = req.params.id;
         const { nombre, contraseña, correoElectronico } = req.body;
-
+        const client = await pool.connect();
         try {
             // Query to update user data
             const updateUserQuery = `
@@ -451,18 +499,24 @@ router.route("/:id")
             `;
             
             // Execute the query to update user data
-            await pool.query(updateUserQuery, [nombre, contraseña, correoElectronico, userId]);
+            await client.query(updateUserQuery, [nombre, contraseña, correoElectronico, userId]);
 
             res.status(200).json({ message: "Usuario actualizado exitosamente" });
         } catch (error) {
             console.error('Error al actualizar el usuario:', error);
             res.status(500).json({ message: "Error al actualizar el usuario" });
         }
+        finally {
+            if (client) {
+                client.release(); // Release the client back to the pool
+                console.log('Connection released');
+            }
+        }
     })
     // Borrar un usuario en concreto
     .delete(async (req, res) => {
         const userId = req.params.id;
-
+        const client = await pool.connect();
         try {
             // Query to delete user data
             const deleteUserQuery = `
@@ -471,28 +525,29 @@ router.route("/:id")
             `;
             
             // Execute the query to delete user data
-            await pool.query(deleteUserQuery, [userId]);
+            await client.query(deleteUserQuery, [userId]);
 
             res.status(200).json({ message: "Usuario eliminado exitosamente" });
         } catch (error) {
             console.error('Error al eliminar el usuario:', error);
             res.status(500).json({ message: "Error al eliminar el usuario" });
         }
+        finally {
+            if (client) {
+                client.release(); // Release the client back to the pool
+                console.log('Connection released');
+            }
+        }
     });
 
 
-// Ruta /users/notificaciones/:id, para las notificaciones de los usuarios (modo asíncrono)
-router.post("/notificaciones/:id", (req, res) => {
 
-
-
-})
 // Ruta /users/update_puntos/:modo/:idGanador/:idPerdedor, para que se actualicen los ELO de los jugadores
 router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req, res) => {
     const { idGanador, idPerdedor, esEmpate } = req.params;
     console.log(req.params)
     const modo = req.params.modo;
-  
+    const client = await pool.connect();
       try {
 
         let eloColumn;
@@ -518,8 +573,8 @@ router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req,
             WHERE u.id = $1;
         `;
 
-        const { rows: puntuacionGanador } = await pool.query(obtenerELOJugadorQuery, [idGanador]);
-        const { rows: puntuacionPerdedor } = await pool.query(obtenerELOJugadorQuery, [idPerdedor]);
+        const { rows: puntuacionGanador } = await client.query(obtenerELOJugadorQuery, [idGanador]);
+        const { rows: puntuacionPerdedor } = await client.query(obtenerELOJugadorQuery, [idPerdedor]);
 
         // Check if ganador is undefined or if it has zero length
         if (!puntuacionGanador || puntuacionGanador.length === 0) {
@@ -548,10 +603,10 @@ router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req,
   
         
         const updateELOGanador = `UPDATE Miguel.Usuario SET ${eloColumn} = $1 WHERE Id = $2;`;
-        await pool.query(updateELOGanador, [nuevoELOGanador, idGanador]);
+        await client.query(updateELOGanador, [nuevoELOGanador, idGanador]);
 
         const updateELOPerdedor = `UPDATE Miguel.Usuario SET ${eloColumn} = $1 WHERE Id = $2;`;
-        await pool.query(updateELOPerdedor, [nuevoELOPerdedor, idPerdedor]);
+        await client.query(updateELOPerdedor, [nuevoELOPerdedor, idPerdedor]);
         
         console.log("Nuevo ELO ganador:", nuevoELOGanador);
         console.log("Nuevo ELO perdedor:", nuevoELOPerdedor);
@@ -568,32 +623,32 @@ router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req,
         `;
 
         if(esEmpate === "true"){   // Si es empate
-            const { rows: metricasJugador1 } = await pool.query(obtenerPuntosJugadorQuery, [idGanador]);
+            const { rows: metricasJugador1 } = await client.query(obtenerPuntosJugadorQuery, [idGanador]);
             const metricasUsuarioJugador1 = metricasJugador1[0];
             const nuevosEmpatesJugador1 = metricasUsuarioJugador1.empates + 1;
             const updateEmpatesJugador1 = `UPDATE Miguel.Usuario SET empates = $1 WHERE Id = $2;`;
             await pool.query(updateEmpatesJugador1, [nuevosEmpatesJugador1, idGanador]);
 
-            const { rows: metricasJugador2 } = await pool.query(obtenerPuntosJugadorQuery, [idPerdedor]);
+            const { rows: metricasJugador2 } = await client.query(obtenerPuntosJugadorQuery, [idPerdedor]);
             const metricasUsuarioJugador2 = metricasJugador2[0];
             const nuevosEmpatesJugador2 = metricasUsuarioJugador2.empates + 1;
             const updateEmpatesJugador2 = `UPDATE Miguel.Usuario SET empates = $1 WHERE Id = $2;`;
-            await pool.query(updateEmpatesJugador2, [nuevosEmpatesJugador2, idPerdedor]);
+            await client.query(updateEmpatesJugador2, [nuevosEmpatesJugador2, idPerdedor]);
             
         }
         else {  // Si hay un ganador
-            const { rows: metricasGanador } = await pool.query(obtenerPuntosJugadorQuery, [idGanador]);
+            const { rows: metricasGanador } = await client.query(obtenerPuntosJugadorQuery, [idGanador]);
             const metricasUsuarioGanador = metricasGanador[0];
             const nuevasVictorias = metricasUsuarioGanador.victorias + 1;
             const updateVictoriasGanador = `UPDATE Miguel.Usuario SET victorias = $1 WHERE Id = $2;`;
-            await pool.query(updateVictoriasGanador, [nuevasVictorias, idGanador]);
+            await client.query(updateVictoriasGanador, [nuevasVictorias, idGanador]);
             
 
-            const { rows: metricasPerdedor } = await pool.query(obtenerPuntosJugadorQuery, [idPerdedor]);
+            const { rows: metricasPerdedor } = await client.query(obtenerPuntosJugadorQuery, [idPerdedor]);
             const metricasUsuarioPerdedor = metricasPerdedor[0];
             const nuevasDerrotas = metricasUsuarioPerdedor.derrotas + 1;
             const updateDerrotasPerdedor = `UPDATE Miguel.Usuario SET derrotas = $1 WHERE Id = $2;`;
-            await pool.query(updateDerrotasPerdedor, [nuevasDerrotas, idPerdedor]);
+            await client.query(updateDerrotasPerdedor, [nuevasDerrotas, idPerdedor]);
         }
 
         
@@ -604,6 +659,12 @@ router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req,
         catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error updating ELO ratings' });
+        }
+        finally {
+            if (client) {
+                client.release(); // Release the client back to the pool
+                console.log('Connection released');
+            }
         }
   })
 router.get("/ranking/:mode", async (req, res) => {
@@ -674,7 +735,7 @@ router.get("/avatar_color/:id", async (req, res) => {
 router.post("/update_avatar_color/:id", async (req, res) => {
     const userId = req.params.id;
     const { avatar, color } = req.body;
-
+    const client = await pool.connect();
     try {
         // Verificar si se proporcionaron el avatar y el color en la solicitud
         if (!avatar || !color) {
@@ -688,7 +749,7 @@ router.post("/update_avatar_color/:id", async (req, res) => {
             WHERE Id = $3;
         `;
 
-await pool.query(updateAvatarColorQuery, [avatar, color, userId]);
+        await client.query(updateAvatarColorQuery, [avatar, color, userId]);
         // Ejecutar la consulta para actualizar el número de avatar y el número de color
         
         // Enviar una respuesta de éxito
@@ -696,6 +757,12 @@ await pool.query(updateAvatarColorQuery, [avatar, color, userId]);
     } catch (error) {
         console.error('Error al actualizar el número de avatar y color:', error);
         res.status(500).json({ message: "Error al actualizar el número de avatar y color" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 // Ruta para obtener toda la información de un usuario dado su ID
@@ -725,7 +792,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("")
 // Ruta para obtener los puntos del pase de batalla dado un ID de usuario
 router.get("/puntos_pase_batalla/:id", async (req, res) => {
     const userId = req.params.id;
@@ -815,7 +881,7 @@ router.post("/update_set_piezas/:id", async (req, res) => {
 router.post("/update_emoticonos/:id", async (req, res) => {
     const userId = req.params.id;
     const { emoticonos } = req.body;
-
+    const client = await pool.connect();
     try {
         // Verificar si se proporcionó el emoticono en la solicitud
         if (!emoticonos) {
@@ -830,7 +896,7 @@ router.post("/update_emoticonos/:id", async (req, res) => {
         `;
 
         // Ejecutar la consulta para actualizar el emoticono
-        await pool.query(updateEmoticonosQuery, [emoticonos, userId]);
+        await client.query(updateEmoticonosQuery, [emoticonos, userId]);
 
         // Enviar una respuesta de éxito
         res.status(200).json({ message: "Emoticonos actualizados correctamente" });
@@ -838,12 +904,18 @@ router.post("/update_emoticonos/:id", async (req, res) => {
         console.error('Error al actualizar los emoticonos:', error);
         res.status(500).json({ message: "Error al actualizar los emoticonos" });
     }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
+    }
 });
 // Ruta para actualizar los puntosPase de un usuario dado su ID
 router.post("/update_nivel_pase/:id", async (req, res) => {
     const userId = req.params.id;
     const { nivelPase } = req.body;
-
+    const client = await pool.connect();
     try {
         // Verificar si se proporcionaron los puntosPase en la solicitud
         if (!nivelPase) {
@@ -858,13 +930,19 @@ router.post("/update_nivel_pase/:id", async (req, res) => {
         `;
 
         // Ejecutar la consulta para actualizar los puntosPase
-        await pool.query(updatenivelPaseQuery, [nivelPase, userId]);
+        await client.query(updatenivelPaseQuery, [nivelPase, userId]);
 
         // Enviar una respuesta de éxito
         res.status(200).json({ message: "PuntosPase actualizados correctamente" });
     } catch (error) {
         console.error('Error al actualizar los puntosPase:', error);
         res.status(500).json({ message: "Error al actualizar los puntosPase" });
+    }
+    finally {
+        if (client) {
+            client.release(); // Release the client back to the pool
+            console.log('Connection released');
+        }
     }
 });
 
