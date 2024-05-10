@@ -10,8 +10,8 @@ const pgSession = require('connect-pg-simple')(session);
 
 const crypto = require('crypto');
 
-//const { spawn } = require('child_process');
-//const path = require('path');
+const { spawn } = require('child_process');
+const path = require('path');
 
 
 
@@ -78,11 +78,12 @@ stockfishProcess.stdout.on('data', (data) => {
     stockfishProcess.stdin.write('go depth 5\n');
   }
 });
-*/
+
 // Consulta SQL para borrar la tabla Usuario
 const dropTableUsuarioQuery = `
       DROP TABLE Miguel.Usuario CASCADE;
 `;
+*/
 // Consulta SQL para crear la tabla Usuario
   const createTableUsuarioQuery = `
       CREATE TABLE IF NOT EXISTS Miguel.Usuario (
