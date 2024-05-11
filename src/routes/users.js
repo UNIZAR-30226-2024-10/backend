@@ -173,6 +173,43 @@ router.post("/register", async (req, res) => {
         }
     }
 });
+router.post("/actualizar-elo/:userId/:mode", async (req, res) => {
+    const userId = req.params.userId;
+    const mode = req.params.mode;
+    const newElo = req.body.newElo;
+
+    try {
+        let eloColumn;
+        switch (mode) {
+            case 'blitz':
+                eloColumn = 'eloblitz';
+                break;
+            case 'bullet':
+                eloColumn = 'elobullet';
+                break;
+            case 'rapid':
+                eloColumn = 'elorapid';
+                break;
+            default:
+                return res.status(400).json({ message: "Modo de juego no válido" });
+        }
+
+        // Query to update the Elo of the user in the specified mode
+        const updateEloQuery = `
+            UPDATE Miguel.Usuario
+            SET ${eloColumn} = $1
+            WHERE id = $2
+        `;
+
+        // Execute the query to update the Elo
+        await pool.query(updateEloQuery, [newElo, userId]);
+
+        res.status(200).json({ message: "Elo actualizado exitosamente" });
+    } catch (error) {
+        console.error('Error al actualizar el Elo:', error);
+        res.status(500).json({ message: "Error al actualizar el Elo" });
+    }
+});
 
 // Ruta /play/register_partida_asincrona, para que el usuario pueda elegir si jugar bullet, blitz o rapid
 router.post("/register_partida_asincrona", async (req, res) => {
