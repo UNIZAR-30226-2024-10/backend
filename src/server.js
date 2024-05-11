@@ -3,7 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const http = require('http');
 const { Server } = require("socket.io");
-const pool = require('./db');
+const pool = require('./config/db');
 
 const session = require('express-session');
 const pgSession = require('connect-pg-simple')(session);
@@ -208,9 +208,7 @@ const playRouter = require("./routes/play")
 app.use("/play", playRouter)
 
 // Rutas para la página principal
-const home_pageRouter = require("./routes/home_page");
 const { disconnect } = require('process');
-app.use("/home_page", home_pageRouter)
 
 // Ruta para manejar la solicitud de registro de usuario
 app.post('/', (req, res) => {
@@ -419,30 +417,4 @@ io.on("connection", (socket) => {
   })
 });
 
-async function initializeDatabase() {
-  try {
-      const client = await pool.connect();
-      console.log('Database connection pool initialized');
-      client.release();
-  } catch (error) {
-      console.error('Error initializing database connection pool:', error);
-      // Handle error appropriately, such as exiting the application
-      //process.exit(1);
-  }
-}
-
-async function startServer() {
-  // Initialize the database connection pool
-  await initializeDatabase();
-
-  // Define routes and middleware
-  // ...
-
-  // Start the server
-  const port = process.env.PORT || 3001;
-  server.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-  });
-}
-
-startServer();
+module.exports = app;
