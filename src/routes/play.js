@@ -309,8 +309,6 @@ router.post("/", (req, res) => {
       }
     }
     else {
-      
-
 
       tablero.actualizarTablero(modifiedChessboardState);
       
