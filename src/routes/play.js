@@ -191,12 +191,6 @@ router.post("/", async (req, res) => {
   }
 
 
-
-<<<<<<< HEAD:routes/play.js
-=======
-
-
-
 router.post("/", (req, res) => {
 
     const tablero = new Tablero('./ChessHub.db');
@@ -280,7 +274,6 @@ router.post("/", (req, res) => {
         responseSent = true;
       }
     }
->>>>>>> 233851a00128efacc61acefa4fb3e13a7e1ba218:src/routes/play.js
     else {
 
       tablero.actualizarTablero(modifiedChessboardState);
@@ -712,5 +705,5 @@ router.post("/", (req, res) => {
     
 });
 
-
+});
 module.exports = router;
