@@ -139,165 +139,59 @@ function convertirJSONaFEN(jsonData) {
     return fen;
 }
 
-function convertirFENaJSON(fen) {
-  const fenObject = {
-      "turno": "",
-      "ha_movido_rey_blanco": true,
-      "ha_movido_rey_negro": true,
-      "ha_movido_torre_blanca_dcha": true,
-      "ha_movido_torre_blanca_izqda": true,
-      "ha_movido_torre_negra_dcha": true,
-      "ha_movido_torre_negra_izqda": true,
-      "peon": [],
-      "alfil": [],
-      "caballo": [],
-      "torre": [],
-      "dama": [],
-      "rey": []
-  };
+const fetch = require('node-fetch');
 
-  const [piecesPlacement, activeColor, castlingAvailability] = fen.split(' ');
+router.post("/", async (req, res) => {
+  // Verificar si es el turno de la IA
+  if (req.body.hasOwnProperty("IA") && req.body.IA === req.body.turno) {
+      const tableroFen = convertirJSONaFEN(req.body);
+      console.log("Tablero traducido:", tableroFen);
 
-  // Parse piece placement
-  let rank = 7;
-  let file = 0;
-  for (const char of piecesPlacement) {
-      if (char === '/') {
-          rank--;
-          file = 0;
-      } else if (isNaN(parseInt(char))) {
-          let color = char === char.toUpperCase() ? 'blancas' : 'negras';
+      try {
+          // Llamar a la API de lichess para obtener el mejor movimiento
+          const response = await fetch('https://lichess.org/api/board/game/analysis', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer lip_rsEC15KrOGISS0X21YmO' // Reemplazar YOUR_API_KEY con tu clave de API de lichess
+              },
+              body: JSON.stringify({
+                  fen: tableroFen,
+                  variant: 'standard',
+              })
+          });
 
+          const data = await response.json();
+          console.log('Respuesta de la API de Lichess:', data);
 
-          let pieceType = char.toLowerCase();
-          if(pieceType === 'p') {
-            pieceType = 'peon';
-          }
-          else if(pieceType === 'b') {
-            pieceType = 'alfil';
-          }
-          else if(pieceType === 'r') {
-            pieceType = 'torre';
-          }
-          else if(pieceType === 'n') {
-            pieceType = 'caballo';
-          }
-          else if(pieceType === 'q') {
-            pieceType = 'dama';
-          }
-          else if(pieceType === 'k') {
-            pieceType = 'rey';
-          }
+          // Verificar si se devolvió un movimiento válido
+          if (data.move && data.move.uci) {
+              // Extraer el mejor movimiento y enviarlo al frontend
+              const bestMove = data.move.uci;
+              const fromX = bestMove.charCodeAt(0) - 97;
+              const fromY = parseInt(bestMove[1]) - 1;
+              const toX = bestMove.charCodeAt(2) - 97;
+              const toY = parseInt(bestMove[3]) - 1;
 
-
-          if (!fenObject[pieceType]) fenObject[pieceType] = []; // Initialize array if not exists
-          fenObject[pieceType].push({"x": file, "y": rank, "color": color});
-          file++;
-      } else {
-          file += parseInt(char);
+              res.json({
+                  "fromX": fromX,
+                  "fromY": fromY,
+                  "fromColor": req.body.IA,
+                  "x": toX,
+                  "y": toY
+              });
+          } else {
+              console.log('No se encontró un movimiento válido en la respuesta de la API de Lichess.');
+              res.status(500).json({ error: 'No se encontró un movimiento válido en la respuesta de la API de Lichess.' });
+          }
+      } catch (error) {
+          console.error('Error al llamar a la API de lichess:', error);
+          res.status(500).json({ error: 'Error al llamar a la API de lichess' });
       }
   }
 
-  // Parse active color
-  fenObject.turno = activeColor === 'w' ? 'blancas' : 'negras';
-
-  // Parse castling availability
-  if (castlingAvailability.includes('K')) {
-      fenObject.ha_movido_rey_blanco = false;
-      fenObject.ha_movido_torre_blanca_dcha = false;
-  }
-  if (castlingAvailability.includes('Q')) {
-    fenObject.ha_movido_rey_blanco = false;
-    fenObject.ha_movido_torre_blanca_izqda = false;
-  }
-  if (castlingAvailability.includes('k')) {
-    fenObject.ha_movido_rey_negro = false;
-    fenObject.ha_movido_torre_negra_dcha = false;
-  }
-  if (castlingAvailability.includes('q')) {
-    fenObject.ha_movido_rey_negro = false;
-    fenObject.ha_movido_torre_negra_izqda = false;
-  }
-  return fenObject;
-}
 
 
-
-
-
-router.post("/", (req, res) => {
-
-    const tablero = new Tablero('./ChessHub.db');
-
-    let responseSent = false;
-
-    // LEER INFORMACIÓN DEL MENSAJE JSON
-    let modifiedChessboardState = req.body;
-
-    if (modifiedChessboardState.hasOwnProperty("IA") && modifiedChessboardState.IA === modifiedChessboardState.turno) {
-      let tableroFen = convertirJSONaFEN(modifiedChessboardState);
-      console.log("Tablero traducido", tableroFen);
-      const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
-
-      console.log('Ruta a Stockfish:', stockfishPath);
-      //tableroFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
-
-      const stockfishProcess = spawn(stockfishPath);
-      stockfishProcess.stdin.setEncoding('utf-8');
-      stockfishProcess.stdout.setEncoding('utf-8');
-      stockfishProcess.stdin.write('uci\n');
-      stockfishProcess.stdin.write('isready\n');
-      stockfishProcess.stdin.write('ucinewgame\n');
-      stockfishProcess.stdin.write('position fen ' + tableroFen + '\n');
-      stockfishProcess.stdin.write('go depth 5\n');
-
-
-      // Escuchar los eventos de salida estándar de Stockfish
-      stockfishProcess.stdout.on('data', (data) => {
-        console.log(`Stockfish output: ${data}`);
-        if (data.includes('bestmove')) {
-          const bestMove = data.split('bestmove ')[1].split(' ')[0]; // Extraer el mejor movimiento
-          console.log('Mejor movimiento:', bestMove);
-          const fromX = bestMove.charCodeAt(0) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
-          const fromY = parseInt(bestMove[1]) - 1; // Obtener el número de la fila
-          const toX = bestMove.charCodeAt(2) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
-          const toY = parseInt(bestMove[3]) - 1;
-          if (!responseSent){
-            res.json({
-              "fromX": fromX, 
-              "fromY": fromY,
-              "fromColor": modifiedChessboardState.IA, 
-              "x": toX,
-              "y": toY
-            });
-            responseSent = true;
-          }
-        }
-      });
-
-      // Escuchar los eventos de salida de errores de Stockfish
-      stockfishProcess.stderr.on('data', (data) => {
-        console.error(`Stockfish error: ${data}`);
-        // Aquí puedes manejar cualquier error que ocurra durante la comunicación con Stockfish
-      });
-
-      // Esperar a que Stockfish esté listo antes de enviar más comandos
-      stockfishProcess.stdout.on('data', (data) => {
-        if (data.includes('readyok')) {
-          console.log('Stockfish is ready');
-          // Aquí puedes enviar más comandos a Stockfish, como "go depth 5" u otros comandos UCI
-          stockfishProcess.stdin.write('go depth 5\n');
-        }
-      });
-
-      // CONFIGURAR STOCKFISH
-      // PASAR EL TABLERO EN FORMA FEN A STOCKFISH
-      // ESCUCHAR LO QUE DEVUELVE STOCKFISH
-      // TRADUCIR LO QUE DEVUELVE STOCKFISH
-
-      // ENVIAR EL MOVIMIENTO DE STOCKFISH AL FRONTEND
-      console.log("Estado del tablero 1: ", tableroFen);
-    }
     else {
       
 

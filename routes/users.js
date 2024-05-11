@@ -606,7 +606,7 @@ router.post("/update_puntos/:modo/:idGanador/:idPerdedor/:esEmpate", async (req,
             res.status(500).json({ message: 'Error updating ELO ratings' });
         }
   })
-router.get("/ranking/:mode", async (req, res) => {
+  router.get("/ranking/:mode", async (req, res) => {
     const mode = req.params.mode;
 
     try {
@@ -625,11 +625,12 @@ router.get("/ranking/:mode", async (req, res) => {
                 return res.status(400).json({ message: "Modo de liderazgo no válido" });
         }
 
-        // Query to fetch users sorted by the specified ELO column
+        // Query to fetch the top 10 users sorted by the specified ELO column
         const getUsersQuery = `
             SELECT id, nombre, ${eloColumn} AS elo
             FROM Miguel.Usuario
             ORDER BY ${eloColumn} DESC
+            LIMIT 10
         `;
         
         // Execute the query to fetch users
@@ -642,6 +643,7 @@ router.get("/ranking/:mode", async (req, res) => {
         res.status(500).json({ message: "Error al obtener el leaderboard" });
     }
 });
+
 // Ruta para obtener el número de avatar y número de color dado un ID de usuario
 router.get("/avatar_color/:id", async (req, res) => {
     const userId = req.params.id;
