@@ -139,56 +139,57 @@ function convertirJSONaFEN(jsonData) {
     return fen;
 }
 
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
-router.post("/", async (req, res) => {
-  // Verificar si es el turno de la IA
-  if (req.body.hasOwnProperty("IA") && req.body.IA === req.body.turno) {
-      const tableroFen = convertirJSONaFEN(req.body);
-      console.log("Tablero traducido:", tableroFen);
+// router.post("/", async (req, res) => {
+//   // Verificar si es el turno de la IA
+//   if (req.body.hasOwnProperty("IA") && req.body.IA === req.body.turno) {
+//       const tableroFen = convertirJSONaFEN(req.body);
+//       console.log("Tablero traducido:", tableroFen);
 
-      try {
-          // Llamar a la API de lichess para obtener el mejor movimiento
-          const response = await fetch('https://lichess.org/api/board/game/analysis', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer lip_rsEC15KrOGISS0X21YmO' // Reemplazar YOUR_API_KEY con tu clave de API de lichess
-              },
-              body: JSON.stringify({
-                  fen: tableroFen,
-                  variant: 'standard',
-              })
-          });
+//       try {
+//           // Llamar a la API de lichess para obtener el mejor movimiento
+//           const response = await fetch('https://lichess.org/api/board/game/analysis', {
+//               method: 'POST',
+//               headers: {
+//                   'Content-Type': 'application/json',
+//                   'Authorization': 'Bearer lip_rsEC15KrOGISS0X21YmO' // Reemplazar YOUR_API_KEY con tu clave de API de lichess
+//               },
+//               body: JSON.stringify({
+//                   fen: tableroFen,
+//                   variant: 'standard',
+//               })
+//           });
 
-          const data = await response.json();
-          console.log('Respuesta de la API de Lichess:', data);
+//           const data = await response.json();
+//           console.log('Respuesta de la API de Lichess:', data);
 
-          // Verificar si se devolvió un movimiento válido
-          if (data.move && data.move.uci) {
-              // Extraer el mejor movimiento y enviarlo al frontend
-              const bestMove = data.move.uci;
-              const fromX = bestMove.charCodeAt(0) - 97;
-              const fromY = parseInt(bestMove[1]) - 1;
-              const toX = bestMove.charCodeAt(2) - 97;
-              const toY = parseInt(bestMove[3]) - 1;
+//           // Verificar si se devolvió un movimiento válido
+//           if (data.move && data.move.uci) {
+//               // Extraer el mejor movimiento y enviarlo al frontend
+//               const bestMove = data.move.uci;
+//               const fromX = bestMove.charCodeAt(0) - 97;
+//               const fromY = parseInt(bestMove[1]) - 1;
+//               const toX = bestMove.charCodeAt(2) - 97;
+//               const toY = parseInt(bestMove[3]) - 1;
 
-              res.json({
-                  "fromX": fromX,
-                  "fromY": fromY,
-                  "fromColor": req.body.IA,
-                  "x": toX,
-                  "y": toY
-              });
-          } else {
-              console.log('No se encontró un movimiento válido en la respuesta de la API de Lichess.');
-              res.status(500).json({ error: 'No se encontró un movimiento válido en la respuesta de la API de Lichess.' });
-          }
-      } catch (error) {
-          console.error('Error al llamar a la API de lichess:', error);
-          res.status(500).json({ error: 'Error al llamar a la API de lichess' });
-      }
-  }
+//               res.json({
+//                   "fromX": fromX,
+//                   "fromY": fromY,
+//                   "fromColor": req.body.IA,
+//                   "x": toX,
+//                   "y": toY
+//               });
+//           } else {
+//               console.log('No se encontró un movimiento válido en la respuesta de la API de Lichess.');
+//               res.status(500).json({ error: 'No se encontró un movimiento válido en la respuesta de la API de Lichess.' });
+//           }
+//       } catch (error) {
+//           console.error('Error al llamar a la API de lichess:', error);
+//           res.status(500).json({ error: 'Error al llamar a la API de lichess' });
+//       }
+//   }
+// });
 
 
 router.post("/", (req, res) => {
@@ -705,5 +706,4 @@ router.post("/", (req, res) => {
     
 });
 
-});
 module.exports = router;
