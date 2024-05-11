@@ -165,39 +165,6 @@ PRIMARY KEY (UsuarioId, PartidaAsincronaId)
 `;
 
 
-async function myDatabaseQuery1() {
-  const client = await pool.connect();
-    console.log('Connected to the database');
-    
-    // Log the query being executed
-    console.log('Executing query:', createTableUsuarioQuery);
-    //await client.query(dropTableUsuarioQuery);
-    //console.log('Query 0 executed successfully');
-    await client.query(createTableUsuarioQuery);
-    console.log('Query 1 executed successfully');
-    await client.query(createTableRecompensasQuery);
-    console.log('Query 2 executed successfully');
-
-    await client.query(createTablePartidasQuery);
-    console.log('Query 3 executed successfully');
-    await client.query(createTablePoseeQuery);
-    console.log('Query 4 executed successfully');
-    await client.query(createTablePartidaAsincronaQuery);
-    console.log('Query 5 executed successfully');
-    await client.query(createTableUsuarioTienePartidaAsincronaQuery);
-    console.log('Query 6 executed successfully');
-
-
-
-    client.release();
-    console.log('Connection released');
-    //await client.end();
-    console.log('Connection closed');
-
-}
-
-
-
 
 // Rutas de los usuarios
 const userRouter = require("./routes/users")
@@ -209,17 +176,6 @@ app.use("/play", playRouter)
 
 // Rutas para la página principal
 const { disconnect } = require('process');
-
-// Ruta para manejar la solicitud de registro de usuario
-app.post('/', (req, res) => {
-  // Aquí puedes escribir la lógica para procesar la solicitud de registro de usuario
-  res.send('Registro exitoso'); // Envía una respuesta al cliente
-});
-
-
-//myDatabaseQuery1();
-// myDatabaseQuery2();
-
 
 
 
@@ -417,4 +373,4 @@ io.on("connection", (socket) => {
   })
 });
 
-module.exports = app;
+module.exports = server;
