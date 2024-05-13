@@ -204,7 +204,8 @@ router.post("/", (req, res) => {
     if (modifiedChessboardState.hasOwnProperty("IA") && modifiedChessboardState.IA === modifiedChessboardState.turno) {
       let tableroFen = convertirJSONaFEN(modifiedChessboardState);
       console.log("Tablero traducido", tableroFen);
-      const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
+      //const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
+      const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-ubuntu-x86-64-sse41-popcnt');
 
       console.log('Ruta a Stockfish:', stockfishPath);
       //tableroFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
