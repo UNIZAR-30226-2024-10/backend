@@ -204,58 +204,58 @@ router.post("/", (req, res) => {
     if (modifiedChessboardState.hasOwnProperty("IA") && modifiedChessboardState.IA === modifiedChessboardState.turno) {
       let tableroFen = convertirJSONaFEN(modifiedChessboardState);
       console.log("Tablero traducido", tableroFen);
-      // const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
+      const stockfishPath = path.join(__dirname, 'stockfish', 'stockfish-windows-x86-64-sse41-popcnt');
 
-      // console.log('Ruta a Stockfish:', stockfishPath);
-      // //tableroFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+      console.log('Ruta a Stockfish:', stockfishPath);
+      //tableroFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
-      // const stockfishProcess = spawn(stockfishPath);
-      // stockfishProcess.stdin.setEncoding('utf-8');
-      // stockfishProcess.stdout.setEncoding('utf-8');
-      // stockfishProcess.stdin.write('uci\n');
-      // stockfishProcess.stdin.write('isready\n');
-      // stockfishProcess.stdin.write('ucinewgame\n');
-      // stockfishProcess.stdin.write('position fen ' + tableroFen + '\n');
-      // stockfishProcess.stdin.write('go depth 5\n');
+      const stockfishProcess = spawn(stockfishPath);
+      stockfishProcess.stdin.setEncoding('utf-8');
+      stockfishProcess.stdout.setEncoding('utf-8');
+      stockfishProcess.stdin.write('uci\n');
+      stockfishProcess.stdin.write('isready\n');
+      stockfishProcess.stdin.write('ucinewgame\n');
+      stockfishProcess.stdin.write('position fen ' + tableroFen + '\n');
+      stockfishProcess.stdin.write('go depth 5\n');
 
 
-      // // Escuchar los eventos de salida estándar de Stockfish
-      // stockfishProcess.stdout.on('data', (data) => {
-      //   console.log(`Stockfish output: ${data}`);
-      //   if (data.includes('bestmove')) {
-      //     const bestMove = data.split('bestmove ')[1].split(' ')[0]; // Extraer el mejor movimiento
-      //     console.log('Mejor movimiento:', bestMove);
-      //     const fromX = bestMove.charCodeAt(0) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
-      //     const fromY = parseInt(bestMove[1]) - 1; // Obtener el número de la fila
-      //     const toX = bestMove.charCodeAt(2) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
-      //     const toY = parseInt(bestMove[3]) - 1;
-      //     if (!responseSent){
-      //       res.json({
-      //         "fromX": fromX, 
-      //         "fromY": fromY,
-      //         "fromColor": modifiedChessboardState.IA, 
-      //         "x": toX,
-      //         "y": toY
-      //       });
-      //       responseSent = true;
-      //     }
-      //   }
-      // });
+      // Escuchar los eventos de salida estándar de Stockfish
+      stockfishProcess.stdout.on('data', (data) => {
+        console.log(`Stockfish output: ${data}`);
+        if (data.includes('bestmove')) {
+          const bestMove = data.split('bestmove ')[1].split(' ')[0]; // Extraer el mejor movimiento
+          console.log('Mejor movimiento:', bestMove);
+          const fromX = bestMove.charCodeAt(0) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
+          const fromY = parseInt(bestMove[1]) - 1; // Obtener el número de la fila
+          const toX = bestMove.charCodeAt(2) - 97; // Convertir la letra de la columna a un número (a: 0, b: 1, ..., h: 7)
+          const toY = parseInt(bestMove[3]) - 1;
+          if (!responseSent){
+            res.json({
+              "fromX": fromX, 
+              "fromY": fromY,
+              "fromColor": modifiedChessboardState.IA, 
+              "x": toX,
+              "y": toY
+            });
+            responseSent = true;
+          }
+        }
+      });
 
-      // // Escuchar los eventos de salida de errores de Stockfish
-      // stockfishProcess.stderr.on('data', (data) => {
-      //   console.error(`Stockfish error: ${data}`);
-      //   // Aquí puedes manejar cualquier error que ocurra durante la comunicación con Stockfish
-      // });
+      // Escuchar los eventos de salida de errores de Stockfish
+      stockfishProcess.stderr.on('data', (data) => {
+        console.error(`Stockfish error: ${data}`);
+        // Aquí puedes manejar cualquier error que ocurra durante la comunicación con Stockfish
+      });
 
-      // // Esperar a que Stockfish esté listo antes de enviar más comandos
-      // stockfishProcess.stdout.on('data', (data) => {
-      //   if (data.includes('readyok')) {
-      //     console.log('Stockfish is ready');
-      //     // Aquí puedes enviar más comandos a Stockfish, como "go depth 5" u otros comandos UCI
-      //     stockfishProcess.stdin.write('go depth 5\n');
-      //   }
-      // });
+      // Esperar a que Stockfish esté listo antes de enviar más comandos
+      stockfishProcess.stdout.on('data', (data) => {
+        if (data.includes('readyok')) {
+          console.log('Stockfish is ready');
+          // Aquí puedes enviar más comandos a Stockfish, como "go depth 5" u otros comandos UCI
+          stockfishProcess.stdin.write('go depth 5\n');
+        }
+      });
 
       // CONFIGURAR STOCKFISH
       // PASAR EL TABLERO EN FORMA FEN A STOCKFISH
@@ -264,16 +264,16 @@ router.post("/", (req, res) => {
 
       // ENVIAR EL MOVIMIENTO DE STOCKFISH AL FRONTEND
       console.log("Estado del tablero 1: ", tableroFen);
-      if (!responseSent){
-        res.json({
-          "fromX": 0, 
-          "fromY": 0,
-          "fromColor": modifiedChessboardState.IA, 
-          "x": 0,
-          "y": 0
-        });
-        responseSent = true;
-      }
+      // if (!responseSent){
+      //   res.json({
+      //     "fromX": 0, 
+      //     "fromY": 0,
+      //     "fromColor": modifiedChessboardState.IA, 
+      //     "x": 0,
+      //     "y": 0
+      //   });
+      //   responseSent = true;
+      // }
     }
     else {
 
