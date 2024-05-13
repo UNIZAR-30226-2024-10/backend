@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 3001
 # required for docker desktop port mappingg
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "devStart"]
