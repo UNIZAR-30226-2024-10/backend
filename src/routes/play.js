@@ -340,7 +340,7 @@ router.post("/", (req, res) => {
 
     
       reyes.forEach(rey => {
-            
+          if (rey.color === turno) {
           const reyMovimientos = [{ fromX: rey.Posicion.x, fromY: rey.Posicion.y, fromColor: rey.color }];
             
           reyMovimientos.push(...rey.obtenerMovimientosDisponibles());
@@ -439,7 +439,7 @@ router.post("/", (req, res) => {
               }
             }
         }
-        
+      }
       });
 
     // Si el rey no está en jaque, devolvemos los movimientos de todas las piezas
