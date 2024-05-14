@@ -660,34 +660,34 @@ router.post("/", (req, res) => {
             // Increment respective movements count for each piece type
             switch (pieceType) {
                 case 'rey':
-                    reyMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    reyMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 case 'peon':
-                    peonMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    peonMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 case 'caballo':
-                    caballoMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    caballoMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 case 'alfil':
-                    alfilMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    alfilMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 case 'torre':
-                    torreMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    torreMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 case 'dama':
-                    damaMovementsCount += piece.length - 1; // Exclude the initial position from count
+                    damaMovementsCount += piece.length; // Exclude the initial position from count
                     break;
                 default:
                     break;
             }
         });
     });
-
+    console.log('movimientos', reyMovementsCount + caballoMovementsCount + torreMovementsCount + damaMovementsCount);
       // Comprobar si el tablero pertenece a una configuración de tablas
       if(drawOnlyKings(modifiedChessboardState) || drawOnlyKingsAndBishop(modifiedChessboardState) || drawOnlyKingsAndKnight(modifiedChessboardState)){
         res.json({"tablas": true});
       }
-      else if (reyMovementsCount === 1 && peonMovementsCount < 2 && caballoMovementsCount < 2
+      else if (reyMovementsCount < 2  && peonMovementsCount < 2 && caballoMovementsCount < 2
         && alfilMovementsCount < 2 && torreMovementsCount < 2 && damaMovementsCount < 2) {
         res.json({ "Rey ahogado": true });
       }
