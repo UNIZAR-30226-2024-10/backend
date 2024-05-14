@@ -473,7 +473,7 @@ router.post("/", (req, res) => {
         
 
         peones.forEach(peon => {
-          //if (peon.color === "turno"){
+          if (peon.color === "turno"){
             const peonMovimientos = [{ fromX: peon.Posicion.x, fromY: peon.Posicion.y, fromColor: peon.color }];
             
             
@@ -481,7 +481,7 @@ router.post("/", (req, res) => {
         
             
             movimientos_disponibles_peones.push(peonMovimientos);
-          //}
+          }
         });
 
 
@@ -701,7 +701,6 @@ router.post("/", (req, res) => {
         }
       }
     }
-    
   }
 
     
