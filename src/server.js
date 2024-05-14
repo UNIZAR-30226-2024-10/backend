@@ -249,7 +249,6 @@ io.on("connection", (socket) => {
     console.log(`cancel search: ${socket.id}`);
     const room = games.find(room => room.mode === mode && room.players < 2 );
     games.splice(games.indexOf(room),1);
-    console.log(`Room ${room.roomId} is now empty and removed`);
   });
   socket.on("cancel_match", () => { // Si ya se había encontrado partida, se cancela
     console.log(`Game canceled by: ${socket.id}`);
@@ -264,8 +263,7 @@ io.on("connection", (socket) => {
         const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador de la cancelación de la partida
         io.to(remainingPlayerId).emit("match_canceled");
         games.splice(i, 1); // Remove the room from the games array
-        console.log(`Room ${room.roomId} is now empty and removed`);
-        break;
+            break;
       }
     }
   });
@@ -281,8 +279,7 @@ io.on("connection", (socket) => {
         const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador
         io.to(remainingPlayerId).emit("oponent_surrendered");
         games.splice(i, 1); // Remove the room from the games array
-        console.log(`Room ${room.roomId} is now empty and removed`);
-        break;
+            break;
       }
     }
   });
@@ -298,8 +295,7 @@ io.on("connection", (socket) => {
         const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador
         io.to(remainingPlayerId).emit("has_perdido", {cause});
         games.splice(i, 1); // Remove the room from the games array
-        console.log(`Room ${room.roomId} is now empty and removed`);
-        break;
+            break;
       }
     }
   });
@@ -315,8 +311,7 @@ io.on("connection", (socket) => {
         const remainingPlayerId = room.playersIds[0]; // Avisa al otro jugador
         io.to(remainingPlayerId).emit("has_empatado", {cause});
         games.splice(i, 1); // Remove the room from the games array
-        console.log(`Room ${room.roomId} is now empty and removed`);
-        break;
+            break;
       }
     }
   });
@@ -328,8 +323,7 @@ io.on("connection", (socket) => {
         room.playersIds.splice(playerIndex, 1);
         room.players--;
         games.splice(i, 1); // Remove the room from the games array
-        console.log(`Room ${room.roomId} is now empty and removed`);
-        break;
+            break;
       }
     }
   })
@@ -360,8 +354,7 @@ io.on("connection", (socket) => {
         // If there are no more players in the room, you might want to clean up the room
         if (room.players === 0) {
             games.splice(i, 1); // Remove the room from the games array
-            console.log(`Room ${room.roomId} is now empty and removed`);
-        }
+                }
         else { // Notificar al jugador de que ha ganado la partida (el otro ha abandonado)
           const remainingPlayerId = room.playersIds[0];
           io.to(remainingPlayerId).emit("player_disconnected");
