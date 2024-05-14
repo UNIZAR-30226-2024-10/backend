@@ -276,7 +276,7 @@ router.post("/", (req, res) => {
     //   //   responseSent = true;
     //   // }
     // }
-    else {
+    // else {
 
       tablero.actualizarTablero(modifiedChessboardState);
       
@@ -702,7 +702,7 @@ router.post("/", (req, res) => {
       }
     }
     
-  }
+  // }
 
     
 });
